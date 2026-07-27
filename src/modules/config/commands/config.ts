@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, PermissionFlagsBits, SlashCommandBuilder, ChannelType } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, PermissionFlagsBits, SlashCommandBuilder, ChannelType, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } from "discord.js";
 import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
@@ -24,18 +24,6 @@ const command: Command = {
     .setNameLocalizations({ fr: "langue" })
         .setDescription("Change the server language")
     .setDescriptionLocalizations({ fr: "Changer la langue du serveur" })
-        .addStringOption((option) =>
-          option
-            .setName("lang")
-    .setNameLocalizations({ fr: "langue" })
-            .setDescription("The language to set")
-    .setDescriptionLocalizations({ fr: "La langue à définir" })
-            .setRequired(true)
-            .addChoices(
-              { name: "English (en)", value: "en" },
-              { name: "Français (fr)", value: "fr" }
-            )
-        )
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -123,16 +111,45 @@ const command: Command = {
       await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     } 
     else if (subcommand === "language") {
-      const newLang = interaction.options.getString("lang", true) as "en" | "fr";
-      await GuildConfigService.setLanguage(interaction.guildId, newLang);
-      
-      const successMsg = I18nService.translate("common:CONFIG_LANG_SUCCESS", { 
-        lng: newLang, 
-        lang: newLang === "fr" ? "Français" : "English" 
-      });
+      const embed = EmbedUtils.base({
+        title: "🌐 Language / Langue",
+        color: "#3498DB",
+        user: interaction.user
+      }).setDescription(currentLang === "fr" ? "Veuillez sélectionner la langue du serveur ci-dessous." : "Please select the server language below.");
 
-      const embed = EmbedUtils.success(successMsg, "✅ Configuration Updated", interaction.user);
-      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+      const select = new StringSelectMenuBuilder()
+        .setCustomId("config_lang_select")
+        .setPlaceholder(currentLang === "fr" ? "Choisissez une langue..." : "Choose a language...")
+        .addOptions([
+          { label: "English 🇬🇧", value: "en" },
+          { label: "Français 🇫🇷", value: "fr" }
+        ]);
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+      const response = await interaction.reply({ embeds: [embed], components: [row], flags: MessageFlags.Ephemeral });
+
+      try {
+        const confirmation = await response.awaitMessageComponent({
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 60000,
+          componentType: ComponentType.StringSelect
+        });
+
+        const newLang = confirmation.values[0] as "en" | "fr";
+        await GuildConfigService.setLanguage(interaction.guildId, newLang);
+        
+        const successMsg = I18nService.translate("common:CONFIG_LANG_SUCCESS", { 
+          lng: newLang, 
+          lang: newLang === "fr" ? "Français" : "English" 
+        });
+
+        const successEmbed = EmbedUtils.success(successMsg, "✅ Configuration Updated", interaction.user);
+        await confirmation.update({ embeds: [successEmbed], components: [] });
+      } catch (e) {
+        const timeoutEmbed = EmbedUtils.warn(currentLang === "fr" ? "Temps écoulé." : "Timeout.", "⏳ Timeout", interaction.user);
+        await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
+      }
     }
     else if (subcommand === "modlog") {
       const channel = interaction.options.getChannel("channel");

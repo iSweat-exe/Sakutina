@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } from "discord.js";
 import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
@@ -23,16 +23,7 @@ const command: Command = {
         .setName("join")
     .setNameLocalizations({ fr: "rejoindre" })
         .setDescription("Join a job")
-    .setDescriptionLocalizations({ fr: "Rejoindre un métier" })
-        .addStringOption(option => 
-          option
-            .setName("job")
-    .setNameLocalizations({ fr: "metier" })
-            .setDescription("The ID of the job")
-    .setDescriptionLocalizations({ fr: "L'ID du métier" })
-            .setRequired(true)
-            .addChoices(...AVAILABLE_JOBS.map(j => ({ name: j.title, value: j.id })))
-        )
+        .setDescriptionLocalizations({ fr: "Rejoindre un métier" })
     )
     .addSubcommand(subcommand =>
       subcommand
@@ -78,12 +69,53 @@ const command: Command = {
         await interaction.reply({ embeds: [embed] });
       } 
       else if (subcommand === "join") {
-        const jobId = interaction.options.getString("job", true);
-        const job = await WorkService.joinJob(interaction.user.id, jobId);
-        
-        const msg = I18nService.translate("common:WORK_JOIN_SUCCESS", { lng: lang, job: job.title });
-        const embed = EmbedUtils.success(msg, "✅ Job Joined", interaction.user);
-        await interaction.reply({ embeds: [embed] });
+        const stats = await WorkService.getStats(interaction.user.id);
+        const embed = EmbedUtils.base({
+          title: "🏢 Job Application",
+          color: "#3498DB",
+          user: interaction.user
+        }).setDescription(lang === "fr" ? "Veuillez sélectionner le métier que vous souhaitez rejoindre ci-dessous." : "Please select the job you wish to join below.");
+
+        const select = new StringSelectMenuBuilder()
+          .setCustomId("work_join_select")
+          .setPlaceholder(lang === "fr" ? "Choisissez un métier..." : "Choose a job...")
+          .addOptions(AVAILABLE_JOBS.map(j => ({
+            label: j.title,
+            description: `Salary: ${j.salaryMin}-${j.salaryMax} 🪙 | Req Exp: ${j.minExperience} 🌟`,
+            value: j.id
+          })));
+
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+
+        const response = await interaction.reply({ embeds: [embed], components: [row] });
+
+        try {
+          const confirmation = await response.awaitMessageComponent({
+            filter: (i) => i.user.id === interaction.user.id,
+            time: 60000,
+            componentType: ComponentType.StringSelect
+          });
+
+          const jobId = confirmation.values[0]!;
+          
+          try {
+            const job = await WorkService.joinJob(interaction.user.id, jobId);
+            const msg = I18nService.translate("common:WORK_JOIN_SUCCESS", { lng: lang, job: job!.title });
+            const successEmbed = EmbedUtils.success(msg, "✅ Job Joined", interaction.user);
+            await confirmation.update({ embeds: [successEmbed], components: [] });
+          } catch (err: any) {
+            let errorMsg = I18nService.translate("common:ERROR_GENERIC", { lng: lang });
+            if (err.message === "ALREADY_HAVE_JOB") errorMsg = I18nService.translate("common:WORK_ERR_ALREADY", { lng: lang });
+            else if (err.message === "INSUFFICIENT_EXPERIENCE") errorMsg = I18nService.translate("common:WORK_ERR_EXP", { lng: lang });
+            else if (err.message === "JOB_NOT_FOUND") errorMsg = I18nService.translate("common:WORK_ERR_NOT_FOUND", { lng: lang });
+            
+            const errEmbed = EmbedUtils.error(errorMsg, "❌ Error", interaction.user);
+            await confirmation.update({ embeds: [errEmbed], components: [] });
+          }
+        } catch (e) {
+          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Temps écoulé pour choisir un métier." : "You took too long to select a job.", "⏳ Timeout", interaction.user);
+          await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
+        }
       } 
       else if (subcommand === "leave") {
         await WorkService.leaveJob(interaction.user.id);

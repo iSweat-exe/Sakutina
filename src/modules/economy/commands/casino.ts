@@ -34,18 +34,6 @@ const command: Command = {
     .setNameLocalizations({ fr: "pileouface" })
         .setDescription("Bet on heads or tails")
     .setDescriptionLocalizations({ fr: "Parier sur pile ou face" })
-        .addStringOption(option => 
-          option
-            .setName("choice")
-    .setNameLocalizations({ fr: "choix" })
-            .setDescription("Heads or tails")
-    .setDescriptionLocalizations({ fr: "Pile ou face" })
-            .setRequired(true)
-            .addChoices(
-              { name: "Heads", value: "heads" },
-              { name: "Tails", value: "tails" }
-            )
-        )
         .addIntegerOption(option => 
           option
             .setName("bet")
@@ -108,19 +96,65 @@ const command: Command = {
         }
       } 
       else if (subcommand === "coinflip") {
-        const choice = interaction.options.getString("choice", true) as "heads" | "tails";
-        const result = await CasinoService.coinflip(interaction.user.id, bet, choice);
-        
-        const localizedResult = I18nService.translate(`common:CASINO_COIN_${result.result.toUpperCase()}`, { lng: lang });
-        
-        if (result.win) {
-          const msg = I18nService.translate("common:CASINO_COIN_WIN", { lng: lang, bet, result: localizedResult, won: result.amount });
-          const embed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
-          await interaction.reply({ embeds: [embed] });
-        } else {
-          const msg = I18nService.translate("common:CASINO_COIN_LOSE", { lng: lang, bet, result: localizedResult });
-          const embed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
-          await interaction.reply({ embeds: [embed] });
+        const balanceData = await EconomyService.getBalance(interaction.user.id);
+        if (balanceData.balance < bet) {
+          throw new Error("INSUFFICIENT_FUNDS");
+        }
+
+        const embed = EmbedUtils.base({
+          title: "🪙 Coinflip",
+          color: "#F1C40F",
+          user: interaction.user
+        }).setDescription(lang === "fr" ? `Pile ou Face ? Mise : **${bet} 🪙**` : `Heads or Tails? Bet: **${bet} 🪙**`);
+
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder().setCustomId("coin_heads").setLabel(lang === "fr" ? "Face 👱" : "Heads 👱").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("coin_tails").setLabel(lang === "fr" ? "Pile 🦅" : "Tails 🦅").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("coin_cancel").setLabel(lang === "fr" ? "Annuler ❌" : "Cancel ❌").setStyle(ButtonStyle.Danger)
+        );
+
+        const response = await interaction.reply({ embeds: [embed], components: [row] });
+
+        try {
+          const confirmation = await response.awaitMessageComponent({
+            filter: (i) => i.user.id === interaction.user.id,
+            time: 60000,
+            componentType: ComponentType.Button
+          });
+
+          if (confirmation.customId === "coin_cancel") {
+            const cancelEmbed = EmbedUtils.warn(lang === "fr" ? "Partie annulée." : "Game cancelled.", "⚠️ Cancelled", interaction.user);
+            await confirmation.update({ embeds: [cancelEmbed], components: [] });
+            return;
+          }
+
+          const choice = confirmation.customId.replace("coin_", "") as "heads" | "tails";
+          
+          try {
+            const result = await CasinoService.coinflip(interaction.user.id, bet, choice);
+            const localizedResult = I18nService.translate(`common:CASINO_COIN_${result.result.toUpperCase()}`, { lng: lang });
+            
+            if (result.win) {
+              const msg = I18nService.translate("common:CASINO_COIN_WIN", { lng: lang, bet, result: localizedResult, won: result.amount });
+              const embedWin = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+              await confirmation.update({ embeds: [embedWin], components: [] });
+            } else {
+              const msg = I18nService.translate("common:CASINO_COIN_LOSE", { lng: lang, bet, result: localizedResult });
+              const embedLose = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+              await confirmation.update({ embeds: [embedLose], components: [] });
+            }
+          } catch (err: any) {
+            if (err.message === "INSUFFICIENT_FUNDS") {
+              const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
+              const errEmbed = EmbedUtils.error(msg, "❌ Insufficient Funds", interaction.user);
+              await confirmation.update({ embeds: [errEmbed], components: [] });
+            } else {
+              throw err;
+            }
+          }
+        } catch (e) {
+          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Le temps est écoulé." : "You took too long to choose.", "⏳ Timeout", interaction.user);
+          await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
         }
       }
       else if (subcommand === "rps") {
