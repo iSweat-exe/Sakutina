@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import { MessageFlags, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import type { Command } from "../../../types/Command.js";
 import { env } from "../../../config/env.js";
 import { I18nService } from "../../../services/I18nService.js";
@@ -57,7 +57,7 @@ const command: Command = {
     if (!env.DEVELOPER_ID.includes(interaction.user.id)) {
       await interaction.reply({ 
         content: I18nService.translate("common:DEV_UNAUTHORIZED", { lng: lang }), 
-        ephemeral: true 
+        flags: MessageFlags.Ephemeral 
       });
       return;
     }
@@ -65,7 +65,7 @@ const command: Command = {
     const subcommand = interaction.options.getSubcommand();
 
     if (subcommand === "eval") {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const code = interaction.options.getString("code", true);
       
       try {
@@ -98,7 +98,7 @@ const command: Command = {
       }
     }
     else if (subcommand === "sql") {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const query = interaction.options.getString("query", true);
 
       try {
@@ -125,7 +125,7 @@ const command: Command = {
       }
     }
     else if (subcommand === "servers") {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       
       const guilds = interaction.client.guilds.cache;
       let desc = `Bot is in **${guilds.size}** servers:\n\n`;
@@ -168,17 +168,17 @@ const command: Command = {
           { name: "💻 CPU Cores", value: `${os.cpus().length} threads`, inline: true }
         );
 
-      await interaction.reply({ embeds: [embed], ephemeral: true });
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
     else if (subcommand === "cleardb") {
       const confirm = interaction.options.getBoolean("confirm", true);
       
       if (!confirm) {
-        await interaction.reply({ content: I18nService.translate("common:DEV_CLEARDB_CANCELLED", { lng: lang }), ephemeral: true });
+        await interaction.reply({ content: I18nService.translate("common:DEV_CLEARDB_CANCELLED", { lng: lang }), flags: MessageFlags.Ephemeral });
         return;
       }
 
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
       try {
         await db.execute(sql`TRUNCATE TABLE users, guilds CASCADE;`);
@@ -188,7 +188,7 @@ const command: Command = {
       }
     }
     else if (subcommand === "deploy") {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       
       try {
         const { stdout, stderr } = await execAsync("bun run deploy");

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { MessageFlags, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
@@ -21,7 +21,7 @@ const command: Command = {
     if (targetUser.bot) {
       await interaction.reply({ 
         content: I18nService.translate("common:PROFILE_BOT_ERROR", { lng: lang }), 
-        ephemeral: true 
+        flags: MessageFlags.Ephemeral 
       });
       return;
     }
