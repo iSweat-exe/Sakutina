@@ -24,7 +24,7 @@ const command: Command = {
     const targetUser = interaction.options.getUser("user") || interaction.user;
 
     if (targetUser.bot) {
-      const embed = EmbedUtils.error(I18nService.translate("common:PROFILE_BOT_ERROR", { lng: lang }), "❌ Error", interaction.user);
+      const embed = EmbedUtils.error(I18nService.translate("common:PROFILE_BOT_ERROR", { lng: lang }), "Error", interaction.user);
       await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
@@ -60,17 +60,17 @@ const command: Command = {
       .addFields(
         { 
           name: `👤 ${generalHeader}`, 
-          value: `**${levelLabel}:** ${profile.level}\n**${xpLabel}:** ${profile.experience} 🌟\n**Joined:** ${joinedStr}`, 
+          value: `**${levelLabel}:** ${profile.level}\n**${xpLabel}:** ${profile.experience}\n**Joined:** ${joinedStr}`, 
           inline: false 
         },
         { 
-          name: `💰 ${wealthHeader}`, 
-          value: `**${walletLabel}:** ${profile.economy.balance} 🪙\n**${bankLabel}:** ${profile.economy.bank} 🏦\n**${totalLabel}:** ${profile.economy.total} 💸`, 
+          name: `${wealthHeader}`, 
+          value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank} 🏦\n**${totalLabel}:** ${profile.economy.total} 💸`, 
           inline: true 
         },
         { 
           name: `💼 ${workHeader}`, 
-          value: `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone} 📋`, 
+          value: `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}`, 
           inline: true 
         },
         { 

@@ -39,28 +39,28 @@ export class EmbedUtils {
   /**
    * Creates a success embed (Green)
    */
-  static success(description: string, title: string = "✅ Success", user?: User): EmbedBuilder {
+  static success(description: string, title: string = "Success", user?: User): EmbedBuilder {
     return this.base({ title, description, color: EmbedColors.Success, user });
   }
 
   /**
    * Creates an error embed (Red)
    */
-  static error(description: string, title: string = "❌ Error", user?: User): EmbedBuilder {
+  static error(description: string, title: string = "Error", user?: User): EmbedBuilder {
     return this.base({ title, description, color: EmbedColors.Error, user });
   }
 
   /**
    * Creates a warning embed (Yellow)
    */
-  static warn(description: string, title: string = "⚠️ Warning", user?: User): EmbedBuilder {
+  static warn(description: string, title: string = "Warning", user?: User): EmbedBuilder {
     return this.base({ title, description, color: EmbedColors.Warning, user });
   }
 
   /**
    * Creates an info embed (Blue)
    */
-  static info(description: string, title: string = "ℹ️ Information", user?: User): EmbedBuilder {
+  static info(description: string, title: string = "Information", user?: User): EmbedBuilder {
     return this.base({ title, description, color: EmbedColors.Info, user });
   }
 }

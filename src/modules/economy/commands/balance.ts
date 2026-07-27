@@ -36,9 +36,9 @@ const command: Command = {
       user: interaction.user
     })
       .addFields(
-        { name: walletLabel, value: `${balance} 🪙`, inline: true },
+        { name: walletLabel, value: `${balance}`, inline: true },
         { name: bankLabel, value: `${bank} 🏦`, inline: true },
-        { name: totalLabel, value: `${balance + bank} 💰`, inline: true }
+        { name: totalLabel, value: `${balance + bank} `, inline: true }
       )
       .setThumbnail(targetUser.displayAvatarURL());
 

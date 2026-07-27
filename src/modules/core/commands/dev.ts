@@ -76,7 +76,7 @@ const command: Command = {
 
     // Security check: ONLY DEVELOPERS CAN USE THIS COMMAND
     if (!env.DEVELOPER_ID.includes(interaction.user.id)) {
-      const embed = EmbedUtils.error(I18nService.translate("common:DEV_UNAUTHORIZED", { lng: lang }), "❌ Unauthorized", interaction.user);
+      const embed = EmbedUtils.error(I18nService.translate("common:DEV_UNAUTHORIZED", { lng: lang }), "Unauthorized", interaction.user);
       await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
@@ -109,7 +109,7 @@ const command: Command = {
         await interaction.editReply({ embeds: [embed] });
       } catch (error: any) {
         const embed = new EmbedBuilder()
-          .setTitle("❌ Eval Error")
+          .setTitle("Eval Error")
           .setDescription(`\`\`\`js\n${error.message}\n\`\`\``)
           .setColor("#E74C3C");
 
@@ -136,7 +136,7 @@ const command: Command = {
         await interaction.editReply({ embeds: [embed] });
       } catch (error: any) {
         const embed = new EmbedBuilder()
-          .setTitle("❌ SQL Error")
+          .setTitle("SQL Error")
           .setDescription(`\`\`\`json\n${error.message}\n\`\`\``)
           .setColor("#E74C3C");
 
@@ -156,7 +156,7 @@ const command: Command = {
       if (desc.length > 4000) desc = desc.substring(0, 3995) + "...";
 
       const embed = new EmbedBuilder()
-        .setTitle("🌐 Servers List")
+        .setTitle("Servers List")
         .setDescription(desc)
         .setColor("#9B59B6");
 
@@ -193,7 +193,7 @@ const command: Command = {
       const confirm = interaction.options.getBoolean("confirm", true);
       
       if (!confirm) {
-        const embed = EmbedUtils.warn(I18nService.translate("common:DEV_CLEARDB_CANCELLED", { lng: lang }), "⚠️ Action Cancelled", interaction.user);
+        const embed = EmbedUtils.warn(I18nService.translate("common:DEV_CLEARDB_CANCELLED", { lng: lang }), "Action Cancelled", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         return;
       }
@@ -202,10 +202,10 @@ const command: Command = {
 
       try {
         await db.execute(sql`TRUNCATE TABLE users, guilds CASCADE;`);
-        const embed = EmbedUtils.success(I18nService.translate("common:DEV_CLEARDB_SUCCESS", { lng: lang }), "✅ Database Cleared", interaction.user);
+        const embed = EmbedUtils.success(I18nService.translate("common:DEV_CLEARDB_SUCCESS", { lng: lang }), "Database Cleared", interaction.user);
         await interaction.editReply({ embeds: [embed] });
       } catch (error: any) {
-        const embed = EmbedUtils.error(`Error clearing DB: ${error.message}`, "❌ Database Error", interaction.user);
+        const embed = EmbedUtils.error(`Error clearing DB: ${error.message}`, "Database Error", interaction.user);
         await interaction.editReply({ embeds: [embed] });
       }
     }
@@ -224,7 +224,7 @@ const command: Command = {
 
         await interaction.editReply({ embeds: [embed] });
       } catch (error: any) {
-        const embed = EmbedUtils.error(`Deploy failed: \`\`\`bash\n${error.message}\n\`\`\``, "❌ Deploy Error", interaction.user);
+        const embed = EmbedUtils.error(`Deploy failed: \`\`\`bash\n${error.message}\n\`\`\``, "Deploy Error", interaction.user);
         await interaction.editReply({ embeds: [embed] });
       }
     }

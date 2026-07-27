@@ -87,11 +87,11 @@ const command: Command = {
         
         if (result.win) {
           const msg = I18nService.translate("common:CASINO_DON_WIN", { lng: lang, bet, won: result.amount });
-          const embed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+          const embed = EmbedUtils.success(msg, "You Won!", interaction.user);
           await interaction.reply({ embeds: [embed] });
         } else {
           const msg = I18nService.translate("common:CASINO_DON_LOSE", { lng: lang, bet });
-          const embed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+          const embed = EmbedUtils.error(msg, "You Lost", interaction.user);
           await interaction.reply({ embeds: [embed] });
         }
       } 
@@ -102,14 +102,14 @@ const command: Command = {
         }
 
         const embed = EmbedUtils.base({
-          title: "🪙 Coinflip",
+          title: " Coinflip",
           color: "#F1C40F",
           user: interaction.user
-        }).setDescription(lang === "fr" ? `Pile ou Face ? Mise : **${bet} 🪙**` : `Heads or Tails? Bet: **${bet} 🪙**`);
+        }).setDescription(lang === "fr" ? `Pile ou Face ? Mise : **${bet}**` : `Heads or Tails? Bet: **${bet}**`);
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setCustomId("coin_heads").setLabel(lang === "fr" ? "Face 👱" : "Heads 👱").setStyle(ButtonStyle.Primary),
-          new ButtonBuilder().setCustomId("coin_tails").setLabel(lang === "fr" ? "Pile 🦅" : "Tails 🦅").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("coin_heads").setLabel(lang === "fr" ? "Face" : "Heads").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("coin_tails").setLabel(lang === "fr" ? "Pile" : "Tails").setStyle(ButtonStyle.Primary),
           new ButtonBuilder().setCustomId("coin_cancel").setLabel(lang === "fr" ? "Annuler ❌" : "Cancel ❌").setStyle(ButtonStyle.Danger)
         );
 
@@ -123,7 +123,7 @@ const command: Command = {
           });
 
           if (confirmation.customId === "coin_cancel") {
-            const cancelEmbed = EmbedUtils.warn(lang === "fr" ? "Partie annulée." : "Game cancelled.", "⚠️ Cancelled", interaction.user);
+            const cancelEmbed = EmbedUtils.warn(lang === "fr" ? "Partie annulée." : "Game cancelled.", "Cancelled", interaction.user);
             await confirmation.update({ embeds: [cancelEmbed], components: [] });
             return;
           }
@@ -136,24 +136,24 @@ const command: Command = {
             
             if (result.win) {
               const msg = I18nService.translate("common:CASINO_COIN_WIN", { lng: lang, bet, result: localizedResult, won: result.amount });
-              const embedWin = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+              const embedWin = EmbedUtils.success(msg, "You Won!", interaction.user);
               await confirmation.update({ embeds: [embedWin], components: [] });
             } else {
               const msg = I18nService.translate("common:CASINO_COIN_LOSE", { lng: lang, bet, result: localizedResult });
-              const embedLose = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+              const embedLose = EmbedUtils.error(msg, "You Lost", interaction.user);
               await confirmation.update({ embeds: [embedLose], components: [] });
             }
           } catch (err: any) {
             if (err.message === "INSUFFICIENT_FUNDS") {
               const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
-              const errEmbed = EmbedUtils.error(msg, "❌ Insufficient Funds", interaction.user);
+              const errEmbed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
               await confirmation.update({ embeds: [errEmbed], components: [] });
             } else {
               throw err;
             }
           }
         } catch (e) {
-          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Le temps est écoulé." : "You took too long to choose.", "⏳ Timeout", interaction.user);
+          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Le temps est écoulé." : "You took too long to choose.", "Timeout", interaction.user);
           await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
         }
       }
@@ -165,15 +165,15 @@ const command: Command = {
         }
 
         const embed = EmbedUtils.base({
-          title: "🪨📄✂️ Rock Paper Scissors",
+          title: " Rock Paper Scissors",
           color: "#3498DB",
           user: interaction.user
-        }).setDescription(lang === "fr" ? `Choisissez votre action pour une mise de **${bet} 🪙** ! ` : `Choose your move for a bet of **${bet} 🪙** !`);
+        }).setDescription(lang === "fr" ? `Choisissez votre action pour une mise de **${bet}** ! ` : `Choose your move for a bet of **${bet}** !`);
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setCustomId("rps_rock").setLabel(lang === "fr" ? "Pierre 🪨" : "Rock 🪨").setStyle(ButtonStyle.Primary),
-          new ButtonBuilder().setCustomId("rps_paper").setLabel(lang === "fr" ? "Papier 📄" : "Paper 📄").setStyle(ButtonStyle.Primary),
-          new ButtonBuilder().setCustomId("rps_scissors").setLabel(lang === "fr" ? "Ciseaux ✂️" : "Scissors ✂️").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("rps_rock").setLabel(lang === "fr" ? "Pierre " : "Rock ").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("rps_paper").setLabel(lang === "fr" ? "Papier " : "Paper ").setStyle(ButtonStyle.Primary),
+          new ButtonBuilder().setCustomId("rps_scissors").setLabel(lang === "fr" ? "Ciseaux " : "Scissors ").setStyle(ButtonStyle.Primary),
           new ButtonBuilder().setCustomId("rps_cancel").setLabel(lang === "fr" ? "Annuler ❌" : "Cancel ❌").setStyle(ButtonStyle.Danger)
         );
 
@@ -187,7 +187,7 @@ const command: Command = {
           });
 
           if (confirmation.customId === "rps_cancel") {
-            const cancelEmbed = EmbedUtils.warn(lang === "fr" ? "Partie annulée." : "Game cancelled.", "⚠️ Cancelled", interaction.user);
+            const cancelEmbed = EmbedUtils.warn(lang === "fr" ? "Partie annulée." : "Game cancelled.", "Cancelled", interaction.user);
             await confirmation.update({ embeds: [cancelEmbed], components: [] });
             return;
           }
@@ -204,27 +204,27 @@ const command: Command = {
             let finalEmbed;
             if (result.state === "win") {
               msg = I18nService.translate("common:CASINO_RPS_WIN", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc, won: result.returnAmount });
-              finalEmbed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+              finalEmbed = EmbedUtils.success(msg, "You Won!", interaction.user);
             } else if (result.state === "lose") {
               msg = I18nService.translate("common:CASINO_RPS_LOSE", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc, bet });
-              finalEmbed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+              finalEmbed = EmbedUtils.error(msg, "You Lost", interaction.user);
             } else {
               msg = I18nService.translate("common:CASINO_RPS_TIE", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc });
-              finalEmbed = EmbedUtils.info(msg, "🤝 It's a Tie!", interaction.user);
+              finalEmbed = EmbedUtils.info(msg, "It's a Tie!", interaction.user);
             }
             
             await confirmation.update({ embeds: [finalEmbed], components: [] });
           } catch (err: any) {
             if (err.message === "INSUFFICIENT_FUNDS") {
               const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
-              const errEmbed = EmbedUtils.error(msg, "❌ Insufficient Funds", interaction.user);
+              const errEmbed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
               await confirmation.update({ embeds: [errEmbed], components: [] });
             } else {
               throw err;
             }
           }
         } catch (e) {
-          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Le temps est écoulé." : "You took too long to choose.", "⏳ Timeout", interaction.user);
+          const timeoutEmbed = EmbedUtils.warn(lang === "fr" ? "Le temps est écoulé." : "You took too long to choose.", "Timeout", interaction.user);
           await interaction.editReply({ embeds: [timeoutEmbed], components: [] });
         }
       }
@@ -232,7 +232,7 @@ const command: Command = {
         const result = await CasinoService.slots(interaction.user.id, bet);
         
         const embed = EmbedUtils.base({
-          title: "🎰 SLOTS 🎰",
+          title: "SLOTS",
           color: result.win ? "#2ECC71" : "#E74C3C",
           user: interaction.user
         })
@@ -249,11 +249,11 @@ ${result.win
     } catch (error: any) {
       if (error.message === "INSUFFICIENT_FUNDS") {
         const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
-        const embed = EmbedUtils.error(msg, "❌ Insufficient Funds", interaction.user);
+        const embed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } else {
         const msg = I18nService.translate("common:ERROR_GENERIC", { lng: lang });
-        const embed = EmbedUtils.error(msg, "❌ Error", interaction.user);
+        const embed = EmbedUtils.error(msg, "Error", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }

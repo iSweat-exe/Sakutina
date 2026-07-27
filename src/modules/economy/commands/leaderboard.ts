@@ -34,7 +34,7 @@ const command: Command = {
       let description = "";
       for (let i = 0; i < topUsers.length; i++) {
         const u = topUsers[i]!;
-        description += `**${i + 1}.** <@${u.discordId}> - ${u.total} 💰\n`;
+        description += `**${i + 1}.** <@${u.discordId}> - ${u.total} \n`;
       }
       embed.setDescription(description);
     }
