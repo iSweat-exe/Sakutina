@@ -1,0 +1,42 @@
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import type { Command } from "../../../types/Command.js";
+import { I18nService } from "../../../services/I18nService.js";
+import { GuildConfigService } from "../../../services/GuildConfigService.js";
+import { EconomyService } from "../../../services/EconomyService.js";
+
+const command: Command = {
+  data: new SlashCommandBuilder()
+    .setName("balance")
+    .setDescription("Check your or someone else's balance")
+    .addUserOption(option => 
+      option
+        .setName("user")
+        .setDescription("The user to check the balance of")
+        .setRequired(false)
+    ),
+  async execute(interaction: ChatInputCommandInteraction) {
+    const lang = await GuildConfigService.getGuildLanguage(interaction.guildId);
+    const targetUser = interaction.options.getUser("user") || interaction.user;
+    
+    const { balance, bank } = await EconomyService.getBalance(targetUser.id);
+
+    const title = I18nService.translate("common:BALANCE_TITLE", { lng: lang, user: targetUser.username });
+    const walletLabel = I18nService.translate("common:BALANCE_WALLET", { lng: lang });
+    const bankLabel = I18nService.translate("common:BALANCE_BANK", { lng: lang });
+    const totalLabel = I18nService.translate("common:BALANCE_TOTAL", { lng: lang });
+
+    const embed = new EmbedBuilder()
+      .setTitle(title)
+      .setColor("#FFD700")
+      .addFields(
+        { name: walletLabel, value: `${balance} 🪙`, inline: true },
+        { name: bankLabel, value: `${bank} 🏦`, inline: true },
+        { name: totalLabel, value: `${balance + bank} 💰`, inline: true }
+      )
+      .setThumbnail(targetUser.displayAvatarURL());
+
+    await interaction.reply({ embeds: [embed] });
+  },
+};
+
+export default command;

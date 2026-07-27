@@ -4,6 +4,12 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   discordId: text("discord_id").notNull().unique(),
   experience: integer("experience").default(0).notNull(),
+  balance: integer("balance").default(0).notNull(),
+  bank: integer("bank").default(0).notNull(),
+  dailyLastClaim: timestamp("daily_last_claim"),
+  currentJob: text("current_job"),
+  workShiftsDone: integer("work_shifts_done").default(0).notNull(),
+  workLastShift: timestamp("work_last_shift"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

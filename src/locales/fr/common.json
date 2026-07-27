@@ -4,5 +4,50 @@
   "CONFIG_VIEW_DESC": "Voici les paramètres actuels de ce serveur :",
   "CONFIG_VIEW_LANG": "Langue",
   "CONFIG_LANG_SUCCESS": "La langue du serveur a été définie sur : **{{lang}}**",
-  "CONFIG_NO_PERM": "❌ Vous devez avoir la permission `Gérer le serveur` pour utiliser cette commande."
+  "CONFIG_NO_PERM": "❌ Vous devez avoir la permission `Gérer le serveur` pour utiliser cette commande.",
+
+  "INSUFFICIENT_FUNDS": "❌ Vous n'avez pas assez de pièces pour faire ça.",
+  "ERROR_GENERIC": "❌ Une erreur inattendue s'est produite.",
+  
+  "DAILY_SUCCESS": "✅ Vous avez réclamé votre récompense journalière de **{{amount}} 🪙** ! Votre nouveau solde est de **{{balance}} 🪙**.",
+  "DAILY_COOLDOWN": "⏳ Vous devez attendre **{{hours}} heures** avant de pouvoir réclamer votre prochaine récompense.",
+  
+  "BALANCE_TITLE": "💰 Solde de {{user}}",
+  "BALANCE_WALLET": "Portefeuille",
+  "BALANCE_BANK": "Banque",
+  "BALANCE_TOTAL": "Richesse Totale",
+  
+  "PAY_BOT_ERROR": "❌ Vous ne pouvez pas payer un bot.",
+  "PAY_SELF_ERROR": "❌ Vous ne pouvez pas vous payer vous-même.",
+  "PAY_SUCCESS": "✅ Vous avez payé **{{amount}} 🪙** à {{user}}.",
+  
+  "LEADERBOARD_TITLE": "🏆 Classement des Joueurs les Plus Riches",
+  "LEADERBOARD_EMPTY": "Aucun joueur trouvé dans l'économie pour le moment.",
+  
+  "WORK_LIST_TITLE": "📋 Liste des Métiers",
+  "WORK_JOIN_SUCCESS": "✅ Vous avez été embauché en tant que **{{job}}** !",
+  "WORK_LEAVE_SUCCESS": "✅ Vous avez démissionné de votre travail.",
+  "WORK_STATS_TITLE": "📊 Vos Statistiques de Travail",
+  "WORK_SHIFT_SUCCESS": "💼 Vous avez travaillé en tant que **{{job}}** et gagné **{{salary}} 🪙** (et {{exp}} 🌟 XP) !",
+  "WORK_ERR_NOT_FOUND": "❌ Métier introuvable. Veuillez choisir un ID valide via `/work list`.",
+  "WORK_ERR_ALREADY": "❌ Vous occupez déjà ce métier.",
+  "WORK_ERR_EXP": "❌ Vous n'avez pas assez d'expérience (🌟) pour ce métier.",
+  "WORK_ERR_NO_JOB": "❌ Vous n'avez pas de métier actuellement. Utilisez `/work join` pour en trouver un.",
+  "WORK_ERR_REMOVED": "❌ Votre métier n'existe plus. Vous êtes désormais au chômage.",
+  "WORK_ERR_COOLDOWN": "⏳ Vous êtes trop fatigué. Veuillez attendre **{{seconds}} secondes** avant de travailler à nouveau.",
+
+  "CASINO_DON_WIN": "🎉 Quitte ou Double ! Vous avez gagné et doublé votre mise ! (+{{won}} 🪙)",
+  "CASINO_DON_LOSE": "💀 Quitte ou Double ! Vous avez perdu votre mise de **{{bet}} 🪙**.",
+  "CASINO_COIN_HEADS": "Pile",
+  "CASINO_COIN_TAILS": "Face",
+  "CASINO_COIN_WIN": "🪙 La pièce est tombée sur **{{result}}** ! Vous avez gagné **{{won}} 🪙** !",
+  "CASINO_COIN_LOSE": "🪙 La pièce est tombée sur **{{result}}**. Vous avez perdu votre mise de **{{bet}} 🪙**.",
+  "CASINO_RPS_ROCK": "🪨 Pierre",
+  "CASINO_RPS_PAPER": "📄 Papier",
+  "CASINO_RPS_SCISSORS": "✂️ Ciseaux",
+  "CASINO_RPS_WIN": "🎉 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous GAGNEZ **{{won}} 🪙** !",
+  "CASINO_RPS_LOSE": "💀 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous PERDEZ votre mise de **{{bet}} 🪙**.",
+  "CASINO_RPS_TIE": "🤝 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. C'est une ÉGALITÉ. Votre mise a été remboursée.",
+  "CASINO_SLOTS_WIN": "🎰 JACKPOT ! Vous avez gagné **{{won}} 🪙** !",
+  "CASINO_SLOTS_LOSE": "🎰 Vous avez perdu votre mise de **{{bet}} 🪙**. Réessayez !"
 }
