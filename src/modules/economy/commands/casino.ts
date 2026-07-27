@@ -7,15 +7,21 @@ import { CasinoService } from "../../../services/CasinoService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("casino")
+    .setNameLocalizations({ fr: "casino" })
     .setDescription("Play casino minigames")
+    .setDescriptionLocalizations({ fr: "Jouer aux mini-jeux du casino" })
     .addSubcommand(subcommand =>
       subcommand
         .setName("doubleornothing")
+    .setNameLocalizations({ fr: "quitteoudouble" })
         .setDescription("50% chance to double your bet")
+    .setDescriptionLocalizations({ fr: "50% de chance de doubler votre mise" })
         .addIntegerOption(option => 
           option
             .setName("bet")
+    .setNameLocalizations({ fr: "mise" })
             .setDescription("Amount to bet")
+    .setDescriptionLocalizations({ fr: "Montant à miser" })
             .setRequired(true)
             .setMinValue(1)
         )
@@ -23,11 +29,15 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName("coinflip")
+    .setNameLocalizations({ fr: "pileouface" })
         .setDescription("Bet on heads or tails")
+    .setDescriptionLocalizations({ fr: "Parier sur pile ou face" })
         .addStringOption(option => 
           option
             .setName("choice")
+    .setNameLocalizations({ fr: "choix" })
             .setDescription("Heads or tails")
+    .setDescriptionLocalizations({ fr: "Pile ou face" })
             .setRequired(true)
             .addChoices(
               { name: "Heads", value: "heads" },
@@ -37,7 +47,9 @@ const command: Command = {
         .addIntegerOption(option => 
           option
             .setName("bet")
+    .setNameLocalizations({ fr: "mise" })
             .setDescription("Amount to bet")
+    .setDescriptionLocalizations({ fr: "Montant à miser" })
             .setRequired(true)
             .setMinValue(1)
         )
@@ -45,11 +57,15 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName("rps")
+    .setNameLocalizations({ fr: "pfc" })
         .setDescription("Rock Paper Scissors against the bot")
+    .setDescriptionLocalizations({ fr: "Pierre Papier Ciseaux contre le bot" })
         .addStringOption(option => 
           option
             .setName("choice")
+    .setNameLocalizations({ fr: "choix" })
             .setDescription("Rock, paper, or scissors")
+    .setDescriptionLocalizations({ fr: "Pierre, papier ou ciseaux" })
             .setRequired(true)
             .addChoices(
               { name: "Rock", value: "rock" },
@@ -60,7 +76,9 @@ const command: Command = {
         .addIntegerOption(option => 
           option
             .setName("bet")
+    .setNameLocalizations({ fr: "mise" })
             .setDescription("Amount to bet")
+    .setDescriptionLocalizations({ fr: "Montant à miser" })
             .setRequired(true)
             .setMinValue(1)
         )
@@ -68,11 +86,15 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName("slots")
+    .setNameLocalizations({ fr: "machineasous" })
         .setDescription("Play the slot machine")
+    .setDescriptionLocalizations({ fr: "Jouer à la machine à sous" })
         .addIntegerOption(option => 
           option
             .setName("bet")
+    .setNameLocalizations({ fr: "mise" })
             .setDescription("Amount to bet")
+    .setDescriptionLocalizations({ fr: "Montant à miser" })
             .setRequired(true)
             .setMinValue(1)
         )

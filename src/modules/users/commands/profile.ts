@@ -7,11 +7,15 @@ import { ProfileService } from "../../../services/ProfileService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("profile")
+    .setNameLocalizations({ fr: "profil" })
     .setDescription("View your profile and statistics")
+    .setDescriptionLocalizations({ fr: "Voir votre profil et vos statistiques" })
     .addUserOption(option => 
       option
         .setName("user")
+    .setNameLocalizations({ fr: "utilisateur" })
         .setDescription("The user to view")
+    .setDescriptionLocalizations({ fr: "L'utilisateur à voir" })
         .setRequired(false)
     ),
   async execute(interaction: ChatInputCommandInteraction) {

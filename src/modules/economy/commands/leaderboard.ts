@@ -7,7 +7,9 @@ import { EconomyService } from "../../../services/EconomyService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("leaderboard")
-    .setDescription("View the richest users"),
+    .setNameLocalizations({ fr: "classement" })
+    .setDescription("View the richest users")
+    .setDescriptionLocalizations({ fr: "Voir les utilisateurs les plus riches" }),
   async execute(interaction: ChatInputCommandInteraction) {
     const lang = await GuildConfigService.getGuildLanguage(interaction.guildId);
     

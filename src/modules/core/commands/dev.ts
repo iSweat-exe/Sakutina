@@ -14,40 +14,60 @@ const execAsync = promisify(exec);
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("dev")
+    .setNameLocalizations({ fr: "dev" })
     .setDescription("Developer commands (Restricted)")
+    .setDescriptionLocalizations({ fr: "Commandes développeur (Restreint)" })
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand(sub =>
       sub
         .setName("eval")
+    .setNameLocalizations({ fr: "evaluer" })
         .setDescription("Evaluate raw JavaScript (DANGEROUS)")
-        .addStringOption(opt => opt.setName("code").setDescription("The JS code to run").setRequired(true))
+    .setDescriptionLocalizations({ fr: "Évaluer du JavaScript brut (DANGEREUX)" })
+        .addStringOption(opt => opt.setName("code")
+    .setNameLocalizations({ fr: "code" }).setDescription("The JS code to run")
+    .setDescriptionLocalizations({ fr: "Le code JS à exécuter" }).setRequired(true))
     )
     .addSubcommand(sub =>
       sub
         .setName("sql")
+    .setNameLocalizations({ fr: "sql" })
         .setDescription("Execute raw SQL queries (DANGEROUS)")
-        .addStringOption(opt => opt.setName("query").setDescription("The SQL query to run").setRequired(true))
+    .setDescriptionLocalizations({ fr: "Exécuter des requêtes SQL brutes (DANGEREUX)" })
+        .addStringOption(opt => opt.setName("query")
+    .setNameLocalizations({ fr: "requete" }).setDescription("The SQL query to run")
+    .setDescriptionLocalizations({ fr: "La requête SQL à exécuter" }).setRequired(true))
     )
     .addSubcommand(sub =>
       sub
         .setName("servers")
+    .setNameLocalizations({ fr: "serveurs" })
         .setDescription("List all servers the bot is in")
+    .setDescriptionLocalizations({ fr: "Lister tous les serveurs où le bot est présent" })
     )
     .addSubcommand(sub =>
       sub
         .setName("stats")
+    .setNameLocalizations({ fr: "statistiques" })
         .setDescription("Show bot performance and system stats")
+    .setDescriptionLocalizations({ fr: "Afficher les performances du bot et du système" })
     )
     .addSubcommand(sub =>
       sub
         .setName("cleardb")
+    .setNameLocalizations({ fr: "viderbdd" })
         .setDescription("Clear all tables in the database (DANGEROUS)")
-        .addBooleanOption(opt => opt.setName("confirm").setDescription("Confirm deletion").setRequired(true))
+    .setDescriptionLocalizations({ fr: "Vider toutes les tables de la base de données (DANGEREUX)" })
+        .addBooleanOption(opt => opt.setName("confirm")
+    .setNameLocalizations({ fr: "confirmer" }).setDescription("Confirm deletion")
+    .setDescriptionLocalizations({ fr: "Confirmer la suppression" }).setRequired(true))
     )
     .addSubcommand(sub =>
       sub
         .setName("deploy")
+    .setNameLocalizations({ fr: "deployer" })
         .setDescription("Deploy slash commands to Discord via sub-process")
+    .setDescriptionLocalizations({ fr: "Déployer les slash commands sur Discord" })
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {

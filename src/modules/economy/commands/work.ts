@@ -7,20 +7,28 @@ import { AVAILABLE_JOBS, WorkService } from "../../../services/WorkService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("work")
+    .setNameLocalizations({ fr: "travail" })
     .setDescription("Work system commands")
+    .setDescriptionLocalizations({ fr: "Commandes du système de travail" })
     .addSubcommand(subcommand =>
       subcommand
         .setName("list")
+    .setNameLocalizations({ fr: "liste" })
         .setDescription("List available jobs")
+    .setDescriptionLocalizations({ fr: "Lister les métiers disponibles" })
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName("join")
+    .setNameLocalizations({ fr: "rejoindre" })
         .setDescription("Join a job")
+    .setDescriptionLocalizations({ fr: "Rejoindre un métier" })
         .addStringOption(option => 
           option
             .setName("job")
+    .setNameLocalizations({ fr: "metier" })
             .setDescription("The ID of the job")
+    .setDescriptionLocalizations({ fr: "L'ID du métier" })
             .setRequired(true)
             .addChoices(...AVAILABLE_JOBS.map(j => ({ name: j.title, value: j.id })))
         )
@@ -28,17 +36,23 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName("leave")
+    .setNameLocalizations({ fr: "quitter" })
         .setDescription("Leave your current job")
+    .setDescriptionLocalizations({ fr: "Quitter votre métier actuel" })
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName("stats")
+    .setNameLocalizations({ fr: "statistiques" })
         .setDescription("View your work statistics")
+    .setDescriptionLocalizations({ fr: "Voir vos statistiques de travail" })
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName("shift")
+    .setNameLocalizations({ fr: "service" })
         .setDescription("Work a shift to earn money")
+    .setDescriptionLocalizations({ fr: "Faire un service pour gagner de l'argent" })
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const lang = await GuildConfigService.getGuildLanguage(interaction.guildId);

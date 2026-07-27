@@ -7,11 +7,15 @@ import { EconomyService } from "../../../services/EconomyService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("balance")
+    .setNameLocalizations({ fr: "solde" })
     .setDescription("Check your or someone else's balance")
+    .setDescriptionLocalizations({ fr: "Voir votre solde ou celui de quelqu'un d'autre" })
     .addUserOption(option => 
       option
         .setName("user")
+    .setNameLocalizations({ fr: "utilisateur" })
         .setDescription("The user to check the balance of")
+    .setDescriptionLocalizations({ fr: "L'utilisateur dont vous souhaitez voir le solde" })
         .setRequired(false)
     ),
   async execute(interaction: ChatInputCommandInteraction) {

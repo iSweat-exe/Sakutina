@@ -7,17 +7,23 @@ import { EconomyService } from "../../../services/EconomyService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("pay")
+    .setNameLocalizations({ fr: "payer" })
     .setDescription("Pay another user some coins")
+    .setDescriptionLocalizations({ fr: "Payer quelques pièces à un autre utilisateur" })
     .addUserOption(option => 
       option
         .setName("user")
+    .setNameLocalizations({ fr: "utilisateur" })
         .setDescription("The user to pay")
+    .setDescriptionLocalizations({ fr: "L'utilisateur à payer" })
         .setRequired(true)
     )
     .addIntegerOption(option =>
       option
         .setName("amount")
+    .setNameLocalizations({ fr: "montant" })
         .setDescription("Amount to pay")
+    .setDescriptionLocalizations({ fr: "Montant à payer" })
         .setRequired(true)
         .setMinValue(1)
     ),

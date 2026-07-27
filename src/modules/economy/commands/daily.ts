@@ -7,7 +7,9 @@ import { EconomyService } from "../../../services/EconomyService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("daily")
-    .setDescription("Claim your daily reward"),
+    .setNameLocalizations({ fr: "journalier" })
+    .setDescription("Claim your daily reward")
+    .setDescriptionLocalizations({ fr: "Réclamer votre récompense journalière" }),
   async execute(interaction: ChatInputCommandInteraction) {
     const lang = await GuildConfigService.getGuildLanguage(interaction.guildId);
 

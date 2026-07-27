@@ -6,21 +6,29 @@ import { GuildConfigService } from "../../../services/GuildConfigService.js";
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName("config")
+    .setNameLocalizations({ fr: "config" })
     .setDescription("Manage server configuration")
+    .setDescriptionLocalizations({ fr: "Gérer la configuration du serveur" })
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("view")
+    .setNameLocalizations({ fr: "voir" })
         .setDescription("View current server configuration")
+    .setDescriptionLocalizations({ fr: "Voir la configuration actuelle du serveur" })
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("language")
+    .setNameLocalizations({ fr: "langue" })
         .setDescription("Change the server language")
+    .setDescriptionLocalizations({ fr: "Changer la langue du serveur" })
         .addStringOption((option) =>
           option
             .setName("lang")
+    .setNameLocalizations({ fr: "langue" })
             .setDescription("The language to set")
+    .setDescriptionLocalizations({ fr: "La langue à définir" })
             .setRequired(true)
             .addChoices(
               { name: "English (en)", value: "en" },
@@ -31,11 +39,15 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("modlog")
+    .setNameLocalizations({ fr: "logs_modo" })
         .setDescription("Set the moderation log channel")
+    .setDescriptionLocalizations({ fr: "Définir le salon des logs de modération" })
         .addChannelOption((option) =>
           option
             .setName("channel")
+    .setNameLocalizations({ fr: "salon" })
             .setDescription("The channel to send moderation logs to")
+    .setDescriptionLocalizations({ fr: "Le salon où envoyer les logs de modération" })
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(false) // leave empty to disable
         )
@@ -43,11 +55,15 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("maxwarns")
+    .setNameLocalizations({ fr: "max_avertissements" })
         .setDescription("Set the max warnings before auto-ban")
+    .setDescriptionLocalizations({ fr: "Définir le maximum d'avertissements avant un auto-ban" })
         .addIntegerOption((option) =>
           option
             .setName("amount")
+    .setNameLocalizations({ fr: "montant" })
             .setDescription("Number of warnings (default 3)")
+    .setDescriptionLocalizations({ fr: "Nombre d'avertissements (défaut 3)" })
             .setRequired(true)
             .setMinValue(1)
             .setMaxValue(20)
@@ -56,11 +72,15 @@ const command: Command = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("modlog_warning")
+    .setNameLocalizations({ fr: "alerte_logs_modo" })
         .setDescription("Toggle the reminder to set up a modlog channel")
+    .setDescriptionLocalizations({ fr: "Activer ou désactiver le rappel pour configurer un salon de logs" })
         .addBooleanOption((option) =>
           option
             .setName("enabled")
+    .setNameLocalizations({ fr: "active" })
             .setDescription("True to enable the warning, False to disable")
+    .setDescriptionLocalizations({ fr: "Vrai pour activer l'alerte, Faux pour la désactiver" })
             .setRequired(true)
         )
     ),
