@@ -48,6 +48,7 @@
   "CASINO_RPS_WIN": "🎉 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous GAGNEZ **{{won}} 🪙** !",
   "CASINO_RPS_LOSE": "💀 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous PERDEZ votre mise de **{{bet}} 🪙**.",
   "CASINO_RPS_TIE": "🤝 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. C'est une ÉGALITÉ. Votre mise a été remboursée.",
+  "CASINO_SLOTS_WIN": "🎰 Jackpot ! Vous avez gagné **{{won}} 🪙** !",
   "CASINO_SLOTS_LOSE": "🎰 Vous avez perdu votre mise de **{{bet}} 🪙**. Réessayez !",
 
   "PROFILE_TITLE": "📜 Profil de {{user}}",
