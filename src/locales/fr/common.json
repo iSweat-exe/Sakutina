@@ -48,6 +48,22 @@
   "CASINO_RPS_WIN": "🎉 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous GAGNEZ **{{won}} 🪙** !",
   "CASINO_RPS_LOSE": "💀 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. Vous PERDEZ votre mise de **{{bet}} 🪙**.",
   "CASINO_RPS_TIE": "🤝 J'ai choisi **{{bot}}** et vous avez choisi **{{user}}**. C'est une ÉGALITÉ. Votre mise a été remboursée.",
-  "CASINO_SLOTS_WIN": "🎰 JACKPOT ! Vous avez gagné **{{won}} 🪙** !",
-  "CASINO_SLOTS_LOSE": "🎰 Vous avez perdu votre mise de **{{bet}} 🪙**. Réessayez !"
+  "CASINO_SLOTS_LOSE": "🎰 Vous avez perdu votre mise de **{{bet}} 🪙**. Réessayez !",
+
+  "PROFILE_TITLE": "📜 Profil de {{user}}",
+  "PROFILE_BOT_ERROR": "❌ Les bots n'ont pas de profil.",
+  "PROFILE_GENERAL": "Informations",
+  "PROFILE_LEVEL": "Niveau",
+  "PROFILE_XP": "Expérience",
+  "PROFILE_WEALTH": "Richesse",
+  "PROFILE_WALLET": "Portefeuille",
+  "PROFILE_BANK": "Banque",
+  "PROFILE_TOTAL": "Richesse Totale",
+  "PROFILE_WORK": "Carrière",
+  "PROFILE_JOB": "Métier Actuel",
+  "PROFILE_SHIFTS": "Services Effectués",
+  "PROFILE_CASINO": "Stats Casino",
+  "PROFILE_GAMES": "Parties Jouées",
+  "PROFILE_WINRATE": "Taux de Victoire",
+  "PROFILE_WLR": "V/D (Ratio)"
 }

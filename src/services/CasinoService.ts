@@ -1,6 +1,23 @@
+import { eq, sql } from "drizzle-orm";
+import { db } from "../repositories/db.js";
+import { users } from "../repositories/schema.js";
 import { EconomyService } from "./EconomyService.js";
 
 export class CasinoService {
+  /**
+   * Helper to log casino stats.
+   */
+  private static async logGame(discordId: string, isWin: boolean) {
+    await db.update(users)
+      .set({
+        casinoGamesPlayed: sql`${users.casinoGamesPlayed} + 1`,
+        casinoWins: isWin ? sql`${users.casinoWins} + 1` : sql`${users.casinoWins}`,
+        casinoLosses: !isWin ? sql`${users.casinoLosses} + 1` : sql`${users.casinoLosses}`,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.discordId, discordId));
+  }
+
   /**
    * Double or Nothing game.
    * 50% chance to win double the bet, 50% chance to lose it.
@@ -12,7 +29,8 @@ export class CasinoService {
     await EconomyService.removeBalance(discordId, bet);
     
     const isWin = Math.random() >= 0.5;
-    
+    await this.logGame(discordId, isWin);
+
     if (isWin) {
       await EconomyService.addBalance(discordId, bet * 2);
       return { win: true, amount: bet * 2 };
@@ -33,6 +51,8 @@ export class CasinoService {
     const result = Math.random() >= 0.5 ? "heads" : "tails";
     const isWin = choice === result;
     
+    await this.logGame(discordId, isWin);
+
     if (isWin) {
       await EconomyService.addBalance(discordId, bet * 2);
       return { win: true, amount: bet * 2, result };
@@ -66,12 +86,17 @@ export class CasinoService {
     }
     
     if (result === "win") {
+      await this.logGame(discordId, true);
       await EconomyService.addBalance(discordId, bet * 2);
       return { state: result, botChoice, returnAmount: bet * 2 };
     } else if (result === "tie") {
+      // Don't log a win or loss for tie, but increment games played?
+      // Actually let's not treat tie as loss or win, just ignore stats or count as played.
+      await db.update(users).set({ casinoGamesPlayed: sql`${users.casinoGamesPlayed} + 1` }).where(eq(users.discordId, discordId));
       await EconomyService.addBalance(discordId, bet); // Refund
       return { state: result, botChoice, returnAmount: bet };
     } else {
+      await this.logGame(discordId, false);
       return { state: result, botChoice, returnAmount: 0 };
     }
   }
@@ -100,13 +125,17 @@ export class CasinoService {
     }
     
     const winAmount = Math.floor(bet * multiplier);
-    if (winAmount > 0) {
+    const isWin = winAmount > 0;
+    
+    await this.logGame(discordId, isWin);
+
+    if (isWin) {
       await EconomyService.addBalance(discordId, winAmount);
     }
     
     return {
       reels: [reel1, reel2, reel3],
-      win: winAmount > 0,
+      win: isWin,
       winAmount
     };
   }

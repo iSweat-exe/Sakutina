@@ -10,6 +10,9 @@ export const users = pgTable("users", {
   currentJob: text("current_job"),
   workShiftsDone: integer("work_shifts_done").default(0).notNull(),
   workLastShift: timestamp("work_last_shift"),
+  casinoGamesPlayed: integer("casino_games_played").default(0).notNull(),
+  casinoWins: integer("casino_wins").default(0).notNull(),
+  casinoLosses: integer("casino_losses").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
