@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, PermissionFlag
 import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -86,7 +87,8 @@ const command: Command = {
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.guildId) {
-      await interaction.reply({ content: I18nService.translate("common:ERR_ONLY_SERVER", { lng: "en" }), flags: MessageFlags.Ephemeral });
+      const embed = EmbedUtils.error(I18nService.translate("common:ERR_ONLY_SERVER", { lng: "en" }), "❌ Error", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -95,7 +97,8 @@ const command: Command = {
     // Explicitly check for permissions just in case
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
       const errorMsg = I18nService.translate("common:CONFIG_NO_PERM", { lng: currentLang });
-      await interaction.reply({ content: errorMsg, flags: MessageFlags.Ephemeral });
+      const embed = EmbedUtils.error(errorMsg, "❌ Access Denied", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -107,11 +110,11 @@ const command: Command = {
       const desc = I18nService.translate("common:CONFIG_VIEW_DESC", { lng: currentLang });
       const langLabel = I18nService.translate("common:CONFIG_VIEW_LANG", { lng: currentLang });
 
-      const embed = new EmbedBuilder()
-        .setTitle(title)
-        .setDescription(desc)
-        .setColor("#5865F2")
-        .addFields(
+      const embed = EmbedUtils.base({
+        title,
+        description: desc,
+        user: interaction.user
+      }).addFields(
           { name: `🌐 ${langLabel}`, value: currentLang === "fr" ? "Français (fr)" : "English (en)", inline: true },
           { name: `🛡️ Mod Log`, value: config.modLogChannel ? `<#${config.modLogChannel}>` : "Disabled", inline: true },
           { name: `⚠️ Max Warns`, value: `${config.maxWarns} warns (Auto-Ban)`, inline: true }
@@ -128,31 +131,38 @@ const command: Command = {
         lang: newLang === "fr" ? "Français" : "English" 
       });
 
-      await interaction.reply({ content: successMsg, flags: MessageFlags.Ephemeral });
+      const embed = EmbedUtils.success(successMsg, "✅ Configuration Updated", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
     else if (subcommand === "modlog") {
       const channel = interaction.options.getChannel("channel");
       await GuildConfigService.setModLogChannel(interaction.guildId, channel ? channel.id : null);
-      await interaction.reply({ 
-        content: I18nService.translate("common:CONFIG_MODLOG_SUCCESS", { lng: currentLang, state: channel ? `<#${channel.id}>` : "Disabled" }), 
-        flags: MessageFlags.Ephemeral 
-      });
+      const embed = EmbedUtils.success(
+        I18nService.translate("common:CONFIG_MODLOG_SUCCESS", { lng: currentLang, state: channel ? `<#${channel.id}>` : "Disabled" }),
+        "✅ Configuration Updated",
+        interaction.user
+      );
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
     else if (subcommand === "maxwarns") {
       const amount = interaction.options.getInteger("amount", true);
       await GuildConfigService.setMaxWarns(interaction.guildId, amount);
-      await interaction.reply({ 
-        content: I18nService.translate("common:CONFIG_MAXWARNS_SUCCESS", { lng: currentLang, amount }), 
-        flags: MessageFlags.Ephemeral 
-      });
+      const embed = EmbedUtils.success(
+        I18nService.translate("common:CONFIG_MAXWARNS_SUCCESS", { lng: currentLang, amount }),
+        "✅ Configuration Updated",
+        interaction.user
+      );
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
     else if (subcommand === "modlog_warning") {
       const enabled = interaction.options.getBoolean("enabled", true);
       await GuildConfigService.setModLogWarning(interaction.guildId, enabled);
-      await interaction.reply({ 
-        content: I18nService.translate("common:CONFIG_MODLOG_WARNING_SUCCESS", { lng: currentLang, state: enabled ? "Enabled" : "Disabled" }), 
-        flags: MessageFlags.Ephemeral 
-      });
+      const embed = EmbedUtils.success(
+        I18nService.translate("common:CONFIG_MODLOG_WARNING_SUCCESS", { lng: currentLang, state: enabled ? "Enabled" : "Disabled" }),
+        "✅ Configuration Updated",
+        interaction.user
+      );
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
   },
 };
