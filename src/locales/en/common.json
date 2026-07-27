@@ -93,5 +93,15 @@
 
   "DEV_UNAUTHORIZED": "⛔ You are not authorized to use this command.",
   "DEV_CLEARDB_CANCELLED": "❌ Database clear cancelled.",
-  "DEV_CLEARDB_SUCCESS": "✅ Database successfully cleared (truncated users and guilds)."
+  "DEV_CLEARDB_SUCCESS": "✅ Database successfully cleared (truncated users and guilds).",
+
+  "HELP_TITLE": "📚 Command Help",
+  "HELP_DESC": "Select a category from the dropdown below to view its commands.",
+  "HELP_SELECT_PLACEHOLDER": "Choose a category...",
+  "HELP_CAT_CONFIG": "Configuration",
+  "HELP_CAT_CORE": "System (Core)",
+  "HELP_CAT_ECON": "Economy",
+  "HELP_CAT_FUN": "Fun",
+  "HELP_CAT_MOD": "Moderation",
+  "HELP_CAT_USERS": "Users"
 }

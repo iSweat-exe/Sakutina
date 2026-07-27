@@ -93,5 +93,15 @@
 
   "DEV_UNAUTHORIZED": "⛔ Vous n'êtes pas autorisé à utiliser cette commande.",
   "DEV_CLEARDB_CANCELLED": "❌ Réinitialisation de la base de données annulée.",
-  "DEV_CLEARDB_SUCCESS": "✅ Base de données réinitialisée avec succès (vidage des utilisateurs et serveurs)."
+  "DEV_CLEARDB_SUCCESS": "✅ Base de données réinitialisée avec succès (vidage des utilisateurs et serveurs).",
+
+  "HELP_TITLE": "📚 Aide des Commandes",
+  "HELP_DESC": "Sélectionnez une catégorie dans le menu déroulant ci-dessous pour voir ses commandes.",
+  "HELP_SELECT_PLACEHOLDER": "Choisissez une catégorie...",
+  "HELP_CAT_CONFIG": "Configuration",
+  "HELP_CAT_CORE": "Système (Core)",
+  "HELP_CAT_ECON": "Économie",
+  "HELP_CAT_FUN": "Fun",
+  "HELP_CAT_MOD": "Modération",
+  "HELP_CAT_USERS": "Utilisateurs"
 }
