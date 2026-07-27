@@ -3,6 +3,7 @@ import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { EconomyService } from "../../../services/EconomyService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -21,9 +22,11 @@ const command: Command = {
     const title = I18nService.translate("common:LEADERBOARD_TITLE", { lng: lang });
     const emptyMsg = I18nService.translate("common:LEADERBOARD_EMPTY", { lng: lang });
 
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setColor("#FFD700");
+    const embed = EmbedUtils.base({
+      title,
+      color: "#FFD700",
+      user: interaction.user
+    });
 
     if (topUsers.length === 0) {
       embed.setDescription(emptyMsg);

@@ -3,6 +3,7 @@ import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { ModerationService } from "../../../services/ModerationService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -139,13 +140,15 @@ const command: Command = {
     const reason = interaction.options.getString("reason") || "No reason provided";
 
     if (targetUser.id === interaction.client.user.id || targetUser.id === interaction.guild.ownerId) {
-      await interaction.reply({ content: I18nService.translate("common:MOD_ERR_INVALID_TARGET", { lng: lang }), flags: MessageFlags.Ephemeral });
+      const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_INVALID_TARGET", { lng: lang }), "❌ Error", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
 
     if (subcommand === "warn") {
       if (!targetMember) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NOT_IN_GUILD", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NOT_IN_GUILD", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         return;
       }
       
@@ -156,18 +159,22 @@ const command: Command = {
         replyContent += "\n" + I18nService.translate("common:MOD_AUTOBAN_TRIGGERED", { lng: lang, user: targetUser.tag });
       }
 
-      await interaction.reply({ content: replyContent + warningMsg, flags: MessageFlags.Ephemeral });
+      const embed = EmbedUtils.success(replyContent + warningMsg, "✅ Moderation Action", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     } 
     else if (subcommand === "warnings") {
       const warns = await ModerationService.getWarnings(interaction.guild.id, targetUser.id);
       if (warns.length === 0) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_WARNINGS_EMPTY", { lng: lang, user: targetUser.tag }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.info(I18nService.translate("common:MOD_WARNINGS_EMPTY", { lng: lang, user: targetUser.tag }), "ℹ️ No Warnings", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         return;
       }
 
-      const embed = new EmbedBuilder()
-        .setTitle(I18nService.translate("common:MOD_WARNINGS_TITLE", { lng: lang, user: targetUser.tag }))
-        .setColor("#F1C40F");
+      const embed = EmbedUtils.base({
+        title: I18nService.translate("common:MOD_WARNINGS_TITLE", { lng: lang, user: targetUser.tag }),
+        color: "#F1C40F",
+        user: interaction.user
+      });
 
       let desc = "";
       for (const w of warns) {
@@ -181,9 +188,11 @@ const command: Command = {
       const stats = await ModerationService.getModStats(targetUser.id);
       const warns = await ModerationService.getWarnings(interaction.guild.id, targetUser.id);
 
-      const embed = new EmbedBuilder()
-        .setTitle(I18nService.translate("common:MOD_STATS_TITLE", { lng: lang, user: targetUser.tag }))
-        .setColor("#3498DB")
+      const embed = EmbedUtils.base({
+        title: I18nService.translate("common:MOD_STATS_TITLE", { lng: lang, user: targetUser.tag }),
+        color: "#3498DB",
+        user: interaction.user
+      })
         .setThumbnail(targetUser.displayAvatarURL())
         .addFields(
           { name: "⚠️ Warnings", value: `${warns.length}`, inline: true },
@@ -196,10 +205,12 @@ const command: Command = {
     }
     else if (subcommand === "clearwarns") {
       const deleted = await ModerationService.clearWarnings(interaction.guild, targetUser, interaction.user, reason);
-      await interaction.reply({ 
-        content: I18nService.translate("common:MOD_CLEARWARNS_SUCCESS", { lng: lang, user: targetUser.tag, count: deleted }) + warningMsg, 
-        flags: MessageFlags.Ephemeral 
-      });
+      const embed = EmbedUtils.success(
+        I18nService.translate("common:MOD_CLEARWARNS_SUCCESS", { lng: lang, user: targetUser.tag, count: deleted }) + warningMsg,
+        "✅ Warnings Cleared",
+        interaction.user
+      );
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
     }
     else if (subcommand === "mute") {
       if (!targetMember) return;
@@ -209,12 +220,15 @@ const command: Command = {
         await targetMember.timeout(duration * 60 * 1000, reason);
         await ModerationService.sendLog(interaction.guild, "MUTE", targetUser, interaction.user, reason, `Duration: ${duration} minutes`);
         await ModerationService.logModActionStats(targetUser.id, "MUTE");
-        await interaction.reply({ 
-          content: I18nService.translate("common:MOD_MUTE_SUCCESS", { lng: lang, user: targetUser.tag, duration, reason }) + warningMsg, 
-          flags: MessageFlags.Ephemeral 
-        });
+        const embed = EmbedUtils.success(
+          I18nService.translate("common:MOD_MUTE_SUCCESS", { lng: lang, user: targetUser.tag, duration, reason }) + warningMsg,
+          "✅ User Muted",
+          interaction.user
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } catch (e) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
     else if (subcommand === "unmute") {
@@ -222,12 +236,15 @@ const command: Command = {
       try {
         await targetMember.timeout(null, reason);
         await ModerationService.sendLog(interaction.guild, "UNMUTE", targetUser, interaction.user, reason);
-        await interaction.reply({ 
-          content: I18nService.translate("common:MOD_UNMUTE_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
-          flags: MessageFlags.Ephemeral 
-        });
+        const embed = EmbedUtils.success(
+          I18nService.translate("common:MOD_UNMUTE_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg,
+          "✅ User Unmuted",
+          interaction.user
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } catch (e) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
     else if (subcommand === "kick") {
@@ -236,12 +253,15 @@ const command: Command = {
         await targetMember.kick(reason);
         await ModerationService.sendLog(interaction.guild, "KICK", targetUser, interaction.user, reason);
         await ModerationService.logModActionStats(targetUser.id, "KICK");
-        await interaction.reply({ 
-          content: I18nService.translate("common:MOD_KICK_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
-          flags: MessageFlags.Ephemeral 
-        });
+        const embed = EmbedUtils.success(
+          I18nService.translate("common:MOD_KICK_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg,
+          "✅ User Kicked",
+          interaction.user
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } catch (e) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
     else if (subcommand === "ban") {
@@ -249,12 +269,15 @@ const command: Command = {
         await interaction.guild.members.ban(targetUser, { reason });
         await ModerationService.sendLog(interaction.guild, "BAN", targetUser, interaction.user, reason);
         await ModerationService.logModActionStats(targetUser.id, "BAN");
-        await interaction.reply({ 
-          content: I18nService.translate("common:MOD_BAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
-          flags: MessageFlags.Ephemeral 
-        });
+        const embed = EmbedUtils.success(
+          I18nService.translate("common:MOD_BAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg,
+          "✅ User Banned",
+          interaction.user
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } catch (e) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
     else if (subcommand === "softban") {
@@ -263,12 +286,15 @@ const command: Command = {
         await interaction.guild.members.unban(targetUser, "Softban complete");
         await ModerationService.sendLog(interaction.guild, "SOFTBAN", targetUser, interaction.user, reason);
         await ModerationService.logModActionStats(targetUser.id, "BAN");
-        await interaction.reply({ 
-          content: I18nService.translate("common:MOD_SOFTBAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
-          flags: MessageFlags.Ephemeral 
-        });
+        const embed = EmbedUtils.success(
+          I18nService.translate("common:MOD_SOFTBAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg,
+          "✅ User Softbanned",
+          interaction.user
+        );
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } catch (e) {
-        await interaction.reply({ content: I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(I18nService.translate("common:MOD_ERR_NO_PERM", { lng: lang }), "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
   },

@@ -3,6 +3,7 @@ import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { EconomyService } from "../../../services/EconomyService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -29,9 +30,11 @@ const command: Command = {
     const bankLabel = I18nService.translate("common:BALANCE_BANK", { lng: lang });
     const totalLabel = I18nService.translate("common:BALANCE_TOTAL", { lng: lang });
 
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setColor("#FFD700")
+    const embed = EmbedUtils.base({
+      title,
+      color: "#FFD700",
+      user: interaction.user
+    })
       .addFields(
         { name: walletLabel, value: `${balance} 🪙`, inline: true },
         { name: bankLabel, value: `${bank} 🏦`, inline: true },

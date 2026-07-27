@@ -3,6 +3,7 @@ import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { ProfileService } from "../../../services/ProfileService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -23,10 +24,8 @@ const command: Command = {
     const targetUser = interaction.options.getUser("user") || interaction.user;
 
     if (targetUser.bot) {
-      await interaction.reply({ 
-        content: I18nService.translate("common:PROFILE_BOT_ERROR", { lng: lang }), 
-        flags: MessageFlags.Ephemeral 
-      });
+      const embed = EmbedUtils.error(I18nService.translate("common:PROFILE_BOT_ERROR", { lng: lang }), "❌ Error", interaction.user);
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -52,9 +51,11 @@ const command: Command = {
     // Format Dates
     const joinedStr = `<t:${Math.floor(profile.createdAt.getTime() / 1000)}:R>`;
 
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setColor("#9B59B6")
+    const embed = EmbedUtils.base({
+      title,
+      color: "#9B59B6",
+      user: interaction.user
+    })
       .setThumbnail(targetUser.displayAvatarURL())
       .addFields(
         { 

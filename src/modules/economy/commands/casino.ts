@@ -1,8 +1,9 @@
 import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import type { Command } from "../../../types/Command.js";
 import { I18nService } from "../../../services/I18nService.js";
-import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { CasinoService } from "../../../services/CasinoService.js";
+import { GuildConfigService } from "../../../services/GuildConfigService.js";
+import { EmbedUtils } from "../../../utils/EmbedUtils.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -110,10 +111,12 @@ const command: Command = {
         
         if (result.win) {
           const msg = I18nService.translate("common:CASINO_DON_WIN", { lng: lang, bet, won: result.amount });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         } else {
           const msg = I18nService.translate("common:CASINO_DON_LOSE", { lng: lang, bet });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         }
       } 
       else if (subcommand === "coinflip") {
@@ -124,10 +127,12 @@ const command: Command = {
         
         if (result.win) {
           const msg = I18nService.translate("common:CASINO_COIN_WIN", { lng: lang, bet, result: localizedResult, won: result.amount });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         } else {
           const msg = I18nService.translate("common:CASINO_COIN_LOSE", { lng: lang, bet, result: localizedResult });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         }
       }
       else if (subcommand === "rps") {
@@ -139,21 +144,26 @@ const command: Command = {
 
         if (result.state === "win") {
           const msg = I18nService.translate("common:CASINO_RPS_WIN", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc, won: result.returnAmount });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.success(msg, "✅ You Won!", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         } else if (result.state === "lose") {
           const msg = I18nService.translate("common:CASINO_RPS_LOSE", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc, bet });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.error(msg, "❌ You Lost", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         } else {
           const msg = I18nService.translate("common:CASINO_RPS_TIE", { lng: lang, bot: botChoiceLoc, user: userChoiceLoc });
-          await interaction.reply({ content: msg });
+          const embed = EmbedUtils.info(msg, "🤝 It's a Tie!", interaction.user);
+          await interaction.reply({ embeds: [embed] });
         }
       }
       else if (subcommand === "slots") {
         const result = await CasinoService.slots(interaction.user.id, bet);
         
-        const embed = new EmbedBuilder()
-          .setTitle("🎰 SLOTS 🎰")
-          .setColor(result.win ? "#2ECC71" : "#E74C3C")
+        const embed = EmbedUtils.base({
+          title: "🎰 SLOTS 🎰",
+          color: result.win ? "#2ECC71" : "#E74C3C",
+          user: interaction.user
+        })
           .setDescription(`
 **[ ${result.reels.join(" | ")} ]**
 
@@ -167,10 +177,12 @@ ${result.win
     } catch (error: any) {
       if (error.message === "INSUFFICIENT_FUNDS") {
         const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
-        await interaction.reply({ content: msg, flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(msg, "❌ Insufficient Funds", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } else {
         const msg = I18nService.translate("common:ERROR_GENERIC", { lng: lang });
-        await interaction.reply({ content: msg, flags: MessageFlags.Ephemeral });
+        const embed = EmbedUtils.error(msg, "❌ Error", interaction.user);
+        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       }
     }
   },
