@@ -1,3 +1,8 @@
 {
-  "PING_RESPONSE": "Pong! (Français)"
+  "PING_RESPONSE": "Pong! (Français)",
+  "CONFIG_VIEW_TITLE": "⚙️ Configuration du serveur",
+  "CONFIG_VIEW_DESC": "Voici les paramètres actuels de ce serveur :",
+  "CONFIG_VIEW_LANG": "Langue",
+  "CONFIG_LANG_SUCCESS": "La langue du serveur a été définie sur : **{{lang}}**",
+  "CONFIG_NO_PERM": "❌ Vous devez avoir la permission `Gérer le serveur` pour utiliser cette commande."
 }

@@ -7,3 +7,11 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const guildSettings = pgTable("guild_settings", {
+  id: serial("id").primaryKey(),
+  guildId: text("guild_id").notNull().unique(),
+  language: text("language").default("en").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

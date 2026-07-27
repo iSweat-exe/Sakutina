@@ -1,3 +1,8 @@
 {
-  "PING_RESPONSE": "Pong! (English)"
+  "PING_RESPONSE": "Pong! (English)",
+  "CONFIG_VIEW_TITLE": "⚙️ Server Configuration",
+  "CONFIG_VIEW_DESC": "Here are the current settings for this server:",
+  "CONFIG_VIEW_LANG": "Language",
+  "CONFIG_LANG_SUCCESS": "Server language has been set to: **{{lang}}**",
+  "CONFIG_NO_PERM": "❌ You need the `Manage Server` permission to use this command."
 }
