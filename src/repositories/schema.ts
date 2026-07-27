@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -21,6 +21,18 @@ export const guildSettings = pgTable("guild_settings", {
   id: serial("id").primaryKey(),
   guildId: text("guild_id").notNull().unique(),
   language: text("language").default("en").notNull(),
+  modLogChannel: text("mod_log_channel"),
+  maxWarns: integer("max_warns").default(3).notNull(),
+  modLogWarning: boolean("mod_log_warning").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const warns = pgTable("warns", {
+  id: serial("id").primaryKey(),
+  guildId: text("guild_id").notNull(),
+  userId: text("user_id").notNull(),
+  moderatorId: text("moderator_id").notNull(),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

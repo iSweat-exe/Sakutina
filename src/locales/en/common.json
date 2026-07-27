@@ -65,5 +65,24 @@
   "PROFILE_CASINO": "Casino Stats",
   "PROFILE_GAMES": "Games Played",
   "PROFILE_WINRATE": "Win Rate",
-  "PROFILE_WLR": "W/L Record"
+  "PROFILE_WLR": "W/L Record",
+
+  "CONFIG_MODLOG_SUCCESS": "Mod Log channel has been set to: **{{state}}**",
+  "CONFIG_MAXWARNS_SUCCESS": "Auto-Ban threshold set to **{{amount}}** warnings.",
+  "CONFIG_MODLOG_WARNING_SUCCESS": "Mod Log reminder is now **{{state}}**.",
+
+  "MOD_LOG_WARNING": "⚠️ *Tip: You haven't set up a Mod Log channel! Use `/config modlog` to set one up, or disable this message with `/config modlog_warning`.*",
+  "MOD_ERR_INVALID_TARGET": "❌ You cannot perform this action on this user.",
+  "MOD_ERR_NOT_IN_GUILD": "❌ This user is not currently in the server.",
+  "MOD_ERR_NO_PERM": "❌ I do not have permission to moderate this user (they might have a higher role than me).",
+  "MOD_WARN_SUCCESS": "✅ Warned **{{user}}** for: `{{reason}}`. (Warns: {{warns}}/{{max}})",
+  "MOD_AUTOBAN_TRIGGERED": "🔨 **Auto-Ban Triggered**: User reached the maximum warnings.",
+  "MOD_WARNINGS_EMPTY": "✅ **{{user}}** has no warnings.",
+  "MOD_WARNINGS_TITLE": "⚠️ Warnings for {{user}}",
+  "MOD_CLEARWARNS_SUCCESS": "✅ Cleared **{{count}}** warnings from **{{user}}**.",
+  "MOD_MUTE_SUCCESS": "🔇 Muted **{{user}}** for **{{duration}} minutes**. Reason: `{{reason}}`",
+  "MOD_UNMUTE_SUCCESS": "🔊 Unmuted **{{user}}**. Reason: `{{reason}}`",
+  "MOD_KICK_SUCCESS": "👢 Kicked **{{user}}**. Reason: `{{reason}}`",
+  "MOD_BAN_SUCCESS": "🔨 Banned **{{user}}**. Reason: `{{reason}}`",
+  "MOD_SOFTBAN_SUCCESS": "🧹 Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`"
 }

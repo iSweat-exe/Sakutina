@@ -6,6 +6,9 @@ export interface GuildSettings {
   id: number;
   guildId: string;
   language: string;
+  modLogChannel: string | null;
+  maxWarns: number;
+  modLogWarning: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,6 +31,9 @@ export class GuildConfigService {
       settings = (await db.insert(guildSettings).values({
         guildId,
         language: "en",
+        modLogChannel: null,
+        maxWarns: 3,
+        modLogWarning: true
       }).returning().then(res => res[0]))!;
     }
 
@@ -44,6 +50,45 @@ export class GuildConfigService {
       .onConflictDoUpdate({
         target: guildSettings.guildId,
         set: { language, updatedAt: new Date() },
+      })
+      .returning().then(res => res[0]))!;
+
+    this.cache.set(guildId, updated);
+    return updated;
+  }
+  
+  public static async setModLogChannel(guildId: string, channelId: string | null): Promise<GuildSettings> {
+    const updated = (await db.insert(guildSettings)
+      .values({ guildId, modLogChannel: channelId })
+      .onConflictDoUpdate({
+        target: guildSettings.guildId,
+        set: { modLogChannel: channelId, updatedAt: new Date() },
+      })
+      .returning().then(res => res[0]))!;
+
+    this.cache.set(guildId, updated);
+    return updated;
+  }
+  
+  public static async setMaxWarns(guildId: string, maxWarns: number): Promise<GuildSettings> {
+    const updated = (await db.insert(guildSettings)
+      .values({ guildId, maxWarns })
+      .onConflictDoUpdate({
+        target: guildSettings.guildId,
+        set: { maxWarns, updatedAt: new Date() },
+      })
+      .returning().then(res => res[0]))!;
+
+    this.cache.set(guildId, updated);
+    return updated;
+  }
+  
+  public static async setModLogWarning(guildId: string, enabled: boolean): Promise<GuildSettings> {
+    const updated = (await db.insert(guildSettings)
+      .values({ guildId, modLogWarning: enabled })
+      .onConflictDoUpdate({
+        target: guildSettings.guildId,
+        set: { modLogWarning: enabled, updatedAt: new Date() },
       })
       .returning().then(res => res[0]))!;
 

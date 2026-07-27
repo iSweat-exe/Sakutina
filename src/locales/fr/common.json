@@ -65,5 +65,24 @@
   "PROFILE_CASINO": "Stats Casino",
   "PROFILE_GAMES": "Parties Jouées",
   "PROFILE_WINRATE": "Taux de Victoire",
-  "PROFILE_WLR": "V/D (Ratio)"
+  "PROFILE_WLR": "V/D (Ratio)",
+
+  "CONFIG_MODLOG_SUCCESS": "Le salon des logs de modération est désormais : **{{state}}**",
+  "CONFIG_MAXWARNS_SUCCESS": "Le seuil d'Auto-Ban est défini sur **{{amount}}** avertissements.",
+  "CONFIG_MODLOG_WARNING_SUCCESS": "Le rappel pour les logs de modération est maintenant **{{state}}**.",
+
+  "MOD_LOG_WARNING": "⚠️ *Astuce : Vous n'avez pas configuré de salon Mod Log ! Utilisez `/config modlog` pour en définir un, ou désactivez ce rappel avec `/config modlog_warning`.*",
+  "MOD_ERR_INVALID_TARGET": "❌ Vous ne pouvez pas effectuer cette action sur cet utilisateur.",
+  "MOD_ERR_NOT_IN_GUILD": "❌ Cet utilisateur n'est pas présent sur le serveur.",
+  "MOD_ERR_NO_PERM": "❌ Je n'ai pas la permission de modérer cet utilisateur (il a peut-être un rôle supérieur au mien).",
+  "MOD_WARN_SUCCESS": "✅ **{{user}}** a été averti pour : `{{reason}}`. (Avertissements : {{warns}}/{{max}})",
+  "MOD_AUTOBAN_TRIGGERED": "🔨 **Auto-Ban déclenché** : L'utilisateur a atteint le maximum d'avertissements.",
+  "MOD_WARNINGS_EMPTY": "✅ **{{user}}** n'a aucun avertissement.",
+  "MOD_WARNINGS_TITLE": "⚠️ Avertissements de {{user}}",
+  "MOD_CLEARWARNS_SUCCESS": "✅ **{{count}}** avertissements ont été retirés pour **{{user}}**.",
+  "MOD_MUTE_SUCCESS": "🔇 **{{user}}** a été rendu muet pendant **{{duration}} minutes**. Raison : `{{reason}}`",
+  "MOD_UNMUTE_SUCCESS": "🔊 **{{user}}** n'est plus muet. Raison : `{{reason}}`",
+  "MOD_KICK_SUCCESS": "👢 **{{user}}** a été expulsé. Raison : `{{reason}}`",
+  "MOD_BAN_SUCCESS": "🔨 **{{user}}** a été banni. Raison : `{{reason}}`",
+  "MOD_SOFTBAN_SUCCESS": "🧹 **{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`"
 }
