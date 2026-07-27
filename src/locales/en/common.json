@@ -89,5 +89,9 @@
   "MOD_SOFTBAN_SUCCESS": "🧹 Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`",
 
   "ERR_COMMAND_EXECUTION": "❌ An error occurred while executing this command.",
-  "ERR_ONLY_SERVER": "❌ This command can only be used in a server."
+  "ERR_ONLY_SERVER": "❌ This command can only be used in a server.",
+
+  "DEV_UNAUTHORIZED": "⛔ You are not authorized to use this command.",
+  "DEV_CLEARDB_CANCELLED": "❌ Database clear cancelled.",
+  "DEV_CLEARDB_SUCCESS": "✅ Database successfully cleared (truncated users and guilds)."
 }

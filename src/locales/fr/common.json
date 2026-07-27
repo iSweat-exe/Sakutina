@@ -89,5 +89,9 @@
   "MOD_SOFTBAN_SUCCESS": "🧹 **{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`",
 
   "ERR_COMMAND_EXECUTION": "❌ Une erreur est survenue lors de l'exécution de cette commande.",
-  "ERR_ONLY_SERVER": "❌ Cette commande ne peut être utilisée que sur un serveur."
+  "ERR_ONLY_SERVER": "❌ Cette commande ne peut être utilisée que sur un serveur.",
+
+  "DEV_UNAUTHORIZED": "⛔ Vous n'êtes pas autorisé à utiliser cette commande.",
+  "DEV_CLEARDB_CANCELLED": "❌ Réinitialisation de la base de données annulée.",
+  "DEV_CLEARDB_SUCCESS": "✅ Base de données réinitialisée avec succès (vidage des utilisateurs et serveurs)."
 }
