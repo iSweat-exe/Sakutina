@@ -79,6 +79,7 @@
   "MOD_AUTOBAN_TRIGGERED": "🔨 **Auto-Ban déclenché** : L'utilisateur a atteint le maximum d'avertissements.",
   "MOD_WARNINGS_EMPTY": "✅ **{{user}}** n'a aucun avertissement.",
   "MOD_WARNINGS_TITLE": "⚠️ Avertissements de {{user}}",
+  "MOD_STATS_TITLE": "📊 Statistiques de modération de {{user}}",
   "MOD_CLEARWARNS_SUCCESS": "✅ **{{count}}** avertissements ont été retirés pour **{{user}}**.",
   "MOD_MUTE_SUCCESS": "🔇 **{{user}}** a été rendu muet pendant **{{duration}} minutes**. Raison : `{{reason}}`",
   "MOD_UNMUTE_SUCCESS": "🔊 **{{user}}** n'est plus muet. Raison : `{{reason}}`",

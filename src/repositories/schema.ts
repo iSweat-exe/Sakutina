@@ -13,6 +13,9 @@ export const users = pgTable("users", {
   casinoGamesPlayed: integer("casino_games_played").default(0).notNull(),
   casinoWins: integer("casino_wins").default(0).notNull(),
   casinoLosses: integer("casino_losses").default(0).notNull(),
+  modKicks: integer("mod_kicks").default(0).notNull(),
+  modBans: integer("mod_bans").default(0).notNull(),
+  modMutes: integer("mod_mutes").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

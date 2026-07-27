@@ -24,6 +24,12 @@ const command: Command = {
     )
     .addSubcommand(sub => 
       sub
+        .setName("stats")
+        .setDescription("View moderation statistics for a user")
+        .addUserOption(opt => opt.setName("user").setDescription("User to check").setRequired(true))
+    )
+    .addSubcommand(sub => 
+      sub
         .setName("clearwarns")
         .setDescription("Clear all warnings for a user")
         .addUserOption(opt => opt.setName("user").setDescription("User to clear").setRequired(true))
@@ -119,6 +125,23 @@ const command: Command = {
 
       await interaction.reply({ embeds: [embed], ephemeral: true });
     }
+    else if (subcommand === "stats") {
+      const stats = await ModerationService.getModStats(targetUser.id);
+      const warns = await ModerationService.getWarnings(interaction.guild.id, targetUser.id);
+
+      const embed = new EmbedBuilder()
+        .setTitle(I18nService.translate("common:MOD_STATS_TITLE", { lng: lang, user: targetUser.tag }))
+        .setColor("#3498DB")
+        .setThumbnail(targetUser.displayAvatarURL())
+        .addFields(
+          { name: "⚠️ Warnings", value: `${warns.length}`, inline: true },
+          { name: "🔇 Mutes", value: `${stats.mutes}`, inline: true },
+          { name: "👢 Kicks", value: `${stats.kicks}`, inline: true },
+          { name: "🔨 Bans", value: `${stats.bans}`, inline: true }
+        );
+
+      await interaction.reply({ embeds: [embed], ephemeral: true });
+    }
     else if (subcommand === "clearwarns") {
       const deleted = await ModerationService.clearWarnings(interaction.guild, targetUser, interaction.user, reason);
       await interaction.reply({ 
@@ -133,6 +156,7 @@ const command: Command = {
       try {
         await targetMember.timeout(duration * 60 * 1000, reason);
         await ModerationService.sendLog(interaction.guild, "MUTE", targetUser, interaction.user, reason, `Duration: ${duration} minutes`);
+        await ModerationService.logModActionStats(targetUser.id, "MUTE");
         await interaction.reply({ 
           content: I18nService.translate("common:MOD_MUTE_SUCCESS", { lng: lang, user: targetUser.tag, duration, reason }) + warningMsg, 
           ephemeral: true 
@@ -159,6 +183,7 @@ const command: Command = {
       try {
         await targetMember.kick(reason);
         await ModerationService.sendLog(interaction.guild, "KICK", targetUser, interaction.user, reason);
+        await ModerationService.logModActionStats(targetUser.id, "KICK");
         await interaction.reply({ 
           content: I18nService.translate("common:MOD_KICK_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
           ephemeral: true 
@@ -171,6 +196,7 @@ const command: Command = {
       try {
         await interaction.guild.members.ban(targetUser, { reason });
         await ModerationService.sendLog(interaction.guild, "BAN", targetUser, interaction.user, reason);
+        await ModerationService.logModActionStats(targetUser.id, "BAN");
         await interaction.reply({ 
           content: I18nService.translate("common:MOD_BAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
           ephemeral: true 
@@ -184,6 +210,7 @@ const command: Command = {
         await interaction.guild.members.ban(targetUser, { reason, deleteMessageSeconds: 604800 }); // 7 days
         await interaction.guild.members.unban(targetUser, "Softban complete");
         await ModerationService.sendLog(interaction.guild, "SOFTBAN", targetUser, interaction.user, reason);
+        await ModerationService.logModActionStats(targetUser.id, "BAN");
         await interaction.reply({ 
           content: I18nService.translate("common:MOD_SOFTBAN_SUCCESS", { lng: lang, user: targetUser.tag, reason }) + warningMsg, 
           ephemeral: true 

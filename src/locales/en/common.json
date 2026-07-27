@@ -79,6 +79,7 @@
   "MOD_AUTOBAN_TRIGGERED": "🔨 **Auto-Ban Triggered**: User reached the maximum warnings.",
   "MOD_WARNINGS_EMPTY": "✅ **{{user}}** has no warnings.",
   "MOD_WARNINGS_TITLE": "⚠️ Warnings for {{user}}",
+  "MOD_STATS_TITLE": "📊 Moderation Stats for {{user}}",
   "MOD_CLEARWARNS_SUCCESS": "✅ Cleared **{{count}}** warnings from **{{user}}**.",
   "MOD_MUTE_SUCCESS": "🔇 Muted **{{user}}** for **{{duration}} minutes**. Reason: `{{reason}}`",
   "MOD_UNMUTE_SUCCESS": "🔊 Unmuted **{{user}}**. Reason: `{{reason}}`",

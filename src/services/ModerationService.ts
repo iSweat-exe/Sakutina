@@ -1,9 +1,9 @@
 import { EmbedBuilder, Guild, GuildMember, TextChannel, User } from "discord.js";
 import { db } from "../repositories/db.js";
-import { warns, guildSettings } from "../repositories/schema.js";
-import { eq, and } from "drizzle-orm";
+import { warns, users, guildSettings } from "../repositories/schema.js";
+import { eq, and, sql } from "drizzle-orm";
 import { GuildConfigService } from "./GuildConfigService.js";
-import { I18nService } from "./I18nService.js";
+import { EconomyService } from "./EconomyService.js";
 
 export class ModerationService {
   /**
@@ -52,6 +52,32 @@ export class ModerationService {
   }
 
   /**
+   * Helper to increment moderation stats
+   */
+  public static async logModActionStats(discordId: string, action: "KICK" | "BAN" | "MUTE") {
+    await EconomyService.ensureUser(discordId);
+    
+    let updateObj = {};
+    if (action === "KICK") updateObj = { modKicks: sql`${users.modKicks} + 1` };
+    if (action === "BAN") updateObj = { modBans: sql`${users.modBans} + 1` };
+    if (action === "MUTE") updateObj = { modMutes: sql`${users.modMutes} + 1` };
+
+    await db.update(users).set({ ...updateObj, updatedAt: new Date() }).where(eq(users.discordId, discordId));
+  }
+
+  /**
+   * Get mod stats for a user
+   */
+  public static async getModStats(discordId: string) {
+    const user = await EconomyService.ensureUser(discordId);
+    return {
+      kicks: user.modKicks,
+      bans: user.modBans,
+      mutes: user.modMutes,
+    };
+  }
+
+  /**
    * Warn a user
    */
   public static async warn(guild: Guild, target: GuildMember, moderator: User, reason: string): Promise<{ autobanned: boolean; warnsCount: number; maxWarns: number }> {
@@ -76,6 +102,7 @@ export class ModerationService {
         await target.ban({ reason: `[Auto-Ban] Reached ${maxWarns} warnings.` });
         autobanned = true;
         await this.sendLog(guild, "BAN", target.user, moderator, `[Auto-Ban] Reached ${maxWarns} warnings.`);
+        await this.logModActionStats(target.id, "BAN");
       } catch (e) {
         console.error(`Failed to autoban ${target.id} in ${guild.id}`, e);
       }
