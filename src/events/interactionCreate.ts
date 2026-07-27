@@ -2,6 +2,9 @@ import type { Interaction } from "discord.js";
 import type { BotClient } from "../bot.js";
 import type { Event } from "../types/Event.js";
 import { logger } from "../utils/logger.js";
+import { MessageFlags, type InteractionReplyOptions } from "discord.js";
+import { I18nService } from "../services/I18nService.js";
+import { GuildConfigService } from "../services/GuildConfigService.js";
 
 const event: Event<"interactionCreate"> = {
   name: "interactionCreate",
@@ -20,9 +23,10 @@ const event: Event<"interactionCreate"> = {
     } catch (error) {
       logger.error(`[Command:${interaction.commandName}] Execution error:`, error);
 
-      const replyPayload = {
-        content: "❌ An error occurred while executing this command.",
-        ephemeral: true,
+      const lang = interaction.guildId ? await GuildConfigService.getGuildLanguage(interaction.guildId) : "en";
+      const replyPayload: InteractionReplyOptions = {
+        content: I18nService.translate("common:ERR_COMMAND_EXECUTION", { lng: lang }),
+        flags: MessageFlags.Ephemeral,
       };
 
       if (interaction.replied || interaction.deferred) {

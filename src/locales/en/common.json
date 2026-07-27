@@ -85,5 +85,8 @@
   "MOD_UNMUTE_SUCCESS": "🔊 Unmuted **{{user}}**. Reason: `{{reason}}`",
   "MOD_KICK_SUCCESS": "👢 Kicked **{{user}}**. Reason: `{{reason}}`",
   "MOD_BAN_SUCCESS": "🔨 Banned **{{user}}**. Reason: `{{reason}}`",
-  "MOD_SOFTBAN_SUCCESS": "🧹 Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`"
+  "MOD_SOFTBAN_SUCCESS": "🧹 Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`",
+
+  "ERR_COMMAND_EXECUTION": "❌ An error occurred while executing this command.",
+  "ERR_ONLY_SERVER": "❌ This command can only be used in a server."
 }

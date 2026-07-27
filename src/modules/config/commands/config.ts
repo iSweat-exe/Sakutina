@@ -66,7 +66,7 @@ const command: Command = {
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.guildId) {
-      await interaction.reply({ content: "This command can only be used in a server.", flags: MessageFlags.Ephemeral });
+      await interaction.reply({ content: I18nService.translate("common:ERR_ONLY_SERVER", { lng: "en" }), flags: MessageFlags.Ephemeral });
       return;
     }
 

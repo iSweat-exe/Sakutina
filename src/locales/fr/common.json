@@ -85,5 +85,8 @@
   "MOD_UNMUTE_SUCCESS": "🔊 **{{user}}** n'est plus muet. Raison : `{{reason}}`",
   "MOD_KICK_SUCCESS": "👢 **{{user}}** a été expulsé. Raison : `{{reason}}`",
   "MOD_BAN_SUCCESS": "🔨 **{{user}}** a été banni. Raison : `{{reason}}`",
-  "MOD_SOFTBAN_SUCCESS": "🧹 **{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`"
+  "MOD_SOFTBAN_SUCCESS": "🧹 **{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`",
+
+  "ERR_COMMAND_EXECUTION": "❌ Une erreur est survenue lors de l'exécution de cette commande.",
+  "ERR_ONLY_SERVER": "❌ Cette commande ne peut être utilisée que sur un serveur."
 }
