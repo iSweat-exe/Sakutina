@@ -73,14 +73,14 @@ Chaque module sous `modules/` ne contient qu'un dossier `commands/`. Si un modul
 > └── types.ts        ← JobInfo, etc.
 > ```
 
-#### 🟠 GuildConfigService cache — pas de TTL ni d'invalidation cross-shard
+#### ~~🟠~~ ✅ GuildConfigService cache — pas de TTL ni d'invalidation cross-shard — CORRIGÉ (2026-07-28)
 
 Le cache dans [GuildConfigService.ts](file:///c:/Users/iswea/Desktop/Sakutina/src/services/GuildConfigService.ts#L17) est un simple `Map` statique. Problèmes :
 1. **Aucun TTL** — les entrées ne sont jamais expirées → si la DB est modifiée manuellement, le cache est stale
 2. **Per-shard** — chaque shard a sa propre instance du cache → une mise à jour dans le shard 0 n'est pas reflétée dans le shard 1
 3. **Croissance illimitée** — pour un bot dans des milliers de guilds, ce `Map` grandit sans fin
 
-#### 🟡 Manque de barrels/index files
+#### ~~🟡~~ ✅ Manque de barrels/index files — CORRIGÉ (2026-07-28)
 
 Pas de fichiers `index.ts` re-exportant les services ou types — les imports utilisent des chemins relatifs profonds (`../../../services/EconomyService.js`). Pas bloquant grâce aux path aliases dans `tsconfig.json`, mais ces aliases ne sont pas configurés.
 
