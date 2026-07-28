@@ -285,7 +285,7 @@ if (user.balance < amount) throw new InsufficientFundsError();
 }
 ```
 
-### 2.5 🟢 Code Dupliqué — Boilerplate lang + error dans chaque commande — CORRIGÉ (2026-07-28)
+### 2.5 ~~🟢~~ ✅ Code Dupliqué — Boilerplate lang + error dans chaque commande — CORRIGÉ (2026-07-28)
 
 Chaque commande commence par exactement le même pattern :
 
@@ -391,7 +391,7 @@ const modulesPath = join(process.cwd(), 'src', 'modules');
 const modulesPath = join(import.meta.dir, 'modules');
 ```
 
-### 3.5 🟡 Utilisation de `readFileSync` dans I18nService
+### 3.5 ~~🟡~~ ✅ Utilisation de `readFileSync` dans I18nService - CORRIGÉ (2026-07-28)
 
 [I18nService.ts L6-L7](file:///c:/Users/iswea/Desktop/Sakutina/src/services/I18nService.ts#L6-L7) : `readFileSync` bloque l'event loop au démarrage. Pour un fichier lu une seule fois au boot, c'est acceptable mais pas idéal. Avec `i18next`, on peut utiliser un backend async.
 
@@ -443,7 +443,7 @@ const { stdout, stderr } = await execAsync('bun run deploy');
 
 Ici c'est une commande fixe, pas d'injection possible. Mais le pattern `exec` + output affiché reste sensible. OK si les seuls développeurs sont de confiance.
 
-### 4.4 🟠 `cleardb` utilise un mauvais nom de table
+### 4.4 ~~🟠~~ ✅ `cleardb` utilise un mauvais nom de table - CORRIGÉ (2026-07-28)
 
 **Localisation :** [dev.ts L204](file:///c:/Users/iswea/Desktop/Sakutina/src/modules/core/commands/dev.ts#L204)
 
@@ -463,7 +463,7 @@ await db.execute(sql`TRUNCATE TABLE users, guild_settings, warns CASCADE;`);
 
 [env.ts](file:///c:/Users/iswea/Desktop/Sakutina/src/config/env.ts) : Throw immédiat si une variable est manquante — le bot ne démarre pas dans un état invalide. Bonne pratique.
 
-### 4.6 🟠 `NODE_ENV` cast non-validé
+### 4.6 ~~🟠~~ ✅ `NODE_ENV` cast non-validé - CORRIGÉ (2026-07-28)
 
 [env.ts L28](file:///c:/Users/iswea/Desktop/Sakutina/src/config/env.ts#L28) :
 
@@ -480,7 +480,7 @@ if (NODE_ENV && !validEnvs.includes(NODE_ENV as any)) {
 }
 ```
 
-### 4.7 🟡 Pas de handler `uncaughtException`
+### 4.7 ~~🟡~~ ✅ Pas de handler `uncaughtException` - CORRIGÉ (2026-07-28)
 
 [bot.ts](file:///c:/Users/iswea/Desktop/Sakutina/src/bot.ts#L54-L57) gère `unhandledRejection` mais pas `uncaughtException`. Un throw non capturé dans du code synchrone crash le process silencieusement.
 
@@ -491,7 +491,7 @@ process.on('uncaughtException', (error) => {
 });
 ```
 
-### 4.8 🟡 Pas de validation du `duration` dans la commande mute
+### 4.8 ~~🟡~~ ✅ Pas de validation du `duration` dans la commande mute - CORRIGÉ (2026-07-28)
 
 [mod.ts L220](file:///c:/Users/iswea/Desktop/Sakutina/src/modules/moderation/commands/mod.ts#L220) : La durée du mute n'a pas de limite max côté builder. Discord limite les timeouts à 28 jours (40320 minutes). Un admin pourrait passer `999999`.
 

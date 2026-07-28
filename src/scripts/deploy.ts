@@ -6,7 +6,7 @@ import { logger } from '../utils/logger.js';
 
 const deploy = async () => {
     const loader = new CommandLoader();
-    const modulesPath = join(process.cwd(), 'src', 'modules');
+    const modulesPath = join(process.cwd(), 'src', 'modules'); //TODO: use import.meta.dir
     await loader.loadCommands(modulesPath);
 
     const commandsData = loader.commands.map((cmd) => cmd.data.toJSON());

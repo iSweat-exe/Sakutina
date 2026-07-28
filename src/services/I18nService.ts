@@ -1,24 +1,11 @@
 import i18next from 'i18next';
-import { join } from 'node:path';
-import { readFileSync } from 'node:fs';
+import enCommon from '../locales/en/common.json';
+import frCommon from '../locales/fr/common.json';
 
-// Initialize i18next synchronously or asynchronously
-const enCommon = JSON.parse(
-    readFileSync(
-        join(process.cwd(), 'src', 'locales', 'en', 'common.json'),
-        'utf-8'
-    )
-);
-const frCommon = JSON.parse(
-    readFileSync(
-        join(process.cwd(), 'src', 'locales', 'fr', 'common.json'),
-        'utf-8'
-    )
-);
-
-i18next.init({
+await i18next.init({
     lng: 'en',
     fallbackLng: 'en',
+    ns: 'common',
     resources: {
         en: { common: enCommon },
         fr: { common: frCommon },

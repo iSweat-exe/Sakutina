@@ -17,6 +17,7 @@ interface EnvConfig {
 
 const parseEnv = (): EnvConfig => {
     const { DISCORD_TOKEN, CLIENT_ID, NODE_ENV, DATABASE_URL } = process.env;
+    const validEnvs = ['development', 'production', 'test'] as const;
 
     if (!DISCORD_TOKEN)
         throw new Error('CRITICAL: DISCORD_TOKEN is missing in env');
@@ -25,6 +26,9 @@ const parseEnv = (): EnvConfig => {
         throw new Error('CRITICAL: DATABASE_URL is missing in env');
     if (!process.env.DEVELOPER_ID)
         throw new Error('CRITICAL: DEVELOPER_ID is missing in env');
+    if (process.env.NODE_ENV && !validEnvs.includes(process.env.NODE_ENV as any)) {
+        throw new Error(`NODE_ENV invalide: ${process.env.NODE_ENV}`);
+    }
 
     return {
         DISCORD_TOKEN,

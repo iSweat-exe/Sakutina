@@ -127,6 +127,8 @@ const command: Command = {
                         .setNameLocalizations({ fr: 'duree' })
                         .setDescription('Duration in minutes')
                         .setDescriptionLocalizations({ fr: 'Durée en minutes' })
+                        .setMinValue(1)
+                        .setMaxValue(40320)
                         .setRequired(true)
                 )
                 .addStringOption((opt) =>

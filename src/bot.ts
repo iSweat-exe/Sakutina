@@ -20,11 +20,11 @@ export const botClient = new BotClient();
 
 const start = async () => {
     try {
-        const modulesPath = join(process.cwd(), 'src', 'modules');
+        const modulesPath = join(process.cwd(), 'src', 'modules'); //TODO: use import.meta.dir
         await botClient.commandLoader.loadCommands(modulesPath);
 
         const eventLoader = new EventLoader();
-        const eventsPath = join(process.cwd(), 'src', 'events');
+        const eventsPath = join(process.cwd(), 'src', 'events'); //TODO: use import.meta.dir
         await eventLoader.loadEvents(eventsPath, botClient);
 
         await botClient.login(env.DISCORD_TOKEN);
@@ -53,7 +53,9 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('unhandledRejection', (reason) => {
     logger.error('Unhandled Rejection:', reason);
-    // We log it but do not kill the process to maintain robustness
+});
+process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception:', error);
 });
 
 start();

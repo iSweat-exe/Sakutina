@@ -260,7 +260,7 @@ const command: Command = {
             }
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             try {
-                await db.execute(sql`TRUNCATE TABLE users, guilds CASCADE;`);
+                await db.execute(sql`TRUNCATE TABLE users, guild_settings, warns CASCADE;`);
                 const embed = EmbedUtils.success(
                     I18nService.translate('common:DEV_CLEARDB_SUCCESS', {
                         lng: lang,
