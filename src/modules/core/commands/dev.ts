@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
@@ -114,11 +115,7 @@ const command: Command = {
                 })
         ),
 
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = interaction.guildId
-            ? await GuildConfigService.getGuildLanguage(interaction.guildId)
-            : 'en';
-
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         // Security check: ONLY DEVELOPERS CAN USE THIS COMMAND
         if (!env.DEVELOPER_ID.includes(interaction.user.id)) {
             const embed = EmbedUtils.error(
@@ -132,90 +129,71 @@ const command: Command = {
             });
             return;
         }
-
         const subcommand = interaction.options.getSubcommand();
-
         if (subcommand === 'eval') {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             const code = interaction.options.getString('code', true);
-
             try {
                 // Warning: eval in async context doesn't automatically await promises unless wrapped
                 const asyncWrapper = `(async () => { return ${code}; })()`;
                 let result = await eval(asyncWrapper);
-
                 if (typeof result !== 'string') {
                     result = require('node:util').inspect(result, { depth: 1 });
                 }
-
                 // Truncate if too long for Discord message
                 if (result.length > 3900) {
                     result = result.substring(0, 3900) + '...';
                 }
-
                 const embed = new EmbedBuilder()
                     .setTitle('🚀 Eval Result')
                     .setDescription(`\`\`\`js\n${result}\n\`\`\``)
                     .setColor('#2ECC71');
-
                 await interaction.editReply({ embeds: [embed] });
             } catch (error: any) {
                 const embed = new EmbedBuilder()
                     .setTitle('Eval Error')
                     .setDescription(`\`\`\`js\n${error.message}\n\`\`\``)
                     .setColor('#E74C3C');
-
                 await interaction.editReply({ embeds: [embed] });
             }
         } else if (subcommand === 'sql') {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             const query = interaction.options.getString('query', true);
-
             try {
                 const result = await db.execute(sql.raw(query));
-
                 let formattedResult = JSON.stringify(result, null, 2);
                 if (formattedResult.length > 3900) {
                     formattedResult =
                         formattedResult.substring(0, 3900) + '...';
                 }
-
                 const embed = new EmbedBuilder()
                     .setTitle('💾 SQL Result')
                     .setDescription(`\`\`\`json\n${formattedResult}\n\`\`\``)
                     .setColor('#3498DB');
-
                 await interaction.editReply({ embeds: [embed] });
             } catch (error: any) {
                 const embed = new EmbedBuilder()
                     .setTitle('SQL Error')
                     .setDescription(`\`\`\`json\n${error.message}\n\`\`\``)
                     .setColor('#E74C3C');
-
                 await interaction.editReply({ embeds: [embed] });
             }
         } else if (subcommand === 'servers') {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
             const guilds = interaction.client.guilds.cache;
             let desc = `Bot is in **${guilds.size}** servers:\n\n`;
-
             guilds.forEach((guild) => {
                 desc += `- **${guild.name}** (${guild.id}) - ${guild.memberCount} members\n`;
             });
-
             if (desc.length > 4000) desc = desc.substring(0, 3995) + '...';
-
             const embed = new EmbedBuilder()
                 .setTitle('Servers List')
                 .setDescription(desc)
                 .setColor('#9B59B6');
-
             await interaction.editReply({ embeds: [embed] });
         } else if (subcommand === 'stats') {
             const memoryUsage = process.memoryUsage();
             const uptime = process.uptime();
-
             const formatBytes = (bytes: number) =>
                 `${(bytes / 1024 / 1024).toFixed(2)} MB`;
             const formatUptime = (seconds: number) => {
@@ -225,7 +203,6 @@ const command: Command = {
                 const s = Math.floor(seconds % 60);
                 return `${d}d ${h}h ${m}m ${s}s`;
             };
-
             const embed = new EmbedBuilder()
                 .setTitle('📊 Bot & System Stats')
                 .setColor('#F1C40F')
@@ -261,14 +238,12 @@ const command: Command = {
                         inline: true,
                     }
                 );
-
             await interaction.reply({
                 embeds: [embed],
                 flags: MessageFlags.Ephemeral,
             });
         } else if (subcommand === 'cleardb') {
             const confirm = interaction.options.getBoolean('confirm', true);
-
             if (!confirm) {
                 const embed = EmbedUtils.warn(
                     I18nService.translate('common:DEV_CLEARDB_CANCELLED', {
@@ -283,9 +258,7 @@ const command: Command = {
                 });
                 return;
             }
-
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
             try {
                 await db.execute(sql`TRUNCATE TABLE users, guilds CASCADE;`);
                 const embed = EmbedUtils.success(
@@ -306,19 +279,16 @@ const command: Command = {
             }
         } else if (subcommand === 'deploy') {
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
             try {
                 const { stdout, stderr } = await execAsync('bun run deploy');
                 const out = stdout.substring(0, 1900);
                 const err = stderr.substring(0, 1900);
-
                 const embed = new EmbedBuilder()
                     .setTitle('⚙️ Slash Commands Deployed')
                     .setDescription(
                         `**Stdout**:\n\`\`\`bash\n${out || 'No output'}\n\`\`\`\n**Stderr**:\n\`\`\`bash\n${err || 'No errors'}\n\`\`\``
                     )
                     .setColor('#2ECC71');
-
                 await interaction.editReply({ embeds: [embed] });
             } catch (error: any) {
                 const embed = EmbedUtils.error(
@@ -329,7 +299,7 @@ const command: Command = {
                 await interaction.editReply({ embeds: [embed] });
             }
         }
-    },
+    }),
 };
 
 export default command;

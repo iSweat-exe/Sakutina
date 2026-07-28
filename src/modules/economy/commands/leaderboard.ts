@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -17,29 +18,22 @@ const command: Command = {
         .setDescriptionLocalizations({
             fr: 'Voir les utilisateurs les plus riches',
         }),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
-
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         // We get top 10 users globally.
         // In a multi-server setup, you might want this scoped per guild if money is per-guild.
         // But currently economy is global per user.
         const topUsers = await EconomyService.getLeaderboard(10);
-
         const title = I18nService.translate('common:LEADERBOARD_TITLE', {
             lng: lang,
         });
         const emptyMsg = I18nService.translate('common:LEADERBOARD_EMPTY', {
             lng: lang,
         });
-
         const embed = EmbedUtils.base({
             title,
             color: '#FFD700',
             user: interaction.user,
         });
-
         if (topUsers.length === 0) {
             embed.setDescription(emptyMsg);
         } else {
@@ -50,9 +44,8 @@ const command: Command = {
             }
             embed.setDescription(description);
         }
-
         await interaction.reply({ embeds: [embed] });
-    },
+    }),
 };
 
 export default command;

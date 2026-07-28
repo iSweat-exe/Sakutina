@@ -61,7 +61,7 @@ export class WorkService {
                 const remaining = Math.ceil(
                     SHIFT_COOLDOWN_SECONDS - diffSeconds
                 );
-                throw new CooldownError(remaining, 'seconds');
+                throw new CooldownError('WORK_ERR_COOLDOWN', remaining, 'seconds');
             }
         }
 

@@ -285,7 +285,7 @@ if (user.balance < amount) throw new InsufficientFundsError();
 }
 ```
 
-### 2.5 🟠 Code Dupliqué — Boilerplate lang + error dans chaque commande
+### 2.5 🟢 Code Dupliqué — Boilerplate lang + error dans chaque commande — CORRIGÉ (2026-07-28)
 
 Chaque commande commence par exactement le même pattern :
 

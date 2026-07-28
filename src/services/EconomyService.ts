@@ -137,8 +137,8 @@ export class EconomyService {
                 (now.getTime() - user.dailyLastClaim.getTime()) /
                 (1000 * 60 * 60);
             if (diffHours < 24) {
-                const remaining = parseFloat((24 - diffHours).toFixed(1));
-                throw new CooldownError(remaining, 'hours');
+                const remainingHours = Math.ceil(24 - diffHours);
+                throw new CooldownError('DAILY_COOLDOWN', remainingHours, 'hours');
             }
         }
 

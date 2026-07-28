@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -64,12 +65,8 @@ const command: Command = {
                     fr: "Faire un service pour gagner de l'argent",
                 })
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const subcommand = interaction.options.getSubcommand();
-
         try {
             if (subcommand === 'list') {
                 const title = I18nService.translate('common:WORK_LIST_TITLE', {
@@ -80,14 +77,12 @@ const command: Command = {
                     color: '#3498DB',
                     user: interaction.user,
                 });
-
                 let desc = '';
                 for (const job of AVAILABLE_JOBS) {
                     desc += `**${job.title}** (ID: \`${job.id}\`)\n`;
                     desc += `└ Exp required: ${job.minExperience} | Salary: ${job.salaryMin}-${job.salaryMax}\n\n`;
                 }
                 embed.setDescription(desc);
-
                 await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'join') {
                 const stats = await WorkService.getStats(interaction.user.id);
@@ -100,7 +95,6 @@ const command: Command = {
                         ? 'Veuillez sélectionner le métier que vous souhaitez rejoindre ci-dessous.'
                         : 'Please select the job you wish to join below.'
                 );
-
                 const select = new StringSelectMenuBuilder()
                     .setCustomId('work_join_select')
                     .setPlaceholder(
@@ -115,26 +109,21 @@ const command: Command = {
                             value: j.id,
                         }))
                     );
-
                 const row =
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
                         select
                     );
-
                 const response = await interaction.reply({
                     embeds: [embed],
                     components: [row],
                 });
-
                 try {
                     const confirmation = await response.awaitMessageComponent({
                         filter: (i) => i.user.id === interaction.user.id,
                         time: 60000,
                         componentType: ComponentType.StringSelect,
                     });
-
                     const jobId = confirmation.values[0]!;
-
                     try {
                         const job = await WorkService.joinJob(
                             interaction.user.id,
@@ -214,7 +203,6 @@ const command: Command = {
                 const title = I18nService.translate('common:WORK_STATS_TITLE', {
                     lng: lang,
                 });
-
                 const embed = EmbedUtils.base({
                     title,
                     color: '#9B59B6',
@@ -236,7 +224,6 @@ const command: Command = {
                         inline: true,
                     }
                 );
-
                 await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'shift') {
                 const result = await WorkService.workShift(interaction.user.id);
@@ -296,7 +283,7 @@ const command: Command = {
                 });
             }
         }
-    },
+    }),
 };
 
 export default command;

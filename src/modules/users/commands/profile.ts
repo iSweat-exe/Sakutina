@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
@@ -26,13 +27,9 @@ const command: Command = {
                 .setDescriptionLocalizations({ fr: "L'utilisateur à voir" })
                 .setRequired(false)
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const targetUser =
             interaction.options.getUser('user') || interaction.user;
-
         if (targetUser.bot) {
             const embed = EmbedUtils.error(
                 I18nService.translate('common:PROFILE_BOT_ERROR', {
@@ -47,9 +44,7 @@ const command: Command = {
             });
             return;
         }
-
         const profile = await ProfileService.getProfile(targetUser.id);
-
         // Translation strings (will add to JSONs next)
         const title = I18nService.translate('common:PROFILE_TITLE', {
             lng: lang,
@@ -97,10 +92,8 @@ const command: Command = {
         const wlrLabel = I18nService.translate('common:PROFILE_WLR', {
             lng: lang,
         }); // Wins/Losses
-
         // Format Dates
         const joinedStr = `<t:${Math.floor(profile.createdAt.getTime() / 1000)}:R>`;
-
         const embed = EmbedUtils.base({
             title,
             color: '#9B59B6',
@@ -130,9 +123,8 @@ const command: Command = {
                 }
             )
             .setFooter({ text: `ID: ${targetUser.id}` });
-
         await interaction.reply({ embeds: [embed] });
-    },
+    }),
 };
 
 export default command;

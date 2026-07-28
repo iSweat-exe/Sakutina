@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     MessageFlags,
@@ -29,25 +30,19 @@ const command: Command = {
         .setDescription('Display the list of commands')
         .setDescriptionLocalizations({ fr: 'Afficher la liste des commandes' }),
 
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = interaction.guildId
-            ? await GuildConfigService.getGuildLanguage(interaction.guildId)
-            : 'en';
-
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const title = I18nService.translate('common:HELP_TITLE', { lng: lang });
         const desc = I18nService.translate('common:HELP_DESC', { lng: lang });
         const placeholder = I18nService.translate(
             'common:HELP_SELECT_PLACEHOLDER',
             { lng: lang }
         );
-
         const embed = EmbedUtils.base({
             title,
             description: desc,
             color: '#3498DB',
             user: interaction.user,
         });
-
         const select = new StringSelectMenuBuilder()
             .setCustomId('help_category_select')
             .setPlaceholder(placeholder)
@@ -95,33 +90,26 @@ const command: Command = {
                     description: 'User Profiles',
                 },
             ]);
-
         const row =
             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
                 select
             );
-
         const response = await interaction.reply({
             embeds: [embed],
             components: [row],
             flags: MessageFlags.Ephemeral,
         });
-
         const collector = response.createMessageComponentCollector({
             filter: (i) => i.user.id === interaction.user.id,
             time: 60000,
             componentType: ComponentType.StringSelect,
         });
-
         collector.on('collect', async (i) => {
             const selectedCategory = i.values[0] as CategoryKey;
             const categoryCommandNames = CATEGORIES[selectedCategory];
-
             const client = interaction.client as BotClient;
             const allCommands = client.commandLoader.commands;
-
             let categoryDesc = '';
-
             for (const cmdName of categoryCommandNames) {
                 const cmd = allCommands.get(cmdName);
                 if (cmd) {
@@ -138,21 +126,17 @@ const command: Command = {
                     categoryDesc += `**\`/${cmdName}\`** - ${cmdDesc}\n\n`;
                 }
             }
-
             const categoryTitle = I18nService.translate(
                 `common:HELP_CAT_${selectedCategory.toUpperCase()}`,
                 { lng: lang }
             );
-
             const categoryEmbed = EmbedUtils.info(
                 categoryDesc || 'No commands found.',
                 `📂 ${categoryTitle}`,
                 interaction.user
             );
-
             await i.update({ embeds: [categoryEmbed], components: [row] });
         });
-
         collector.on('end', async () => {
             // Clean up the components after timeout
             try {
@@ -161,7 +145,7 @@ const command: Command = {
                 // message might be deleted, ignore
             }
         });
-    },
+    }),
 };
 
 export default command;

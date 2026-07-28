@@ -21,16 +21,17 @@ export class InsufficientFundsError extends AppError {
 
 export class CooldownError extends AppError {
     constructor(
+        code: string,
         public readonly remaining: number,
         public readonly unit: 'seconds' | 'hours' = 'seconds'
     ) {
-        super('COOLDOWN', 'On cooldown', { remaining, unit });
+        super(code, 'On cooldown', { remaining, unit });
     }
 }
 
 export class CannotPaySelfError extends AppError {
     constructor() {
-        super('CANNOT_PAY_SELF', 'Cannot pay yourself');
+        super('PAY_SELF_ERROR', 'Cannot pay yourself');
     }
 }
 
@@ -43,6 +44,6 @@ export class JobError extends AppError {
             | 'REMOVED'
             | 'INSUFFICIENT_EXP'
     ) {
-        super(`JOB_${code}`, `Job error: ${code}`);
+        super(`WORK_ERR_${code}`, `Job error: ${code}`);
     }
 }

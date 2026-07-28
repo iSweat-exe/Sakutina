@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
@@ -249,23 +250,17 @@ const command: Command = {
                         .setRequired(false)
                 )
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         if (!interaction.guild) return;
-
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
-        const config = await GuildConfigService.getGuildSettings(
+                const config = await GuildConfigService.getGuildSettings(
             interaction.guild.id
         );
-
         let warningMsg = '';
         if (config.modLogWarning && !config.modLogChannel) {
             warningMsg =
                 '\n\n' +
                 I18nService.translate('common:MOD_LOG_WARNING', { lng: lang });
         }
-
         const subcommand = interaction.options.getSubcommand();
         const targetUser = interaction.options.getUser('user', true);
         const targetMember = await interaction.guild.members
@@ -273,7 +268,6 @@ const command: Command = {
             .catch(() => null);
         const reason =
             interaction.options.getString('reason') || 'No reason provided';
-
         if (
             targetUser.id === interaction.client.user.id ||
             targetUser.id === interaction.guild.ownerId
@@ -291,7 +285,6 @@ const command: Command = {
             });
             return;
         }
-
         if (subcommand === 'warn') {
             if (!targetMember) {
                 const embed = EmbedUtils.error(
@@ -307,14 +300,12 @@ const command: Command = {
                 });
                 return;
             }
-
             const res = await ModerationService.warn(
                 interaction.guild,
                 targetMember,
                 interaction.user,
                 reason
             );
-
             let replyContent = I18nService.translate(
                 'common:MOD_WARN_SUCCESS',
                 {
@@ -333,7 +324,6 @@ const command: Command = {
                         user: targetUser.tag,
                     });
             }
-
             const embed = EmbedUtils.success(
                 replyContent + warningMsg,
                 'Moderation Action',
@@ -363,7 +353,6 @@ const command: Command = {
                 });
                 return;
             }
-
             const embed = EmbedUtils.base({
                 title: I18nService.translate('common:MOD_WARNINGS_TITLE', {
                     lng: lang,
@@ -372,13 +361,11 @@ const command: Command = {
                 color: '#F1C40F',
                 user: interaction.user,
             });
-
             let desc = '';
             for (const w of warns) {
                 desc += `**ID:** ${w.id} | **Mod:** <@${w.moderatorId}>\n**Reason:** ${w.reason}\n**Date:** <t:${Math.floor(w.createdAt.getTime() / 1000)}:f>\n\n`;
             }
             embed.setDescription(desc);
-
             await interaction.reply({
                 embeds: [embed],
                 flags: MessageFlags.Ephemeral,
@@ -389,7 +376,6 @@ const command: Command = {
                 interaction.guild.id,
                 targetUser.id
             );
-
             const embed = EmbedUtils.base({
                 title: I18nService.translate('common:MOD_STATS_TITLE', {
                     lng: lang,
@@ -409,7 +395,6 @@ const command: Command = {
                     { name: '👢 Kicks', value: `${stats.kicks}`, inline: true },
                     { name: '🔨 Bans', value: `${stats.bans}`, inline: true }
                 );
-
             await interaction.reply({
                 embeds: [embed],
                 flags: MessageFlags.Ephemeral,
@@ -437,7 +422,6 @@ const command: Command = {
         } else if (subcommand === 'mute') {
             if (!targetMember) return;
             const duration = interaction.options.getInteger('duration', true);
-
             try {
                 await targetMember.timeout(duration * 60 * 1000, reason);
                 await ModerationService.sendLog(
@@ -639,7 +623,7 @@ const command: Command = {
                 });
             }
         }
-    },
+    }),
 };
 
 export default command;

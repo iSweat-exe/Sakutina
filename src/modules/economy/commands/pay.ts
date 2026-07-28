@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     MessageFlags,
@@ -38,13 +39,9 @@ const command: Command = {
                 .setRequired(true)
                 .setMinValue(1)
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const targetUser = interaction.options.getUser('user', true);
         const amount = interaction.options.getInteger('amount', true);
-
         if (targetUser.bot) {
             const msg = I18nService.translate('common:PAY_BOT_ERROR', {
                 lng: lang,
@@ -56,7 +53,6 @@ const command: Command = {
             });
             return;
         }
-
         try {
             await EconomyService.payUser(
                 interaction.user.id,
@@ -108,7 +104,7 @@ const command: Command = {
                 });
             }
         }
-    },
+    }),
 };
 
 export default command;

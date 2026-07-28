@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -108,7 +109,7 @@ const command: Command = {
                         .setRequired(true)
                 )
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         if (!interaction.guildId) {
             const embed = EmbedUtils.error(
                 I18nService.translate('common:ERR_ONLY_SERVER', { lng: 'en' }),
@@ -121,11 +122,9 @@ const command: Command = {
             });
             return;
         }
-
         const currentLang = await GuildConfigService.getGuildLanguage(
             interaction.guildId
         );
-
         // Explicitly check for permissions just in case
         if (
             !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)
@@ -144,9 +143,7 @@ const command: Command = {
             });
             return;
         }
-
         const subcommand = interaction.options.getSubcommand();
-
         if (subcommand === 'view') {
             const config = await GuildConfigService.getGuildSettings(
                 interaction.guildId
@@ -160,7 +157,6 @@ const command: Command = {
             const langLabel = I18nService.translate('common:CONFIG_VIEW_LANG', {
                 lng: currentLang,
             });
-
             const embed = EmbedUtils.base({
                 title,
                 description: desc,
@@ -185,7 +181,6 @@ const command: Command = {
                     inline: true,
                 }
             );
-
             await interaction.reply({
                 embeds: [embed],
                 flags: MessageFlags.Ephemeral,
@@ -200,7 +195,6 @@ const command: Command = {
                     ? 'Veuillez sélectionner la langue du serveur ci-dessous.'
                     : 'Please select the server language below.'
             );
-
             const select = new StringSelectMenuBuilder()
                 .setCustomId('config_lang_select')
                 .setPlaceholder(
@@ -212,31 +206,26 @@ const command: Command = {
                     { label: 'English', value: 'en' },
                     { label: 'Français', value: 'fr' },
                 ]);
-
             const row =
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
                     select
                 );
-
             const response = await interaction.reply({
                 embeds: [embed],
                 components: [row],
                 flags: MessageFlags.Ephemeral,
             });
-
             try {
                 const confirmation = await response.awaitMessageComponent({
                     filter: (i) => i.user.id === interaction.user.id,
                     time: 60000,
                     componentType: ComponentType.StringSelect,
                 });
-
                 const newLang = confirmation.values[0] as 'en' | 'fr';
                 await GuildConfigService.setLanguage(
                     interaction.guildId,
                     newLang
                 );
-
                 const successMsg = I18nService.translate(
                     'common:CONFIG_LANG_SUCCESS',
                     {
@@ -244,7 +233,6 @@ const command: Command = {
                         lang: newLang === 'fr' ? 'Français' : 'English',
                     }
                 );
-
                 const successEmbed = EmbedUtils.success(
                     successMsg,
                     'Configuration Updated',
@@ -317,7 +305,7 @@ const command: Command = {
                 flags: MessageFlags.Ephemeral,
             });
         }
-    },
+    }),
 };
 
 export default command;

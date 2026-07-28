@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -92,20 +93,15 @@ const command: Command = {
                         .setMinValue(1)
                 )
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const subcommand = interaction.options.getSubcommand();
         const bet = interaction.options.getInteger('bet', true);
-
         try {
             if (subcommand === 'doubleornothing') {
                 const result = await CasinoService.doubleOrNothing(
                     interaction.user.id,
                     bet
                 );
-
                 if (result.win) {
                     const msg = I18nService.translate('common:CASINO_DON_WIN', {
                         lng: lang,
@@ -137,7 +133,6 @@ const command: Command = {
                 if (balanceData.balance < bet) {
                     throw new InsufficientFundsError();
                 }
-
                 const embed = EmbedUtils.base({
                     title: ' Coinflip',
                     color: '#F1C40F',
@@ -147,7 +142,6 @@ const command: Command = {
                         ? `Pile ou Face ? Mise : **${bet}**`
                         : `Heads or Tails? Bet: **${bet}**`
                 );
-
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
                         .setCustomId('coin_heads')
@@ -162,19 +156,16 @@ const command: Command = {
                         .setLabel(lang === 'fr' ? 'Annuler ❌' : 'Cancel ❌')
                         .setStyle(ButtonStyle.Danger)
                 );
-
                 const response = await interaction.reply({
                     embeds: [embed],
                     components: [row],
                 });
-
                 try {
                     const confirmation = await response.awaitMessageComponent({
                         filter: (i) => i.user.id === interaction.user.id,
                         time: 60000,
                         componentType: ComponentType.Button,
                     });
-
                     if (confirmation.customId === 'coin_cancel') {
                         const cancelEmbed = EmbedUtils.warn(
                             lang === 'fr'
@@ -189,12 +180,10 @@ const command: Command = {
                         });
                         return;
                     }
-
                     const choice = confirmation.customId.replace(
                         'coin_',
                         ''
                     ) as 'heads' | 'tails';
-
                     try {
                         const result = await CasinoService.coinflip(
                             interaction.user.id,
@@ -205,7 +194,6 @@ const command: Command = {
                             `common:CASINO_COIN_${result.result.toUpperCase()}`,
                             { lng: lang }
                         );
-
                         if (result.win) {
                             const msg = I18nService.translate(
                                 'common:CASINO_COIN_WIN',
@@ -280,7 +268,6 @@ const command: Command = {
                 if (balanceData.balance < bet) {
                     throw new InsufficientFundsError();
                 }
-
                 const embed = EmbedUtils.base({
                     title: ' Rock Paper Scissors',
                     color: '#3498DB',
@@ -290,7 +277,6 @@ const command: Command = {
                         ? `Choisissez votre action pour une mise de **${bet}** ! `
                         : `Choose your move for a bet of **${bet}** !`
                 );
-
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
                         .setCustomId('rps_rock')
@@ -309,19 +295,16 @@ const command: Command = {
                         .setLabel(lang === 'fr' ? 'Annuler ❌' : 'Cancel ❌')
                         .setStyle(ButtonStyle.Danger)
                 );
-
                 const response = await interaction.reply({
                     embeds: [embed],
                     components: [row],
                 });
-
                 try {
                     const confirmation = await response.awaitMessageComponent({
                         filter: (i) => i.user.id === interaction.user.id,
                         time: 60000,
                         componentType: ComponentType.Button,
                     });
-
                     if (confirmation.customId === 'rps_cancel') {
                         const cancelEmbed = EmbedUtils.warn(
                             lang === 'fr'
@@ -336,17 +319,14 @@ const command: Command = {
                         });
                         return;
                     }
-
                     const choice = confirmation.customId.replace('rps_', '') as
                         'rock' | 'paper' | 'scissors';
-
                     try {
                         const result = await CasinoService.rps(
                             interaction.user.id,
                             bet,
                             choice
                         );
-
                         const botChoiceLoc = I18nService.translate(
                             `common:CASINO_RPS_${result.botChoice!.toUpperCase()}`,
                             { lng: lang }
@@ -355,7 +335,6 @@ const command: Command = {
                             `common:CASINO_RPS_${choice.toUpperCase()}`,
                             { lng: lang }
                         );
-
                         let msg = '';
                         let finalEmbed;
                         if (result.state === 'win') {
@@ -403,7 +382,6 @@ const command: Command = {
                                 interaction.user
                             );
                         }
-
                         await confirmation.update({
                             embeds: [finalEmbed],
                             components: [],
@@ -445,14 +423,12 @@ const command: Command = {
                     interaction.user.id,
                     bet
                 );
-
                 const embed = EmbedUtils.base({
                     title: 'SLOTS',
                     color: result.win ? '#2ECC71' : '#E74C3C',
                     user: interaction.user,
                 }).setDescription(`
 **[ ${result.reels.join(' | ')} ]**
-
 ${
     result.win
         ? I18nService.translate('common:CASINO_SLOTS_WIN', {
@@ -462,7 +438,6 @@ ${
         : I18nService.translate('common:CASINO_SLOTS_LOSE', { lng: lang, bet })
 }
 `);
-
                 await interaction.reply({ embeds: [embed] });
             }
         } catch (error: unknown) {
@@ -490,7 +465,7 @@ ${
                 });
             }
         }
-    },
+    }),
 };
 
 export default command;

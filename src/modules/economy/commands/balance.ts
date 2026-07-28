@@ -1,3 +1,4 @@
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -27,17 +28,12 @@ const command: Command = {
                 })
                 .setRequired(false)
         ),
-    async execute(interaction: ChatInputCommandInteraction) {
-        const lang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
+    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const targetUser =
             interaction.options.getUser('user') || interaction.user;
-
         const { balance, bank } = await EconomyService.getBalance(
             targetUser.id
         );
-
         const title = I18nService.translate('common:BALANCE_TITLE', {
             lng: lang,
             user: targetUser.username,
@@ -51,7 +47,6 @@ const command: Command = {
         const totalLabel = I18nService.translate('common:BALANCE_TOTAL', {
             lng: lang,
         });
-
         const embed = EmbedUtils.base({
             title,
             color: '#FFD700',
@@ -63,9 +58,8 @@ const command: Command = {
                 { name: totalLabel, value: `${balance + bank} `, inline: true }
             )
             .setThumbnail(targetUser.displayAvatarURL());
-
         await interaction.reply({ embeds: [embed] });
-    },
+    }),
 };
 
 export default command;
