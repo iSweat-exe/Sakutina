@@ -16,6 +16,7 @@ import { GuildConfigService } from '../../../services/GuildConfigService.js';
 import { EconomyService } from '../../../services/EconomyService.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
 import { InsufficientFundsError } from '../../../utils/errors.js';
+import { QuestService } from '../../../services/QuestService.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -126,6 +127,7 @@ const command: Command = {
                     );
                     await interaction.reply({ embeds: [embed] });
                 }
+                await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
             } else if (subcommand === 'coinflip') {
                 const balanceData = await EconomyService.getBalance(
                     interaction.user.id
@@ -228,6 +230,7 @@ const command: Command = {
                                 components: [],
                             });
                         }
+                        await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
                     } catch (err: unknown) {
                         if (err instanceof InsufficientFundsError) {
                             const msg = I18nService.translate(
@@ -386,6 +389,7 @@ const command: Command = {
                             embeds: [finalEmbed],
                             components: [],
                         });
+                        await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
                     } catch (err: unknown) {
                         if (err instanceof InsufficientFundsError) {
                             const msg = I18nService.translate(
@@ -439,6 +443,7 @@ ${
 }
 `);
                 await interaction.reply({ embeds: [embed] });
+                await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
             }
         } catch (error: unknown) {
             if (error instanceof InsufficientFundsError) {

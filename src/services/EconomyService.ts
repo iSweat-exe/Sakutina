@@ -5,6 +5,7 @@ import {
     InsufficientFundsError,
     CooldownError,
     CannotPaySelfError,
+    EmptyWalletError,
 } from '../utils/errors.js';
 import { DAILY_REWARD } from '../modules/economy/constants.js';
 
@@ -119,6 +120,128 @@ export class EconomyService {
                 })
                 .where(eq(users.discordId, receiverId));
         });
+    }
+
+    /**
+     * Deposit funds from wallet to bank.
+     */
+    public static async deposit(discordId: string, amount: number) {
+        if (amount <= 0) throw new Error('Amount must be positive');
+        
+        await db.transaction(async (tx) => {
+            const user = await tx
+                .select()
+                .from(users)
+                .where(eq(users.discordId, discordId))
+                .then((res) => res[0]);
+            
+            if (!user) throw new Error('User not found');
+            if (user.balance < amount) throw new InsufficientFundsError();
+
+            await tx
+                .update(users)
+                .set({
+                    balance: sql`${users.balance} - ${amount}`,
+                    bank: sql`${users.bank} + ${amount}`,
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.discordId, discordId));
+        });
+    }
+
+    /**
+     * Withdraw funds from bank to wallet.
+     */
+    public static async withdraw(discordId: string, amount: number) {
+        if (amount <= 0) throw new Error('Amount must be positive');
+
+        await db.transaction(async (tx) => {
+            const user = await tx
+                .select()
+                .from(users)
+                .where(eq(users.discordId, discordId))
+                .then((res) => res[0]);
+            
+            if (!user) throw new Error('User not found');
+            if (user.bank < amount) throw new InsufficientFundsError(); // or a specific BankInsufficientFundsError, but this is fine
+
+            await tx
+                .update(users)
+                .set({
+                    bank: sql`${users.bank} - ${amount}`,
+                    balance: sql`${users.balance} + ${amount}`,
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.discordId, discordId));
+        });
+    }
+
+    /**
+     * Rob another user. Steals 1-5% of their wallet.
+     * Has a 24-hour cooldown.
+     */
+    public static async rob(robberId: string, victimId: string) {
+        if (robberId === victimId) throw new Error('Cannot rob yourself');
+
+        await this.ensureUser(robberId);
+        await this.ensureUser(victimId);
+
+        let stolenAmount = 0;
+
+        await db.transaction(async (tx) => {
+            const robber = await tx
+                .select()
+                .from(users)
+                .where(eq(users.discordId, robberId))
+                .then((res) => res[0]);
+            const victim = await tx
+                .select()
+                .from(users)
+                .where(eq(users.discordId, victimId))
+                .then((res) => res[0]);
+
+            if (!robber || !victim) throw new Error('User not found');
+
+            const now = new Date();
+            // Check 24 hour cooldown
+            if (robber.robLastAttempt) {
+                const diffHours = (now.getTime() - robber.robLastAttempt.getTime()) / (1000 * 60 * 60);
+                if (diffHours < 24) {
+                    const remainingHours = Math.ceil(24 - diffHours);
+                    throw new CooldownError('ROB_COOLDOWN', remainingHours, 'hours');
+                }
+            }
+
+            if (victim.balance <= 0) {
+                // Still update cooldown even if they had no money
+                await tx.update(users).set({ robLastAttempt: now }).where(eq(users.discordId, robberId));
+                throw new EmptyWalletError();
+            }
+
+            // Steal 1-5%
+            const percent = Math.floor(Math.random() * 5) + 1;
+            stolenAmount = Math.floor(victim.balance * (percent / 100));
+            if (stolenAmount === 0) stolenAmount = 1; // steal at least 1 if they have > 0
+
+            await tx
+                .update(users)
+                .set({
+                    balance: sql`${users.balance} - ${stolenAmount}`,
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.discordId, victimId));
+
+            await tx
+                .update(users)
+                .set({
+                    balance: sql`${users.balance} + ${stolenAmount}`,
+                    robLastAttempt: now,
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.discordId, robberId));
+        });
+
+        return stolenAmount;
     }
 
     /**

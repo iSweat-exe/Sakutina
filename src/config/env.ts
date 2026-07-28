@@ -13,10 +13,11 @@ interface EnvConfig {
     NODE_ENV: 'development' | 'production';
     DATABASE_URL: string;
     DEVELOPER_ID: string[];
+    OPENAI_API_KEY?: string;
 }
 
 const parseEnv = (): EnvConfig => {
-    const { DISCORD_TOKEN, CLIENT_ID, NODE_ENV, DATABASE_URL } = process.env;
+    const { DISCORD_TOKEN, CLIENT_ID, NODE_ENV, DATABASE_URL, OPENAI_API_KEY } = process.env;
     const validEnvs = ['development', 'production', 'test'] as const;
 
     if (!DISCORD_TOKEN)
@@ -38,6 +39,7 @@ const parseEnv = (): EnvConfig => {
             id.trim()
         ),
         NODE_ENV: (NODE_ENV as 'development' | 'production') || 'development',
+        OPENAI_API_KEY,
     };
 };
 

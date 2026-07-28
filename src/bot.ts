@@ -5,13 +5,20 @@ import { EventLoader } from './core/EventLoader.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { closeDb } from './repositories/db.js';
+import { BankInterestJob } from './jobs/BankInterestJob.js';
+import { ReminderJob } from './jobs/ReminderJob.js';
+import { QuestResetJob } from './jobs/QuestResetJob.js';
 
 // Extended client to attach commands
 export class BotClient extends Client {
     public commandLoader: CommandLoader;
 
     constructor() {
-        super({ intents: [GatewayIntentBits.Guilds] });
+        super({ intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
+        ] });
         this.commandLoader = new CommandLoader();
     }
 }
@@ -26,6 +33,11 @@ const start = async () => {
         const eventLoader = new EventLoader();
         const eventsPath = join(process.cwd(), 'src', 'events'); //TODO: use import.meta.dir
         await eventLoader.loadEvents(eventsPath, botClient);
+
+        // Start Jobs
+        BankInterestJob.start();
+        ReminderJob.start();
+        QuestResetJob.start();
 
         await botClient.login(env.DISCORD_TOKEN);
     } catch (error) {

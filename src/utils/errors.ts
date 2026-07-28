@@ -19,6 +19,12 @@ export class InsufficientFundsError extends AppError {
     }
 }
 
+export class EmptyWalletError extends AppError {
+    constructor() {
+        super('EMPTY_WALLET', 'User has no money to steal');
+    }
+}
+
 export class CooldownError extends AppError {
     constructor(
         code: string,

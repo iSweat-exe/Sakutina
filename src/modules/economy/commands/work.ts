@@ -15,6 +15,7 @@ import { WorkService } from '../../../services/WorkService.js';
 import { AVAILABLE_JOBS } from '../constants.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
 import { AppError, JobError, CooldownError } from '../../../utils/errors.js';
+import { QuestService } from '../../../services/QuestService.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -239,6 +240,8 @@ const command: Command = {
                     interaction.user
                 );
                 await interaction.reply({ embeds: [embed] });
+                
+                await QuestService.incrementProgress(interaction.user.id, 'work').catch(() => {});
             }
         } catch (error: unknown) {
             if (error instanceof JobError) {

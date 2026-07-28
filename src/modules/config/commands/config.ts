@@ -108,12 +108,51 @@ const command: Command = {
                         })
                         .setRequired(true)
                 )
+        )
+        .addSubcommandGroup((group) =>
+            group
+                .setName('events')
+                .setNameLocalizations({ fr: 'evenements' })
+                .setDescription('Manage random event channels')
+                .setDescriptionLocalizations({ fr: 'Gérer les salons d\'événements aléatoires' })
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName('add')
+                        .setNameLocalizations({ fr: 'ajouter' })
+                        .setDescription('Add a channel for random events')
+                        .setDescriptionLocalizations({ fr: 'Ajouter un salon pour les événements aléatoires' })
+                        .addChannelOption((option) =>
+                            option
+                                .setName('channel')
+                                .setNameLocalizations({ fr: 'salon' })
+                                .setDescription('The channel to add')
+                                .setDescriptionLocalizations({ fr: 'Le salon à ajouter' })
+                                .addChannelTypes(ChannelType.GuildText)
+                                .setRequired(true)
+                        )
+                )
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName('remove')
+                        .setNameLocalizations({ fr: 'retirer' })
+                        .setDescription('Remove a channel from random events')
+                        .setDescriptionLocalizations({ fr: 'Retirer un salon des événements aléatoires' })
+                        .addChannelOption((option) =>
+                            option
+                                .setName('channel')
+                                .setNameLocalizations({ fr: 'salon' })
+                                .setDescription('The channel to remove')
+                                .setDescriptionLocalizations({ fr: 'Le salon à retirer' })
+                                .addChannelTypes(ChannelType.GuildText)
+                                .setRequired(true)
+                        )
+                )
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         if (!interaction.guildId) {
             const embed = EmbedUtils.error(
                 I18nService.translate('common:ERR_ONLY_SERVER', { lng: 'en' }),
-                'Error',
+                I18nService.translate('common:EMBED_TITLE_ERROR', { lng: 'en' }),
                 interaction.user
             );
             await interaction.reply({
@@ -134,7 +173,7 @@ const command: Command = {
             });
             const embed = EmbedUtils.error(
                 errorMsg,
-                'Access Denied',
+                I18nService.translate('common:EMBED_TITLE_ACCESS_DENIED', { lng: currentLang }),
                 interaction.user
             );
             await interaction.reply({
@@ -143,7 +182,32 @@ const command: Command = {
             });
             return;
         }
+        
+        const subcommandGroup = interaction.options.getSubcommandGroup(false);
         const subcommand = interaction.options.getSubcommand();
+        
+        if (subcommandGroup === 'events') {
+            const channel = interaction.options.getChannel('channel', true);
+            if (subcommand === 'add') {
+                await GuildConfigService.addEventChannel(interaction.guildId, channel.id);
+                const msg = I18nService.translate('common:CONFIG_EVENT_ADD_SUCCESS', {
+                    lng: currentLang,
+                    channel: channel.id
+                });
+                const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_CONFIG', { lng: currentLang }), interaction.user);
+                await interaction.reply({ embeds: [embed] });
+            } else if (subcommand === 'remove') {
+                await GuildConfigService.removeEventChannel(interaction.guildId, channel.id);
+                const msg = I18nService.translate('common:CONFIG_EVENT_REMOVE_SUCCESS', {
+                    lng: currentLang,
+                    channel: channel.id
+                });
+                const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_CONFIG', { lng: currentLang }), interaction.user);
+                await interaction.reply({ embeds: [embed] });
+            }
+            return;
+        }
+
         if (subcommand === 'view') {
             const config = await GuildConfigService.getGuildSettings(
                 interaction.guildId
@@ -235,7 +299,7 @@ const command: Command = {
                 );
                 const successEmbed = EmbedUtils.success(
                     successMsg,
-                    'Configuration Updated',
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
                     interaction.user
                 );
                 await confirmation.update({
@@ -245,7 +309,7 @@ const command: Command = {
             } catch (e) {
                 const timeoutEmbed = EmbedUtils.warn(
                     currentLang === 'fr' ? 'Temps écoulé.' : 'Timeout.',
-                    'Timeout',
+                    I18nService.translate('common:EMBED_TITLE_TIMEOUT', { lng: currentLang }),
                     interaction.user
                 );
                 await interaction.editReply({
@@ -264,7 +328,7 @@ const command: Command = {
                     lng: currentLang,
                     state: channel ? `<#${channel.id}>` : 'Disabled',
                 }),
-                'Configuration Updated',
+                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
                 interaction.user
             );
             await interaction.reply({
@@ -279,7 +343,7 @@ const command: Command = {
                     lng: currentLang,
                     amount,
                 }),
-                'Configuration Updated',
+                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
                 interaction.user
             );
             await interaction.reply({
@@ -297,7 +361,7 @@ const command: Command = {
                     lng: currentLang,
                     state: enabled ? 'Enabled' : 'Disabled',
                 }),
-                'Configuration Updated',
+                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
                 interaction.user
             );
             await interaction.reply({

@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../repositories/db.js';
-import { guildSettings } from '../repositories/schema.js';
+import { guildSettings, guildEventChannels } from '../repositories/schema.js';
 
 export interface GuildSettings {
     id: number;
@@ -69,6 +69,50 @@ export class GuildConfigService {
             data,
             expiresAt: Date.now() + this.CACHE_TTL_MS,
         });
+    }
+
+    /**
+     * Add a channel to the random events pool
+     */
+    public static async addEventChannel(guildId: string, channelId: string) {
+        // Prevent duplicate entries
+        const existing = await db
+            .select()
+            .from(guildEventChannels)
+            .where(
+                and(
+                    eq(guildEventChannels.guildId, guildId),
+                    eq(guildEventChannels.channelId, channelId)
+                )
+            )
+            .then(res => res[0]);
+
+        if (!existing) {
+            await db.insert(guildEventChannels).values({ guildId, channelId });
+        }
+    }
+
+    /**
+     * Remove a channel from the random events pool
+     */
+    public static async removeEventChannel(guildId: string, channelId: string) {
+        await db.delete(guildEventChannels).where(
+            and(
+                eq(guildEventChannels.guildId, guildId),
+                eq(guildEventChannels.channelId, channelId)
+            )
+        );
+    }
+
+    /**
+     * Get all event channels for a guild
+     */
+    public static async getEventChannels(guildId: string): Promise<string[]> {
+        const channels = await db
+            .select({ channelId: guildEventChannels.channelId })
+            .from(guildEventChannels)
+            .where(eq(guildEventChannels.guildId, guildId));
+        return channels.map(c => c.channelId);
     }
 
     /**
