@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../repositories/db.js";
 import { users } from "../repositories/schema.js";
 import { EconomyService } from "./EconomyService.js";
+import { JobError, CooldownError } from "../utils/errors.js";
 
 export interface JobInfo {
   id: string;
@@ -30,12 +31,12 @@ export class WorkService {
 
   public static async joinJob(discordId: string, jobId: string) {
     const job = this.getJob(jobId);
-    if (!job) throw new Error("JOB_NOT_FOUND");
+    if (!job) throw new JobError("NOT_FOUND");
 
     const user = await EconomyService.ensureUser(discordId);
 
-    if (user.currentJob === jobId) throw new Error("ALREADY_HAVE_JOB");
-    if (user.experience < job.minExperience) throw new Error("INSUFFICIENT_EXPERIENCE");
+    if (user.currentJob === jobId) throw new JobError("ALREADY_HAVE");
+    if (user.experience < job.minExperience) throw new JobError("INSUFFICIENT_EXP");
 
     await db.update(users)
       .set({ currentJob: jobId, updatedAt: new Date() })
@@ -46,7 +47,7 @@ export class WorkService {
 
   public static async leaveJob(discordId: string) {
     const user = await EconomyService.ensureUser(discordId);
-    if (!user.currentJob) throw new Error("NO_JOB");
+    if (!user.currentJob) throw new JobError("NO_JOB");
 
     await db.update(users)
       .set({ currentJob: null, updatedAt: new Date() })
@@ -55,13 +56,13 @@ export class WorkService {
 
   public static async workShift(discordId: string) {
     const user = await EconomyService.ensureUser(discordId);
-    if (!user.currentJob) throw new Error("NO_JOB");
+    if (!user.currentJob) throw new JobError("NO_JOB");
 
     const job = this.getJob(user.currentJob);
     if (!job) {
       // Job no longer exists? Force leave.
       await this.leaveJob(discordId);
-      throw new Error("JOB_REMOVED");
+      throw new JobError("REMOVED");
     }
 
     const now = new Date();
@@ -69,7 +70,7 @@ export class WorkService {
       const diffSeconds = (now.getTime() - user.workLastShift.getTime()) / 1000;
       if (diffSeconds < this.SHIFT_COOLDOWN_SECONDS) {
         const remaining = Math.ceil(this.SHIFT_COOLDOWN_SECONDS - diffSeconds);
-        throw new Error(`COOLDOWN:${remaining}`);
+        throw new CooldownError(remaining, "seconds");
       }
     }
 
@@ -78,9 +79,9 @@ export class WorkService {
 
     await db.update(users)
       .set({
-        balance: user.balance + salary,
-        experience: user.experience + expGain,
-        workShiftsDone: user.workShiftsDone + 1,
+        balance: sql`${users.balance} + ${salary}`,
+        experience: sql`${users.experience} + ${expGain}`,
+        workShiftsDone: sql`${users.workShiftsDone} + 1`,
         workLastShift: now,
         updatedAt: new Date()
       })

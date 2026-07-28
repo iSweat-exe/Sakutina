@@ -5,6 +5,7 @@ import { CasinoService } from "../../../services/CasinoService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { EconomyService } from "../../../services/EconomyService.js";
 import { EmbedUtils } from "../../../utils/EmbedUtils.js";
+import { InsufficientFundsError } from "../../../utils/errors.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -98,7 +99,7 @@ const command: Command = {
       else if (subcommand === "coinflip") {
         const balanceData = await EconomyService.getBalance(interaction.user.id);
         if (balanceData.balance < bet) {
-          throw new Error("INSUFFICIENT_FUNDS");
+          throw new InsufficientFundsError();
         }
 
         const embed = EmbedUtils.base({
@@ -143,8 +144,8 @@ const command: Command = {
               const embedLose = EmbedUtils.error(msg, "You Lost", interaction.user);
               await confirmation.update({ embeds: [embedLose], components: [] });
             }
-          } catch (err: any) {
-            if (err.message === "INSUFFICIENT_FUNDS") {
+          } catch (err: unknown) {
+            if (err instanceof InsufficientFundsError) {
               const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
               const errEmbed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
               await confirmation.update({ embeds: [errEmbed], components: [] });
@@ -161,7 +162,7 @@ const command: Command = {
         // Early balance check to avoid rendering buttons if insufficient funds
         const balanceData = await EconomyService.getBalance(interaction.user.id);
         if (balanceData.balance < bet) {
-          throw new Error("INSUFFICIENT_FUNDS");
+          throw new InsufficientFundsError();
         }
 
         const embed = EmbedUtils.base({
@@ -214,8 +215,8 @@ const command: Command = {
             }
             
             await confirmation.update({ embeds: [finalEmbed], components: [] });
-          } catch (err: any) {
-            if (err.message === "INSUFFICIENT_FUNDS") {
+          } catch (err: unknown) {
+            if (err instanceof InsufficientFundsError) {
               const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
               const errEmbed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
               await confirmation.update({ embeds: [errEmbed], components: [] });
@@ -246,8 +247,8 @@ ${result.win
 
         await interaction.reply({ embeds: [embed] });
       }
-    } catch (error: any) {
-      if (error.message === "INSUFFICIENT_FUNDS") {
+    } catch (error: unknown) {
+      if (error instanceof InsufficientFundsError) {
         const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
         const embed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });

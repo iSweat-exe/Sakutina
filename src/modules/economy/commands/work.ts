@@ -4,6 +4,7 @@ import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { AVAILABLE_JOBS, WorkService } from "../../../services/WorkService.js";
 import { EmbedUtils } from "../../../utils/EmbedUtils.js";
+import { AppError, JobError, CooldownError } from "../../../utils/errors.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -103,12 +104,13 @@ const command: Command = {
             const msg = I18nService.translate("common:WORK_JOIN_SUCCESS", { lng: lang, job: job!.title });
             const successEmbed = EmbedUtils.success(msg, "Job Joined", interaction.user);
             await confirmation.update({ embeds: [successEmbed], components: [] });
-          } catch (err: any) {
+          } catch (err: unknown) {
             let errorMsg = I18nService.translate("common:ERROR_GENERIC", { lng: lang });
-            if (err.message === "ALREADY_HAVE_JOB") errorMsg = I18nService.translate("common:WORK_ERR_ALREADY", { lng: lang });
-            else if (err.message === "INSUFFICIENT_EXPERIENCE") errorMsg = I18nService.translate("common:WORK_ERR_EXP", { lng: lang });
-            else if (err.message === "JOB_NOT_FOUND") errorMsg = I18nService.translate("common:WORK_ERR_NOT_FOUND", { lng: lang });
-            
+            if (err instanceof JobError) {
+              if (err.code === "JOB_ALREADY_HAVE") errorMsg = I18nService.translate("common:WORK_ERR_ALREADY", { lng: lang });
+              else if (err.code === "JOB_INSUFFICIENT_EXP") errorMsg = I18nService.translate("common:WORK_ERR_EXP", { lng: lang });
+              else if (err.code === "JOB_NOT_FOUND") errorMsg = I18nService.translate("common:WORK_ERR_NOT_FOUND", { lng: lang });
+            }
             const errEmbed = EmbedUtils.error(errorMsg, "Error", interaction.user);
             await confirmation.update({ embeds: [errEmbed], components: [] });
           }
@@ -151,30 +153,20 @@ const command: Command = {
         const embed = EmbedUtils.success(msg, "Work Shift Complete", interaction.user);
         await interaction.reply({ embeds: [embed] });
       }
-    } catch (error: any) {
-      if (error.message === "JOB_NOT_FOUND") {
-        const msg = I18nService.translate("common:WORK_ERR_NOT_FOUND", { lng: lang });
+    } catch (error: unknown) {
+      if (error instanceof JobError) {
+        const keyMap: Record<string, string> = {
+          JOB_NOT_FOUND: "common:WORK_ERR_NOT_FOUND",
+          JOB_ALREADY_HAVE: "common:WORK_ERR_ALREADY",
+          JOB_INSUFFICIENT_EXP: "common:WORK_ERR_EXP",
+          JOB_NO_JOB: "common:WORK_ERR_NO_JOB",
+          JOB_REMOVED: "common:WORK_ERR_REMOVED",
+        };
+        const msg = I18nService.translate(keyMap[error.code] ?? "common:ERROR_GENERIC", { lng: lang });
         const embed = EmbedUtils.error(msg, "Error", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message === "ALREADY_HAVE_JOB") {
-        const msg = I18nService.translate("common:WORK_ERR_ALREADY", { lng: lang });
-        const embed = EmbedUtils.error(msg, "Error", interaction.user);
-        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message === "INSUFFICIENT_EXPERIENCE") {
-        const msg = I18nService.translate("common:WORK_ERR_EXP", { lng: lang });
-        const embed = EmbedUtils.error(msg, "Error", interaction.user);
-        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message === "NO_JOB") {
-        const msg = I18nService.translate("common:WORK_ERR_NO_JOB", { lng: lang });
-        const embed = EmbedUtils.error(msg, "Error", interaction.user);
-        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message === "JOB_REMOVED") {
-        const msg = I18nService.translate("common:WORK_ERR_REMOVED", { lng: lang });
-        const embed = EmbedUtils.error(msg, "Error", interaction.user);
-        await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message.startsWith("COOLDOWN:")) {
-        const seconds = error.message.split(":")[1];
-        const msg = I18nService.translate("common:WORK_ERR_COOLDOWN", { lng: lang, seconds });
+      } else if (error instanceof CooldownError) {
+        const msg = I18nService.translate("common:WORK_ERR_COOLDOWN", { lng: lang, seconds: error.remaining });
         const embed = EmbedUtils.warn(msg, "Cooldown", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } else {

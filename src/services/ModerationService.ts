@@ -4,6 +4,7 @@ import { warns, users, guildSettings } from "../repositories/schema.js";
 import { eq, and, sql } from "drizzle-orm";
 import { GuildConfigService } from "./GuildConfigService.js";
 import { EconomyService } from "./EconomyService.js";
+import { logger } from "../utils/logger.js";
 
 export class ModerationService {
   /**
@@ -47,7 +48,7 @@ export class ModerationService {
     try {
       await channel.send({ embeds: [embed] });
     } catch (err) {
-      console.error(`Failed to send mod log in guild ${guild.id}`, err);
+      logger.error(`Failed to send mod log in guild ${guild.id}`, err);
     }
   }
 
@@ -104,7 +105,7 @@ export class ModerationService {
         await this.sendLog(guild, "BAN", target.user, moderator, `[Auto-Ban] Reached ${maxWarns} warnings.`);
         await this.logModActionStats(target.id, "BAN");
       } catch (e) {
-        console.error(`Failed to autoban ${target.id} in ${guild.id}`, e);
+        logger.error(`Failed to autoban ${target.id} in ${guild.id}`, e);
       }
     }
 

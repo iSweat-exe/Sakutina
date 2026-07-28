@@ -4,6 +4,7 @@ import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { EconomyService } from "../../../services/EconomyService.js";
 import { EmbedUtils } from "../../../utils/EmbedUtils.js";
+import { CannotPaySelfError, InsufficientFundsError } from "../../../utils/errors.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -45,12 +46,12 @@ const command: Command = {
       const msg = I18nService.translate("common:PAY_SUCCESS", { lng: lang, amount, user: targetUser.toString() });
       const embed = EmbedUtils.success(msg, "Payment Sent", interaction.user);
       await interaction.reply({ embeds: [embed] });
-    } catch (error: any) {
-      if (error.message === "CANNOT_PAY_SELF") {
+    } catch (error: unknown) {
+      if (error instanceof CannotPaySelfError) {
         const msg = I18nService.translate("common:PAY_SELF_ERROR", { lng: lang });
         const embed = EmbedUtils.error(msg, "Error", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-      } else if (error.message === "INSUFFICIENT_FUNDS") {
+      } else if (error instanceof InsufficientFundsError) {
         const msg = I18nService.translate("common:INSUFFICIENT_FUNDS", { lng: lang });
         const embed = EmbedUtils.error(msg, "Insufficient Funds", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });

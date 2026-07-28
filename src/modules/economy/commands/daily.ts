@@ -4,6 +4,7 @@ import { I18nService } from "../../../services/I18nService.js";
 import { GuildConfigService } from "../../../services/GuildConfigService.js";
 import { EconomyService } from "../../../services/EconomyService.js";
 import { EmbedUtils } from "../../../utils/EmbedUtils.js";
+import { CooldownError } from "../../../utils/errors.js";
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -20,10 +21,9 @@ const command: Command = {
       const msg = I18nService.translate("common:DAILY_SUCCESS", { lng: lang, amount: 500, balance: newBalance });
       const embed = EmbedUtils.success(msg, "Daily Reward", interaction.user);
       await interaction.reply({ embeds: [embed] });
-    } catch (error: any) {
-      if (error.message.startsWith("COOLDOWN:")) {
-        const hours = error.message.split(":")[1];
-        const msg = I18nService.translate("common:DAILY_COOLDOWN", { lng: lang, hours });
+    } catch (error: unknown) {
+      if (error instanceof CooldownError) {
+        const msg = I18nService.translate("common:DAILY_COOLDOWN", { lng: lang, hours: error.remaining });
         const embed = EmbedUtils.warn(msg, "Cooldown", interaction.user);
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       } else {

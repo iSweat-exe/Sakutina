@@ -28,13 +28,14 @@ export class GuildConfigService {
     let settings = await db.select().from(guildSettings).where(eq(guildSettings.guildId, guildId)).then(res => res[0]);
 
     if (!settings) {
-      settings = (await db.insert(guildSettings).values({
+      settings = await db.insert(guildSettings).values({
         guildId,
         language: "en",
         modLogChannel: null,
         maxWarns: 3,
         modLogWarning: true
-      }).returning().then(res => res[0]))!;
+      }).returning().then(res => res[0]);
+      if (!settings) throw new Error("Failed to insert guild settings");
     }
 
     this.cache.set(guildId, settings);
@@ -45,52 +46,56 @@ export class GuildConfigService {
    * Update the language for a guild.
    */
   public static async setLanguage(guildId: string, language: "en" | "fr"): Promise<GuildSettings> {
-    const updated = (await db.insert(guildSettings)
+    const updated = await db.insert(guildSettings)
       .values({ guildId, language })
       .onConflictDoUpdate({
         target: guildSettings.guildId,
         set: { language, updatedAt: new Date() },
       })
-      .returning().then(res => res[0]))!;
+      .returning().then(res => res[0]);
+    if (!updated) throw new Error("Failed to upsert guild language");
 
     this.cache.set(guildId, updated);
     return updated;
   }
   
   public static async setModLogChannel(guildId: string, channelId: string | null): Promise<GuildSettings> {
-    const updated = (await db.insert(guildSettings)
+    const updated = await db.insert(guildSettings)
       .values({ guildId, modLogChannel: channelId })
       .onConflictDoUpdate({
         target: guildSettings.guildId,
         set: { modLogChannel: channelId, updatedAt: new Date() },
       })
-      .returning().then(res => res[0]))!;
+      .returning().then(res => res[0]);
+    if (!updated) throw new Error("Failed to upsert mod log channel");
 
     this.cache.set(guildId, updated);
     return updated;
   }
   
   public static async setMaxWarns(guildId: string, maxWarns: number): Promise<GuildSettings> {
-    const updated = (await db.insert(guildSettings)
+    const updated = await db.insert(guildSettings)
       .values({ guildId, maxWarns })
       .onConflictDoUpdate({
         target: guildSettings.guildId,
         set: { maxWarns, updatedAt: new Date() },
       })
-      .returning().then(res => res[0]))!;
+      .returning().then(res => res[0]);
+    if (!updated) throw new Error("Failed to upsert max warns");
 
     this.cache.set(guildId, updated);
     return updated;
   }
   
   public static async setModLogWarning(guildId: string, enabled: boolean): Promise<GuildSettings> {
-    const updated = (await db.insert(guildSettings)
+    const updated = await db.insert(guildSettings)
       .values({ guildId, modLogWarning: enabled })
       .onConflictDoUpdate({
         target: guildSettings.guildId,
         set: { modLogWarning: enabled, updatedAt: new Date() },
       })
-      .returning().then(res => res[0]))!;
+      .returning().then(res => res[0]);
+    if (!updated) throw new Error("Failed to upsert mod log warning");
 
     this.cache.set(guildId, updated);
     return updated;
