@@ -1,482 +1,482 @@
 {
-  "name:config": {
-    "en": "config",
-    "fr": ""
-  },
-  "name:view": {
-    "en": "view",
-    "fr": ""
-  },
-  "name:language": {
-    "en": "language",
-    "fr": ""
-  },
-  "name:lang": {
-    "en": "lang",
-    "fr": ""
-  },
-  "name:modlog": {
-    "en": "modlog",
-    "fr": ""
-  },
-  "name:channel": {
-    "en": "channel",
-    "fr": ""
-  },
-  "name:maxwarns": {
-    "en": "maxwarns",
-    "fr": ""
-  },
-  "name:amount": {
-    "en": "amount",
-    "fr": ""
-  },
-  "name:modlog_warning": {
-    "en": "modlog_warning",
-    "fr": ""
-  },
-  "name:enabled": {
-    "en": "enabled",
-    "fr": ""
-  },
-  "desc:Manage server configuration": {
-    "en": "Manage server configuration",
-    "fr": ""
-  },
-  "desc:View current server configuration": {
-    "en": "View current server configuration",
-    "fr": ""
-  },
-  "desc:Change the server language": {
-    "en": "Change the server language",
-    "fr": ""
-  },
-  "desc:The language to set": {
-    "en": "The language to set",
-    "fr": ""
-  },
-  "desc:Set the moderation log channel": {
-    "en": "Set the moderation log channel",
-    "fr": ""
-  },
-  "desc:The channel to send moderation logs to": {
-    "en": "The channel to send moderation logs to",
-    "fr": ""
-  },
-  "desc:Set the max warnings before auto-ban": {
-    "en": "Set the max warnings before auto-ban",
-    "fr": ""
-  },
-  "desc:Number of warnings (default 3)": {
-    "en": "Number of warnings (default 3)",
-    "fr": ""
-  },
-  "desc:Toggle the reminder to set up a modlog channel": {
-    "en": "Toggle the reminder to set up a modlog channel",
-    "fr": ""
-  },
-  "desc:True to enable the warning, False to disable": {
-    "en": "True to enable the warning, False to disable",
-    "fr": ""
-  },
-  "name:dev": {
-    "en": "dev",
-    "fr": ""
-  },
-  "name:eval": {
-    "en": "eval",
-    "fr": ""
-  },
-  "name:code": {
-    "en": "code",
-    "fr": ""
-  },
-  "name:sql": {
-    "en": "sql",
-    "fr": ""
-  },
-  "name:query": {
-    "en": "query",
-    "fr": ""
-  },
-  "name:servers": {
-    "en": "servers",
-    "fr": ""
-  },
-  "name:stats": {
-    "en": "stats",
-    "fr": ""
-  },
-  "name:cleardb": {
-    "en": "cleardb",
-    "fr": ""
-  },
-  "name:confirm": {
-    "en": "confirm",
-    "fr": ""
-  },
-  "name:deploy": {
-    "en": "deploy",
-    "fr": ""
-  },
-  "desc:Developer commands (Restricted)": {
-    "en": "Developer commands (Restricted)",
-    "fr": ""
-  },
-  "desc:Evaluate raw JavaScript (DANGEROUS)": {
-    "en": "Evaluate raw JavaScript (DANGEROUS)",
-    "fr": ""
-  },
-  "desc:The JS code to run": {
-    "en": "The JS code to run",
-    "fr": ""
-  },
-  "desc:Execute raw SQL queries (DANGEROUS)": {
-    "en": "Execute raw SQL queries (DANGEROUS)",
-    "fr": ""
-  },
-  "desc:The SQL query to run": {
-    "en": "The SQL query to run",
-    "fr": ""
-  },
-  "desc:List all servers the bot is in": {
-    "en": "List all servers the bot is in",
-    "fr": ""
-  },
-  "desc:Show bot performance and system stats": {
-    "en": "Show bot performance and system stats",
-    "fr": ""
-  },
-  "desc:Clear all tables in the database (DANGEROUS)": {
-    "en": "Clear all tables in the database (DANGEROUS)",
-    "fr": ""
-  },
-  "desc:Confirm deletion": {
-    "en": "Confirm deletion",
-    "fr": ""
-  },
-  "desc:Deploy slash commands to Discord via sub-process": {
-    "en": "Deploy slash commands to Discord via sub-process",
-    "fr": ""
-  },
-  "name:balance": {
-    "en": "balance",
-    "fr": ""
-  },
-  "name:user": {
-    "en": "user",
-    "fr": ""
-  },
-  "desc:Check your or someone else's balance": {
-    "en": "Check your or someone else's balance",
-    "fr": ""
-  },
-  "desc:The user to check the balance of": {
-    "en": "The user to check the balance of",
-    "fr": ""
-  },
-  "name:casino": {
-    "en": "casino",
-    "fr": ""
-  },
-  "name:doubleornothing": {
-    "en": "doubleornothing",
-    "fr": ""
-  },
-  "name:bet": {
-    "en": "bet",
-    "fr": ""
-  },
-  "name:coinflip": {
-    "en": "coinflip",
-    "fr": ""
-  },
-  "name:choice": {
-    "en": "choice",
-    "fr": ""
-  },
-  "name:rps": {
-    "en": "rps",
-    "fr": ""
-  },
-  "name:slots": {
-    "en": "slots",
-    "fr": ""
-  },
-  "desc:Play casino minigames": {
-    "en": "Play casino minigames",
-    "fr": ""
-  },
-  "desc:50% chance to double your bet": {
-    "en": "50% chance to double your bet",
-    "fr": ""
-  },
-  "desc:Amount to bet": {
-    "en": "Amount to bet",
-    "fr": ""
-  },
-  "desc:Bet on heads or tails": {
-    "en": "Bet on heads or tails",
-    "fr": ""
-  },
-  "desc:Heads or tails": {
-    "en": "Heads or tails",
-    "fr": ""
-  },
-  "desc:Rock Paper Scissors against the bot": {
-    "en": "Rock Paper Scissors against the bot",
-    "fr": ""
-  },
-  "desc:Rock, paper, or scissors": {
-    "en": "Rock, paper, or scissors",
-    "fr": ""
-  },
-  "desc:Play the slot machine": {
-    "en": "Play the slot machine",
-    "fr": ""
-  },
-  "name:daily": {
-    "en": "daily",
-    "fr": ""
-  },
-  "desc:Claim your daily reward": {
-    "en": "Claim your daily reward",
-    "fr": ""
-  },
-  "name:leaderboard": {
-    "en": "leaderboard",
-    "fr": ""
-  },
-  "desc:View the richest users": {
-    "en": "View the richest users",
-    "fr": ""
-  },
-  "name:pay": {
-    "en": "pay",
-    "fr": ""
-  },
-  "desc:Pay another user some coins": {
-    "en": "Pay another user some coins",
-    "fr": ""
-  },
-  "desc:The user to pay": {
-    "en": "The user to pay",
-    "fr": ""
-  },
-  "desc:Amount to pay": {
-    "en": "Amount to pay",
-    "fr": ""
-  },
-  "name:work": {
-    "en": "work",
-    "fr": ""
-  },
-  "name:list": {
-    "en": "list",
-    "fr": ""
-  },
-  "name:join": {
-    "en": "join",
-    "fr": ""
-  },
-  "name:job": {
-    "en": "job",
-    "fr": ""
-  },
-  "name:leave": {
-    "en": "leave",
-    "fr": ""
-  },
-  "name:shift": {
-    "en": "shift",
-    "fr": ""
-  },
-  "desc:Work system commands": {
-    "en": "Work system commands",
-    "fr": ""
-  },
-  "desc:List available jobs": {
-    "en": "List available jobs",
-    "fr": ""
-  },
-  "desc:Join a job": {
-    "en": "Join a job",
-    "fr": ""
-  },
-  "desc:The ID of the job": {
-    "en": "The ID of the job",
-    "fr": ""
-  },
-  "desc:Leave your current job": {
-    "en": "Leave your current job",
-    "fr": ""
-  },
-  "desc:View your work statistics": {
-    "en": "View your work statistics",
-    "fr": ""
-  },
-  "desc:Work a shift to earn money": {
-    "en": "Work a shift to earn money",
-    "fr": ""
-  },
-  "name:ping": {
-    "en": "ping",
-    "fr": ""
-  },
-  "desc:Replies with Pong!": {
-    "en": "Replies with Pong!",
-    "fr": ""
-  },
-  "name:mod": {
-    "en": "mod",
-    "fr": ""
-  },
-  "name:warn": {
-    "en": "warn",
-    "fr": ""
-  },
-  "name:reason": {
-    "en": "reason",
-    "fr": ""
-  },
-  "name:warnings": {
-    "en": "warnings",
-    "fr": ""
-  },
-  "name:clearwarns": {
-    "en": "clearwarns",
-    "fr": ""
-  },
-  "name:mute": {
-    "en": "mute",
-    "fr": ""
-  },
-  "name:duration": {
-    "en": "duration",
-    "fr": ""
-  },
-  "name:unmute": {
-    "en": "unmute",
-    "fr": ""
-  },
-  "name:kick": {
-    "en": "kick",
-    "fr": ""
-  },
-  "name:ban": {
-    "en": "ban",
-    "fr": ""
-  },
-  "name:softban": {
-    "en": "softban",
-    "fr": ""
-  },
-  "desc:Moderation commands": {
-    "en": "Moderation commands",
-    "fr": ""
-  },
-  "desc:Warn a user": {
-    "en": "Warn a user",
-    "fr": ""
-  },
-  "desc:User to warn": {
-    "en": "User to warn",
-    "fr": ""
-  },
-  "desc:Reason for the warning": {
-    "en": "Reason for the warning",
-    "fr": ""
-  },
-  "desc:View a user's warnings": {
-    "en": "View a user's warnings",
-    "fr": ""
-  },
-  "desc:User to check": {
-    "en": "User to check",
-    "fr": ""
-  },
-  "desc:View moderation statistics for a user": {
-    "en": "View moderation statistics for a user",
-    "fr": ""
-  },
-  "desc:Clear all warnings for a user": {
-    "en": "Clear all warnings for a user",
-    "fr": ""
-  },
-  "desc:User to clear": {
-    "en": "User to clear",
-    "fr": ""
-  },
-  "desc:Timeout a user": {
-    "en": "Timeout a user",
-    "fr": ""
-  },
-  "desc:User to mute": {
-    "en": "User to mute",
-    "fr": ""
-  },
-  "desc:Duration in minutes": {
-    "en": "Duration in minutes",
-    "fr": ""
-  },
-  "desc:Reason for the mute": {
-    "en": "Reason for the mute",
-    "fr": ""
-  },
-  "desc:Remove timeout from a user": {
-    "en": "Remove timeout from a user",
-    "fr": ""
-  },
-  "desc:User to unmute": {
-    "en": "User to unmute",
-    "fr": ""
-  },
-  "desc:Reason": {
-    "en": "Reason",
-    "fr": ""
-  },
-  "desc:Kick a user": {
-    "en": "Kick a user",
-    "fr": ""
-  },
-  "desc:User to kick": {
-    "en": "User to kick",
-    "fr": ""
-  },
-  "desc:Reason for the kick": {
-    "en": "Reason for the kick",
-    "fr": ""
-  },
-  "desc:Ban a user": {
-    "en": "Ban a user",
-    "fr": ""
-  },
-  "desc:User to ban": {
-    "en": "User to ban",
-    "fr": ""
-  },
-  "desc:Reason for the ban": {
-    "en": "Reason for the ban",
-    "fr": ""
-  },
-  "desc:Ban and immediately unban a user (deletes recent messages)": {
-    "en": "Ban and immediately unban a user (deletes recent messages)",
-    "fr": ""
-  },
-  "desc:User to softban": {
-    "en": "User to softban",
-    "fr": ""
-  },
-  "name:profile": {
-    "en": "profile",
-    "fr": ""
-  },
-  "desc:View your profile and statistics": {
-    "en": "View your profile and statistics",
-    "fr": ""
-  },
-  "desc:The user to view": {
-    "en": "The user to view",
-    "fr": ""
-  }
+    "name:config": {
+        "en": "config",
+        "fr": ""
+    },
+    "name:view": {
+        "en": "view",
+        "fr": ""
+    },
+    "name:language": {
+        "en": "language",
+        "fr": ""
+    },
+    "name:lang": {
+        "en": "lang",
+        "fr": ""
+    },
+    "name:modlog": {
+        "en": "modlog",
+        "fr": ""
+    },
+    "name:channel": {
+        "en": "channel",
+        "fr": ""
+    },
+    "name:maxwarns": {
+        "en": "maxwarns",
+        "fr": ""
+    },
+    "name:amount": {
+        "en": "amount",
+        "fr": ""
+    },
+    "name:modlog_warning": {
+        "en": "modlog_warning",
+        "fr": ""
+    },
+    "name:enabled": {
+        "en": "enabled",
+        "fr": ""
+    },
+    "desc:Manage server configuration": {
+        "en": "Manage server configuration",
+        "fr": ""
+    },
+    "desc:View current server configuration": {
+        "en": "View current server configuration",
+        "fr": ""
+    },
+    "desc:Change the server language": {
+        "en": "Change the server language",
+        "fr": ""
+    },
+    "desc:The language to set": {
+        "en": "The language to set",
+        "fr": ""
+    },
+    "desc:Set the moderation log channel": {
+        "en": "Set the moderation log channel",
+        "fr": ""
+    },
+    "desc:The channel to send moderation logs to": {
+        "en": "The channel to send moderation logs to",
+        "fr": ""
+    },
+    "desc:Set the max warnings before auto-ban": {
+        "en": "Set the max warnings before auto-ban",
+        "fr": ""
+    },
+    "desc:Number of warnings (default 3)": {
+        "en": "Number of warnings (default 3)",
+        "fr": ""
+    },
+    "desc:Toggle the reminder to set up a modlog channel": {
+        "en": "Toggle the reminder to set up a modlog channel",
+        "fr": ""
+    },
+    "desc:True to enable the warning, False to disable": {
+        "en": "True to enable the warning, False to disable",
+        "fr": ""
+    },
+    "name:dev": {
+        "en": "dev",
+        "fr": ""
+    },
+    "name:eval": {
+        "en": "eval",
+        "fr": ""
+    },
+    "name:code": {
+        "en": "code",
+        "fr": ""
+    },
+    "name:sql": {
+        "en": "sql",
+        "fr": ""
+    },
+    "name:query": {
+        "en": "query",
+        "fr": ""
+    },
+    "name:servers": {
+        "en": "servers",
+        "fr": ""
+    },
+    "name:stats": {
+        "en": "stats",
+        "fr": ""
+    },
+    "name:cleardb": {
+        "en": "cleardb",
+        "fr": ""
+    },
+    "name:confirm": {
+        "en": "confirm",
+        "fr": ""
+    },
+    "name:deploy": {
+        "en": "deploy",
+        "fr": ""
+    },
+    "desc:Developer commands (Restricted)": {
+        "en": "Developer commands (Restricted)",
+        "fr": ""
+    },
+    "desc:Evaluate raw JavaScript (DANGEROUS)": {
+        "en": "Evaluate raw JavaScript (DANGEROUS)",
+        "fr": ""
+    },
+    "desc:The JS code to run": {
+        "en": "The JS code to run",
+        "fr": ""
+    },
+    "desc:Execute raw SQL queries (DANGEROUS)": {
+        "en": "Execute raw SQL queries (DANGEROUS)",
+        "fr": ""
+    },
+    "desc:The SQL query to run": {
+        "en": "The SQL query to run",
+        "fr": ""
+    },
+    "desc:List all servers the bot is in": {
+        "en": "List all servers the bot is in",
+        "fr": ""
+    },
+    "desc:Show bot performance and system stats": {
+        "en": "Show bot performance and system stats",
+        "fr": ""
+    },
+    "desc:Clear all tables in the database (DANGEROUS)": {
+        "en": "Clear all tables in the database (DANGEROUS)",
+        "fr": ""
+    },
+    "desc:Confirm deletion": {
+        "en": "Confirm deletion",
+        "fr": ""
+    },
+    "desc:Deploy slash commands to Discord via sub-process": {
+        "en": "Deploy slash commands to Discord via sub-process",
+        "fr": ""
+    },
+    "name:balance": {
+        "en": "balance",
+        "fr": ""
+    },
+    "name:user": {
+        "en": "user",
+        "fr": ""
+    },
+    "desc:Check your or someone else's balance": {
+        "en": "Check your or someone else's balance",
+        "fr": ""
+    },
+    "desc:The user to check the balance of": {
+        "en": "The user to check the balance of",
+        "fr": ""
+    },
+    "name:casino": {
+        "en": "casino",
+        "fr": ""
+    },
+    "name:doubleornothing": {
+        "en": "doubleornothing",
+        "fr": ""
+    },
+    "name:bet": {
+        "en": "bet",
+        "fr": ""
+    },
+    "name:coinflip": {
+        "en": "coinflip",
+        "fr": ""
+    },
+    "name:choice": {
+        "en": "choice",
+        "fr": ""
+    },
+    "name:rps": {
+        "en": "rps",
+        "fr": ""
+    },
+    "name:slots": {
+        "en": "slots",
+        "fr": ""
+    },
+    "desc:Play casino minigames": {
+        "en": "Play casino minigames",
+        "fr": ""
+    },
+    "desc:50% chance to double your bet": {
+        "en": "50% chance to double your bet",
+        "fr": ""
+    },
+    "desc:Amount to bet": {
+        "en": "Amount to bet",
+        "fr": ""
+    },
+    "desc:Bet on heads or tails": {
+        "en": "Bet on heads or tails",
+        "fr": ""
+    },
+    "desc:Heads or tails": {
+        "en": "Heads or tails",
+        "fr": ""
+    },
+    "desc:Rock Paper Scissors against the bot": {
+        "en": "Rock Paper Scissors against the bot",
+        "fr": ""
+    },
+    "desc:Rock, paper, or scissors": {
+        "en": "Rock, paper, or scissors",
+        "fr": ""
+    },
+    "desc:Play the slot machine": {
+        "en": "Play the slot machine",
+        "fr": ""
+    },
+    "name:daily": {
+        "en": "daily",
+        "fr": ""
+    },
+    "desc:Claim your daily reward": {
+        "en": "Claim your daily reward",
+        "fr": ""
+    },
+    "name:leaderboard": {
+        "en": "leaderboard",
+        "fr": ""
+    },
+    "desc:View the richest users": {
+        "en": "View the richest users",
+        "fr": ""
+    },
+    "name:pay": {
+        "en": "pay",
+        "fr": ""
+    },
+    "desc:Pay another user some coins": {
+        "en": "Pay another user some coins",
+        "fr": ""
+    },
+    "desc:The user to pay": {
+        "en": "The user to pay",
+        "fr": ""
+    },
+    "desc:Amount to pay": {
+        "en": "Amount to pay",
+        "fr": ""
+    },
+    "name:work": {
+        "en": "work",
+        "fr": ""
+    },
+    "name:list": {
+        "en": "list",
+        "fr": ""
+    },
+    "name:join": {
+        "en": "join",
+        "fr": ""
+    },
+    "name:job": {
+        "en": "job",
+        "fr": ""
+    },
+    "name:leave": {
+        "en": "leave",
+        "fr": ""
+    },
+    "name:shift": {
+        "en": "shift",
+        "fr": ""
+    },
+    "desc:Work system commands": {
+        "en": "Work system commands",
+        "fr": ""
+    },
+    "desc:List available jobs": {
+        "en": "List available jobs",
+        "fr": ""
+    },
+    "desc:Join a job": {
+        "en": "Join a job",
+        "fr": ""
+    },
+    "desc:The ID of the job": {
+        "en": "The ID of the job",
+        "fr": ""
+    },
+    "desc:Leave your current job": {
+        "en": "Leave your current job",
+        "fr": ""
+    },
+    "desc:View your work statistics": {
+        "en": "View your work statistics",
+        "fr": ""
+    },
+    "desc:Work a shift to earn money": {
+        "en": "Work a shift to earn money",
+        "fr": ""
+    },
+    "name:ping": {
+        "en": "ping",
+        "fr": ""
+    },
+    "desc:Replies with Pong!": {
+        "en": "Replies with Pong!",
+        "fr": ""
+    },
+    "name:mod": {
+        "en": "mod",
+        "fr": ""
+    },
+    "name:warn": {
+        "en": "warn",
+        "fr": ""
+    },
+    "name:reason": {
+        "en": "reason",
+        "fr": ""
+    },
+    "name:warnings": {
+        "en": "warnings",
+        "fr": ""
+    },
+    "name:clearwarns": {
+        "en": "clearwarns",
+        "fr": ""
+    },
+    "name:mute": {
+        "en": "mute",
+        "fr": ""
+    },
+    "name:duration": {
+        "en": "duration",
+        "fr": ""
+    },
+    "name:unmute": {
+        "en": "unmute",
+        "fr": ""
+    },
+    "name:kick": {
+        "en": "kick",
+        "fr": ""
+    },
+    "name:ban": {
+        "en": "ban",
+        "fr": ""
+    },
+    "name:softban": {
+        "en": "softban",
+        "fr": ""
+    },
+    "desc:Moderation commands": {
+        "en": "Moderation commands",
+        "fr": ""
+    },
+    "desc:Warn a user": {
+        "en": "Warn a user",
+        "fr": ""
+    },
+    "desc:User to warn": {
+        "en": "User to warn",
+        "fr": ""
+    },
+    "desc:Reason for the warning": {
+        "en": "Reason for the warning",
+        "fr": ""
+    },
+    "desc:View a user's warnings": {
+        "en": "View a user's warnings",
+        "fr": ""
+    },
+    "desc:User to check": {
+        "en": "User to check",
+        "fr": ""
+    },
+    "desc:View moderation statistics for a user": {
+        "en": "View moderation statistics for a user",
+        "fr": ""
+    },
+    "desc:Clear all warnings for a user": {
+        "en": "Clear all warnings for a user",
+        "fr": ""
+    },
+    "desc:User to clear": {
+        "en": "User to clear",
+        "fr": ""
+    },
+    "desc:Timeout a user": {
+        "en": "Timeout a user",
+        "fr": ""
+    },
+    "desc:User to mute": {
+        "en": "User to mute",
+        "fr": ""
+    },
+    "desc:Duration in minutes": {
+        "en": "Duration in minutes",
+        "fr": ""
+    },
+    "desc:Reason for the mute": {
+        "en": "Reason for the mute",
+        "fr": ""
+    },
+    "desc:Remove timeout from a user": {
+        "en": "Remove timeout from a user",
+        "fr": ""
+    },
+    "desc:User to unmute": {
+        "en": "User to unmute",
+        "fr": ""
+    },
+    "desc:Reason": {
+        "en": "Reason",
+        "fr": ""
+    },
+    "desc:Kick a user": {
+        "en": "Kick a user",
+        "fr": ""
+    },
+    "desc:User to kick": {
+        "en": "User to kick",
+        "fr": ""
+    },
+    "desc:Reason for the kick": {
+        "en": "Reason for the kick",
+        "fr": ""
+    },
+    "desc:Ban a user": {
+        "en": "Ban a user",
+        "fr": ""
+    },
+    "desc:User to ban": {
+        "en": "User to ban",
+        "fr": ""
+    },
+    "desc:Reason for the ban": {
+        "en": "Reason for the ban",
+        "fr": ""
+    },
+    "desc:Ban and immediately unban a user (deletes recent messages)": {
+        "en": "Ban and immediately unban a user (deletes recent messages)",
+        "fr": ""
+    },
+    "desc:User to softban": {
+        "en": "User to softban",
+        "fr": ""
+    },
+    "name:profile": {
+        "en": "profile",
+        "fr": ""
+    },
+    "desc:View your profile and statistics": {
+        "en": "View your profile and statistics",
+        "fr": ""
+    },
+    "desc:The user to view": {
+        "en": "The user to view",
+        "fr": ""
+    }
 }

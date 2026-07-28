@@ -1,32 +1,32 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  sakutina:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: sakutina-bot
-    restart: unless-stopped
-    env_file:
-      - .env.production.local # Change this to the appropriate production env file
-    # Expose any ports if needed (for webhooks/APIs later)
-    # ports:
-    #   - "3000:3000"
-    # volumes:
-    #   - ./data:/usr/src/app/data # Mount volume if persistence is needed
+    sakutina:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: sakutina-bot
+        restart: unless-stopped
+        env_file:
+            - .env.production.local # Change this to the appropriate production env file
+        # Expose any ports if needed (for webhooks/APIs later)
+        # ports:
+        #   - "3000:3000"
+        # volumes:
+        #   - ./data:/usr/src/app/data # Mount volume if persistence is needed
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: sakutina-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: sakutina
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    postgres:
+        image: postgres:15-alpine
+        container_name: sakutina-postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: sakutina
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+    postgres_data:
