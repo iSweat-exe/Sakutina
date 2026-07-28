@@ -16,10 +16,10 @@ import type { BotClient } from '../../../bot.js';
 const CATEGORIES = {
     config: ['config'],
     core: ['dev', 'help'],
-    economy: ['balance', 'casino', 'daily', 'leaderboard', 'pay', 'work'],
-    fun: ['ping'],
+    economy: ['balance', 'bank', 'casino', 'daily', 'leaderboard', 'pay', 'quests', 'rob', 'work'],
+    fun: ['ping', '8ball', 'interact', 'ask'],
     moderation: ['mod'],
-    users: ['profile'],
+    users: ['profile', 'remindme'],
 } as const;
 
 type CategoryKey = keyof typeof CATEGORIES;

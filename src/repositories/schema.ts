@@ -5,6 +5,7 @@ import {
     integer,
     timestamp,
     boolean,
+    uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -75,4 +76,15 @@ export const userQuests = pgTable('user_quests', {
     type: text('type').notNull(), // 'daily' | 'weekly'
     completed: boolean('completed').default(false).notNull(),
     expiresAt: timestamp('expires_at').notNull(),
+});
+
+export const interactionStats = pgTable('interaction_stats', {
+    id: serial('id').primaryKey(),
+    userId: text('user_id').notNull(),
+    interactionType: text('interaction_type').notNull(), // e.g. 'hug', 'kiss', 'pat'
+    count: integer('count').default(0).notNull(),
+}, (table) => {
+    return {
+        userInteractionUnique: uniqueIndex('user_interaction_unique').on(table.userId, table.interactionType),
+    };
 });

@@ -9,6 +9,19 @@ import { GuildConfigService } from '../services/GuildConfigService.js';
 const event: Event<'interactionCreate'> = {
     name: 'interactionCreate',
     async execute(interaction: Interaction) {
+        if (interaction.isAutocomplete()) {
+            const client = interaction.client as BotClient;
+            const command = client.commandLoader.commands.get(interaction.commandName);
+            if (command && command.autocomplete) {
+                try {
+                    await command.autocomplete(interaction);
+                } catch (error) {
+                    logger.error(`[Command:${interaction.commandName}] Autocomplete error:`, error);
+                }
+            }
+            return;
+        }
+
         if (!interaction.isChatInputCommand()) return;
 
         const client = interaction.client as BotClient;

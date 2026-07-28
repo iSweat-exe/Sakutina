@@ -102,22 +102,22 @@ const command: Command = {
             .setThumbnail(targetUser.displayAvatarURL())
             .addFields(
                 {
-                    name: `👤 ${generalHeader}`,
+                    name: `${generalHeader}`,
                     value: `**${levelLabel}:** ${profile.level}\n**${xpLabel}:** ${profile.experience}\n**Joined:** ${joinedStr}`,
                     inline: false,
                 },
                 {
                     name: `${wealthHeader}`,
-                    value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank} 🏦\n**${totalLabel}:** ${profile.economy.total} 💸`,
+                    value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} 💸`,
                     inline: true,
                 },
                 {
-                    name: `💼 ${workHeader}`,
+                    name: `${workHeader}`,
                     value: `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}`,
                     inline: true,
                 },
                 {
-                    name: `🎲 ${casinoHeader}`,
+                    name: `${casinoHeader}`,
                     value: `**${gamesLabel}:** ${profile.casino.gamesPlayed}\n**${winrateLabel}:** ${profile.casino.winRate}%\n**${wlrLabel}:** ${profile.casino.wins}W / ${profile.casino.losses}L`,
                     inline: true,
                 }

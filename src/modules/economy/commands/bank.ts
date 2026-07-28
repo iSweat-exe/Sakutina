@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import type { Command } from '../../../types/Command.js';
+import type { AutocompleteInteraction } from 'discord.js';
 import { I18nService } from '../../../services/I18nService.js';
 import { EconomyService } from '../../../services/EconomyService.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
@@ -25,6 +26,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à déposer' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setAutocomplete(true)
                 )
         )
         .addSubcommand((subcommand) =>
@@ -41,6 +43,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à retirer' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setAutocomplete(true)
                 )
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
@@ -65,6 +68,34 @@ const command: Command = {
             await interaction.reply({ embeds: [embed] });
         }
     }),
+    autocomplete: async (interaction: AutocompleteInteraction) => {
+        const subcommand = interaction.options.getSubcommand();
+        const focusedOption = interaction.options.getFocused(true);
+
+        if (focusedOption.name === 'amount') {
+            const userId = interaction.user.id;
+            try {
+                const balances = await EconomyService.getBalance(userId);
+                let maxAmount = 0;
+
+                if (subcommand === 'deposit') {
+                    maxAmount = balances.balance;
+                } else if (subcommand === 'withdraw') {
+                    maxAmount = balances.bank;
+                }
+
+                if (maxAmount > 0) {
+                    await interaction.respond([
+                        { name: `Max: ${maxAmount}`, value: maxAmount },
+                    ]);
+                } else {
+                    await interaction.respond([]);
+                }
+            } catch (error) {
+                await interaction.respond([]);
+            }
+        }
+    },
 };
 
 export default command;
