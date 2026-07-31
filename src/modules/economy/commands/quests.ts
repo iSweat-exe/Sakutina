@@ -10,44 +10,81 @@ const command: Command = {
         .setName('quests')
         .setDescription('View your daily and weekly quests')
         .setNameLocalizations({ fr: 'quetes' })
-        .setDescriptionLocalizations({ fr: 'Voir vos quêtes quotidiennes et hebdomadaires' }),
-    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
-        const guildId = interaction.guildId ?? 'dm';
-        const userQuests = await QuestService.getUserQuests(interaction.user.id, guildId);
-        
-        const embed = EmbedUtils.base({
-            title: I18nService.translate('economy:QUESTS_TITLE', { lng: lang }),
-            color: '#9B59B6',
-            user: interaction.user,
-        });
+        .setDescriptionLocalizations({
+            fr: 'Voir vos quêtes quotidiennes et hebdomadaires',
+        }),
+    execute: createCommandHandler(
+        async (interaction: ChatInputCommandInteraction, lang: string) => {
+            const guildId = interaction.guildId ?? 'dm';
+            const userQuests = await QuestService.getUserQuests(
+                interaction.user.id,
+                guildId
+            );
 
-        const dailyQuests = userQuests.filter(q => q.type === 'daily');
-        const weeklyQuests = userQuests.filter(q => q.type === 'weekly');
+            const embed = EmbedUtils.base({
+                title: I18nService.translate('economy:QUESTS_TITLE', {
+                    lng: lang,
+                }),
+                color: '#9B59B6',
+                user: interaction.user,
+            });
 
-        const formatQuest = (q: any, configList: any[]) => {
-            const config = configList.find(c => c.id === q.questId);
-            if (!config) return 'Unknown quest';
-            const status = q.completed ? '✅' : `(${q.progress}/${q.target})`;
-            const rewardText = I18nService.translate('common:QUEST_REWARD', { lng: lang, reward: config.reward });
-            const desc = I18nService.translate(`common:QUEST_DESC_${config.id}`, { lng: lang });
-            return `**${desc}** - ${status}\n${rewardText}`;
-        };
+            const dailyQuests = userQuests.filter((q) => q.type === 'daily');
+            const weeklyQuests = userQuests.filter((q) => q.type === 'weekly');
 
-        let dailyDesc = dailyQuests.length > 0 
-            ? dailyQuests.map(q => formatQuest(q, QUESTS_CONFIG.daily)).join('\n\n')
-            : I18nService.translate('economy:QUESTS_NO_DAILY', { lng: lang });
-        
-        let weeklyDesc = weeklyQuests.length > 0 
-            ? weeklyQuests.map(q => formatQuest(q, QUESTS_CONFIG.weekly)).join('\n\n')
-            : I18nService.translate('economy:QUESTS_NO_WEEKLY', { lng: lang });
+            const formatQuest = (q: any, configList: any[]) => {
+                const config = configList.find((c) => c.id === q.questId);
+                if (!config) return 'Unknown quest';
+                const status = q.completed
+                    ? '✅'
+                    : `(${q.progress}/${q.target})`;
+                const rewardText = I18nService.translate(
+                    'common:QUEST_REWARD',
+                    { lng: lang, reward: config.reward }
+                );
+                const desc = I18nService.translate(
+                    `common:QUEST_DESC_${config.id}`,
+                    { lng: lang }
+                );
+                return `**${desc}** - ${status}\n${rewardText}`;
+            };
 
-        embed.addFields(
-            { name: I18nService.translate('economy:QUESTS_DAILY_LABEL', { lng: lang }), value: dailyDesc },
-            { name: I18nService.translate('economy:QUESTS_WEEKLY_LABEL', { lng: lang }), value: weeklyDesc }
-        );
+            let dailyDesc =
+                dailyQuests.length > 0
+                    ? dailyQuests
+                          .map((q) => formatQuest(q, QUESTS_CONFIG.daily))
+                          .join('\n\n')
+                    : I18nService.translate('economy:QUESTS_NO_DAILY', {
+                          lng: lang,
+                      });
 
-        await interaction.reply({ embeds: [embed] });
-    }),
+            let weeklyDesc =
+                weeklyQuests.length > 0
+                    ? weeklyQuests
+                          .map((q) => formatQuest(q, QUESTS_CONFIG.weekly))
+                          .join('\n\n')
+                    : I18nService.translate('economy:QUESTS_NO_WEEKLY', {
+                          lng: lang,
+                      });
+
+            embed.addFields(
+                {
+                    name: I18nService.translate('economy:QUESTS_DAILY_LABEL', {
+                        lng: lang,
+                    }),
+                    value: dailyDesc,
+                },
+                {
+                    name: I18nService.translate('economy:QUESTS_WEEKLY_LABEL', {
+                        lng: lang,
+                    }),
+                    value: weeklyDesc,
+                }
+            );
+
+            await interaction.reply({ embeds: [embed] });
+        }
+    ),
 };
 
 export default command;

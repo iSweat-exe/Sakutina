@@ -8,10 +8,16 @@ export class TransactionCleanupJob {
         cron.schedule('0 0 * * *', async () => {
             logger.info('Running TransactionCleanupJob...');
             try {
-                const deletedCount = await EconomyService.purgeOldTransactions(14);
-                logger.info(`TransactionCleanupJob completed. Purged ${deletedCount} transactions older than 14 days.`);
+                const deletedCount =
+                    await EconomyService.purgeOldTransactions(14);
+                logger.info(
+                    `TransactionCleanupJob completed. Purged ${deletedCount} transactions older than 14 days.`
+                );
             } catch (error) {
-                logger.error('TransactionCleanupJob encountered an error:', error);
+                logger.error(
+                    'TransactionCleanupJob encountered an error:',
+                    error
+                );
             }
         });
     }

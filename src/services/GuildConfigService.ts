@@ -85,7 +85,7 @@ export class GuildConfigService {
                     eq(guildEventChannels.channelId, channelId)
                 )
             )
-            .then(res => res[0]);
+            .then((res) => res[0]);
 
         if (!existing) {
             await db.insert(guildEventChannels).values({ guildId, channelId });
@@ -96,12 +96,14 @@ export class GuildConfigService {
      * Remove a channel from the random events pool
      */
     public static async removeEventChannel(guildId: string, channelId: string) {
-        await db.delete(guildEventChannels).where(
-            and(
-                eq(guildEventChannels.guildId, guildId),
-                eq(guildEventChannels.channelId, channelId)
-            )
-        );
+        await db
+            .delete(guildEventChannels)
+            .where(
+                and(
+                    eq(guildEventChannels.guildId, guildId),
+                    eq(guildEventChannels.channelId, channelId)
+                )
+            );
     }
 
     /**
@@ -112,7 +114,7 @@ export class GuildConfigService {
             .select({ channelId: guildEventChannels.channelId })
             .from(guildEventChannels)
             .where(eq(guildEventChannels.guildId, guildId));
-        return channels.map(c => c.channelId);
+        return channels.map((c) => c.channelId);
     }
 
     /**

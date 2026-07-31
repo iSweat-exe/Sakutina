@@ -1,7 +1,14 @@
-import { Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ButtonInteraction } from 'discord.js';
+import {
+    Message,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
+    ButtonInteraction,
+} from 'discord.js';
 import { db } from '../repositories/db.js';
 import { users } from '../repositories/schema.js';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { EconomyService } from './EconomyService.js';
 import { EmbedUtils } from '../utils/EmbedUtils.js';
 import { I18nService } from './I18nService.js';
@@ -13,21 +20,29 @@ export class EventService {
      */
     public static async maybeTriggerEvent(message: Message) {
         if (Math.random() > 0.05) return;
-        
-        const lang = message.guildId ? await GuildConfigService.getGuildLanguage(message.guildId) : 'en';
+
+        const lang = message.guildId
+            ? await GuildConfigService.getGuildLanguage(message.guildId)
+            : 'en';
         const guildId = message.guildId ?? 'dm';
 
         const eventType = Math.floor(Math.random() * 3); // 0: coins, 1: xp bonus, 2: job bonus
-        
+
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setCustomId('random_event_claim')
-                .setLabel(I18nService.translate('common:EVENT_CLAIM_BUTTON', { lng: lang }))
+                .setLabel(
+                    I18nService.translate('common:EVENT_CLAIM_BUTTON', {
+                        lng: lang,
+                    })
+                )
                 .setStyle(ButtonStyle.Success)
                 .setEmoji('🎁')
         );
 
-        let desc = I18nService.translate('common:EVENT_SPAWN_DESC', { lng: lang });
+        let desc = I18nService.translate('common:EVENT_SPAWN_DESC', {
+            lng: lang,
+        });
         const embed = EmbedUtils.base({
             title: I18nService.translate('common:EVENT_TITLE', { lng: lang }),
             description: desc,
@@ -35,7 +50,10 @@ export class EventService {
         });
 
         if (!message.channel.isSendable()) return;
-        const eventMsg = await message.channel.send({ embeds: [embed], components: [row] });
+        const eventMsg = await message.channel.send({
+            embeds: [embed],
+            components: [row],
+        });
 
         try {
             const collector = eventMsg.createMessageComponentCollector({
@@ -51,24 +69,57 @@ export class EventService {
 
                 if (eventType === 0) {
                     const amount = Math.floor(Math.random() * 100) + 50; // 50-150 coins
-                    await EconomyService.addBalance(i.user.id, guildId, amount, 'Event reward', 'event_reward');
-                    rewardMsg = I18nService.translate('common:EVENT_REWARD_COINS', { lng: lang, user: i.user.username, amount });
+                    await EconomyService.addBalance(
+                        i.user.id,
+                        guildId,
+                        amount,
+                        'Event reward',
+                        'event_reward'
+                    );
+                    rewardMsg = I18nService.translate(
+                        'common:EVENT_REWARD_COINS',
+                        { lng: lang, user: i.user.username, amount }
+                    );
                 } else if (eventType === 1) {
                     const until = new Date();
                     until.setHours(until.getHours() + 1); // 1 hour 2x XP
                     await EconomyService.ensureUser(i.user.id, guildId);
-                    await db.update(users).set({ bonusXpUntil: until }).where(and(eq(users.discordId, i.user.id), eq(users.guildId, guildId)));
-                    rewardMsg = I18nService.translate('common:EVENT_REWARD_XP', { lng: lang, user: i.user.username });
+                    await db
+                        .update(users)
+                        .set({ bonusXpUntil: until })
+                        .where(
+                            and(
+                                eq(users.discordId, i.user.id),
+                                eq(users.guildId, guildId)
+                            )
+                        );
+                    rewardMsg = I18nService.translate(
+                        'common:EVENT_REWARD_XP',
+                        { lng: lang, user: i.user.username }
+                    );
                 } else {
                     const until = new Date();
                     until.setHours(until.getHours() + 1); // 1 hour 2x Money (Jobs)
                     await EconomyService.ensureUser(i.user.id, guildId);
-                    await db.update(users).set({ bonusMoneyUntil: until }).where(and(eq(users.discordId, i.user.id), eq(users.guildId, guildId)));
-                    rewardMsg = I18nService.translate('common:EVENT_REWARD_MONEY', { lng: lang, user: i.user.username });
+                    await db
+                        .update(users)
+                        .set({ bonusMoneyUntil: until })
+                        .where(
+                            and(
+                                eq(users.discordId, i.user.id),
+                                eq(users.guildId, guildId)
+                            )
+                        );
+                    rewardMsg = I18nService.translate(
+                        'common:EVENT_REWARD_MONEY',
+                        { lng: lang, user: i.user.username }
+                    );
                 }
 
                 const successEmbed = EmbedUtils.base({
-                    title: I18nService.translate('common:EVENT_CLAIMED_TITLE', { lng: lang }),
+                    title: I18nService.translate('common:EVENT_CLAIMED_TITLE', {
+                        lng: lang,
+                    }),
                     description: rewardMsg,
                     color: '#00FF00',
                 });
@@ -79,11 +130,19 @@ export class EventService {
             collector.on('end', (collected: any) => {
                 if (collected.size === 0) {
                     const timeoutEmbed = EmbedUtils.base({
-                        title: I18nService.translate('common:EVENT_EXPIRED_TITLE', { lng: lang }),
-                        description: I18nService.translate('common:EVENT_EXPIRED_DESC', { lng: lang }),
+                        title: I18nService.translate(
+                            'common:EVENT_EXPIRED_TITLE',
+                            { lng: lang }
+                        ),
+                        description: I18nService.translate(
+                            'common:EVENT_EXPIRED_DESC',
+                            { lng: lang }
+                        ),
                         color: '#FF0000',
                     });
-                    eventMsg.edit({ embeds: [timeoutEmbed], components: [] }).catch(() => {});
+                    eventMsg
+                        .edit({ embeds: [timeoutEmbed], components: [] })
+                        .catch(() => {});
                 }
             });
         } catch (err) {

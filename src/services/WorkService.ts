@@ -14,7 +14,11 @@ export class WorkService {
         return AVAILABLE_JOBS.find((j) => j.id === id);
     }
 
-    public static async joinJob(discordId: string, guildId: string, jobId: string) {
+    public static async joinJob(
+        discordId: string,
+        guildId: string,
+        jobId: string
+    ) {
         const job = this.getJob(jobId);
         if (!job) throw new JobError('NOT_FOUND');
 
@@ -22,12 +26,17 @@ export class WorkService {
 
         if (user.currentJob === jobId) throw new JobError('ALREADY_HAVE');
         if (user.experience < job.minExperience)
-            throw new JobError('INSUFFICIENT_EXP');
+            throw new JobError('INSUFFICIENT_EXP', {
+                required: job.minExperience,
+                current: user.experience,
+            });
 
         await db
             .update(users)
             .set({ currentJob: jobId, updatedAt: new Date() })
-            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            );
 
         return job;
     }
@@ -39,7 +48,9 @@ export class WorkService {
         await db
             .update(users)
             .set({ currentJob: null, updatedAt: new Date() })
-            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            );
     }
 
     public static async workShift(discordId: string, guildId: string) {
@@ -61,7 +72,11 @@ export class WorkService {
                 const remaining = Math.ceil(
                     SHIFT_COOLDOWN_SECONDS - diffSeconds
                 );
-                throw new CooldownError('WORK_ERR_COOLDOWN', remaining, 'seconds');
+                throw new CooldownError(
+                    'WORK_ERR_COOLDOWN',
+                    remaining,
+                    'seconds'
+                );
             }
         }
 
@@ -79,9 +94,17 @@ export class WorkService {
                 workLastShift: now,
                 updatedAt: new Date(),
             })
-            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            );
 
-        await EconomyService.logTransaction(discordId, guildId, 'work', salary, `Worked as ${job.title}`);
+        await EconomyService.logTransaction(
+            discordId,
+            guildId,
+            'work',
+            salary,
+            `Worked as ${job.title}`
+        );
 
         return { salary, expGain, jobTitle: job.title };
     }

@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, AutocompleteInteraction } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    AutocompleteInteraction,
+} from 'discord.js';
 import type { Command } from '../../../types/Command.js';
 import { I18nService } from '../../../services/I18nService.js';
 import { EconomyService } from '../../../services/EconomyService.js';
@@ -16,13 +20,17 @@ const command: Command = {
                 .setName('deposit')
                 .setDescription('Deposit money into your bank account')
                 .setNameLocalizations({ fr: 'deposer' })
-                .setDescriptionLocalizations({ fr: 'Déposer de l\'argent sur votre compte en banque' })
+                .setDescriptionLocalizations({
+                    fr: "Déposer de l'argent sur votre compte en banque",
+                })
                 .addIntegerOption((option) =>
                     option
                         .setName('amount')
                         .setDescription('Amount to deposit')
                         .setNameLocalizations({ fr: 'montant' })
-                        .setDescriptionLocalizations({ fr: 'Montant à déposer' })
+                        .setDescriptionLocalizations({
+                            fr: 'Montant à déposer',
+                        })
                         .setRequired(true)
                         .setMinValue(1)
                         .setAutocomplete(true)
@@ -33,41 +41,73 @@ const command: Command = {
                 .setName('withdraw')
                 .setDescription('Withdraw money from your bank account')
                 .setNameLocalizations({ fr: 'retirer' })
-                .setDescriptionLocalizations({ fr: 'Retirer de l\'argent de votre compte en banque' })
+                .setDescriptionLocalizations({
+                    fr: "Retirer de l'argent de votre compte en banque",
+                })
                 .addIntegerOption((option) =>
                     option
                         .setName('amount')
                         .setDescription('Amount to withdraw')
                         .setNameLocalizations({ fr: 'montant' })
-                        .setDescriptionLocalizations({ fr: 'Montant à retirer' })
+                        .setDescriptionLocalizations({
+                            fr: 'Montant à retirer',
+                        })
                         .setRequired(true)
                         .setMinValue(1)
                         .setAutocomplete(true)
                 )
         ),
-    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
-        const guildId = interaction.guildId ?? 'dm';
-        const subcommand = interaction.options.getSubcommand();
-        const amount = interaction.options.getInteger('amount', true);
+    execute: createCommandHandler(
+        async (interaction: ChatInputCommandInteraction, lang: string) => {
+            const guildId = interaction.guildId ?? 'dm';
+            const subcommand = interaction.options.getSubcommand();
+            const amount = interaction.options.getInteger('amount', true);
 
-        if (subcommand === 'deposit') {
-            await EconomyService.deposit(interaction.user.id, guildId, amount);
-            const msg = I18nService.translate('economy:BANK_DEPOSIT_SUCCESS', {
-                lng: lang,
-                amount
-            });
-            const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_BANK', { lng: lang }), interaction.user);
-            await interaction.reply({ embeds: [embed] });
-        } else if (subcommand === 'withdraw') {
-            await EconomyService.withdraw(interaction.user.id, guildId, amount);
-            const msg = I18nService.translate('economy:BANK_WITHDRAW_SUCCESS', {
-                lng: lang,
-                amount
-            });
-            const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_BANK', { lng: lang }), interaction.user);
-            await interaction.reply({ embeds: [embed] });
+            if (subcommand === 'deposit') {
+                await EconomyService.deposit(
+                    interaction.user.id,
+                    guildId,
+                    amount
+                );
+                const msg = I18nService.translate(
+                    'economy:BANK_DEPOSIT_SUCCESS',
+                    {
+                        lng: lang,
+                        amount,
+                    }
+                );
+                const embed = EmbedUtils.success(
+                    msg,
+                    I18nService.translate('common:EMBED_TITLE_BANK', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({ embeds: [embed] });
+            } else if (subcommand === 'withdraw') {
+                await EconomyService.withdraw(
+                    interaction.user.id,
+                    guildId,
+                    amount
+                );
+                const msg = I18nService.translate(
+                    'economy:BANK_WITHDRAW_SUCCESS',
+                    {
+                        lng: lang,
+                        amount,
+                    }
+                );
+                const embed = EmbedUtils.success(
+                    msg,
+                    I18nService.translate('common:EMBED_TITLE_BANK', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({ embeds: [embed] });
+            }
         }
-    }),
+    ),
     autocomplete: async (interaction: AutocompleteInteraction) => {
         const subcommand = interaction.options.getSubcommand();
         const focusedOption = interaction.options.getFocused(true);
@@ -76,7 +116,10 @@ const command: Command = {
             const guildId = interaction.guildId ?? 'dm';
             const userId = interaction.user.id;
             try {
-                const balances = await EconomyService.getBalance(userId, guildId);
+                const balances = await EconomyService.getBalance(
+                    userId,
+                    guildId
+                );
                 let maxAmount = 0;
 
                 if (subcommand === 'deposit') {

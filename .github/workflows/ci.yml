@@ -26,8 +26,9 @@ jobs:
             - name: TypeScript Type Checking
               run: bun run typecheck
 
-            # Optionnel: Ajoute tes scripts de linting/tests ici à l'avenir
-            # - name: Run Linter
-            #   run: bun run lint
+            - name: Formatting Check
+              run: bun run lint
+
+            # Optionnel: Ajoute tes scripts de tests ici à l'avenir
             # - name: Run Tests
             #   run: bun test

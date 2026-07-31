@@ -13,5 +13,7 @@
     "MOD_UNMUTE_SUCCESS": "**{{user}}** n'est plus muet. Raison : `{{reason}}`",
     "MOD_KICK_SUCCESS": "**{{user}}** a été expulsé. Raison : `{{reason}}`",
     "MOD_BAN_SUCCESS": "**{{user}}** a été banni. Raison : `{{reason}}`",
-    "MOD_SOFTBAN_SUCCESS": "**{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`"
+    "MOD_SOFTBAN_SUCCESS": "**{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`",
+    "SYNCBANS_SUCCESS": "**{{count}}** bannissements ont été synchronisés avec la base de données.",
+    "SYNCBANS_ERROR": "Une erreur est survenue lors de la récupération ou de la synchronisation des bannissements."
 }

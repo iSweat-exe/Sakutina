@@ -15,11 +15,13 @@ export class BotClient extends Client {
     public commandLoader: CommandLoader;
 
     constructor() {
-        super({ intents: [
-            GatewayIntentBits.Guilds,
-            GatewayIntentBits.GuildMessages,
-            GatewayIntentBits.MessageContent,
-        ] });
+        super({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.MessageContent,
+            ],
+        });
         this.commandLoader = new CommandLoader();
     }
 }

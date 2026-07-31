@@ -1,41 +1,48 @@
 {
-    "version": "7",
-    "dialect": "postgresql",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "7",
-            "when": 1785174952243,
-            "tag": "0000_overrated_loa",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "7",
-            "when": 1785176236553,
-            "tag": "0001_yummy_marvex",
-            "breakpoints": true
-        },
-        {
-            "idx": 2,
-            "version": "7",
-            "when": 1785176761397,
-            "tag": "0002_tranquil_cammi",
-            "breakpoints": true
-        },
-        {
-            "idx": 3,
-            "version": "7",
-            "when": 1785177284497,
-            "tag": "0003_light_living_mummy",
-            "breakpoints": true
-        },
-        {
-            "idx": 4,
-            "version": "7",
-            "when": 1785177540855,
-            "tag": "0004_ambiguous_stepford_cuckoos",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785174952243,
+      "tag": "0000_overrated_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785176236553,
+      "tag": "0001_yummy_marvex",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785176761397,
+      "tag": "0002_tranquil_cammi",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785177284497,
+      "tag": "0003_light_living_mummy",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785177540855,
+      "tag": "0004_ambiguous_stepford_cuckoos",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785469092918,
+      "tag": "0005_red_retro_girl",
+      "breakpoints": true
+    }
+  ]
 }

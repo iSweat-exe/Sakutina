@@ -5,7 +5,7 @@ import * as schema from './schema.js';
 import { logger } from '../utils/logger.js';
 
 // Connection pool
-const queryClient = postgres(env.DATABASE_URL, { max: 10 }); //TODO: Configure with ENV variables 
+const queryClient = postgres(env.DATABASE_URL, { max: 10 }); //TODO: Configure with ENV variables
 export const db = drizzle(queryClient, { schema });
 
 // Test database connection

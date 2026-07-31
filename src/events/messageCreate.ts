@@ -9,7 +9,9 @@ export default {
         if (message.author.bot || !message.guildId) return;
 
         try {
-            const eventChannels = await GuildConfigService.getEventChannels(message.guildId);
+            const eventChannels = await GuildConfigService.getEventChannels(
+                message.guildId
+            );
             if (eventChannels.includes(message.channelId)) {
                 await EventService.maybeTriggerEvent(message);
             }

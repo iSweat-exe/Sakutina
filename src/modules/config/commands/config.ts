@@ -1,7 +1,6 @@
 import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
-    EmbedBuilder,
     MessageFlags,
     PermissionFlagsBits,
     SlashCommandBuilder,
@@ -114,19 +113,25 @@ const command: Command = {
                 .setName('events')
                 .setNameLocalizations({ fr: 'evenements' })
                 .setDescription('Manage random event channels')
-                .setDescriptionLocalizations({ fr: 'Gérer les salons d\'événements aléatoires' })
+                .setDescriptionLocalizations({
+                    fr: "Gérer les salons d'événements aléatoires",
+                })
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName('add')
                         .setNameLocalizations({ fr: 'ajouter' })
                         .setDescription('Add a channel for random events')
-                        .setDescriptionLocalizations({ fr: 'Ajouter un salon pour les événements aléatoires' })
+                        .setDescriptionLocalizations({
+                            fr: 'Ajouter un salon pour les événements aléatoires',
+                        })
                         .addChannelOption((option) =>
                             option
                                 .setName('channel')
                                 .setNameLocalizations({ fr: 'salon' })
                                 .setDescription('The channel to add')
-                                .setDescriptionLocalizations({ fr: 'Le salon à ajouter' })
+                                .setDescriptionLocalizations({
+                                    fr: 'Le salon à ajouter',
+                                })
                                 .addChannelTypes(ChannelType.GuildText)
                                 .setRequired(true)
                         )
@@ -136,240 +141,301 @@ const command: Command = {
                         .setName('remove')
                         .setNameLocalizations({ fr: 'retirer' })
                         .setDescription('Remove a channel from random events')
-                        .setDescriptionLocalizations({ fr: 'Retirer un salon des événements aléatoires' })
+                        .setDescriptionLocalizations({
+                            fr: 'Retirer un salon des événements aléatoires',
+                        })
                         .addChannelOption((option) =>
                             option
                                 .setName('channel')
                                 .setNameLocalizations({ fr: 'salon' })
                                 .setDescription('The channel to remove')
-                                .setDescriptionLocalizations({ fr: 'Le salon à retirer' })
+                                .setDescriptionLocalizations({
+                                    fr: 'Le salon à retirer',
+                                })
                                 .addChannelTypes(ChannelType.GuildText)
                                 .setRequired(true)
                         )
                 )
         ),
-    execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
-        if (!interaction.guildId) {
-            const embed = EmbedUtils.error(
-                I18nService.translate('common:ERR_ONLY_SERVER', { lng: 'en' }),
-                I18nService.translate('common:EMBED_TITLE_ERROR', { lng: 'en' }),
-                interaction.user
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
-        }
-        const currentLang = await GuildConfigService.getGuildLanguage(
-            interaction.guildId
-        );
-        // Explicitly check for permissions just in case
-        if (
-            !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)
-        ) {
-            const errorMsg = I18nService.translate('common:CONFIG_NO_PERM', {
-                lng: currentLang,
-            });
-            const embed = EmbedUtils.error(
-                errorMsg,
-                I18nService.translate('common:EMBED_TITLE_ACCESS_DENIED', { lng: currentLang }),
-                interaction.user
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
-            return;
-        }
-        
-        const subcommandGroup = interaction.options.getSubcommandGroup(false);
-        const subcommand = interaction.options.getSubcommand();
-        
-        if (subcommandGroup === 'events') {
-            const channel = interaction.options.getChannel('channel', true);
-            if (subcommand === 'add') {
-                await GuildConfigService.addEventChannel(interaction.guildId, channel.id);
-                const msg = I18nService.translate('common:CONFIG_EVENT_ADD_SUCCESS', {
-                    lng: currentLang,
-                    channel: channel.id
+    execute: createCommandHandler(
+        async (interaction: ChatInputCommandInteraction, lang: string) => {
+            if (!interaction.guildId) {
+                const embed = EmbedUtils.error(
+                    I18nService.translate('common:ERR_ONLY_SERVER', {
+                        lng: 'en',
+                    }),
+                    I18nService.translate('common:EMBED_TITLE_ERROR', {
+                        lng: 'en',
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
                 });
-                const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_CONFIG', { lng: currentLang }), interaction.user);
-                await interaction.reply({ embeds: [embed] });
-            } else if (subcommand === 'remove') {
-                await GuildConfigService.removeEventChannel(interaction.guildId, channel.id);
-                const msg = I18nService.translate('common:CONFIG_EVENT_REMOVE_SUCCESS', {
-                    lng: currentLang,
-                    channel: channel.id
-                });
-                const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_CONFIG', { lng: currentLang }), interaction.user);
-                await interaction.reply({ embeds: [embed] });
+                return;
             }
-            return;
-        }
-
-        if (subcommand === 'view') {
-            const config = await GuildConfigService.getGuildSettings(
-                interaction.guildId
-            );
-            const title = I18nService.translate('common:CONFIG_VIEW_TITLE', {
-                lng: currentLang,
-            });
-            const desc = I18nService.translate('common:CONFIG_VIEW_DESC', {
-                lng: currentLang,
-            });
-            const langLabel = I18nService.translate('common:CONFIG_VIEW_LANG', {
-                lng: currentLang,
-            });
-            const embed = EmbedUtils.base({
-                title,
-                description: desc,
-                user: interaction.user,
-            }).addFields(
-                {
-                    name: `${langLabel}`,
-                    value:
-                        currentLang === 'fr' ? 'Français (fr)' : 'English (en)',
-                    inline: true,
-                },
-                {
-                    name: `Mod Log`,
-                    value: config.modLogChannel
-                        ? `<#${config.modLogChannel}>`
-                        : 'Disabled',
-                    inline: true,
-                },
-                {
-                    name: `Max Warns`,
-                    value: `${config.maxWarns} warns (Auto-Ban)`,
-                    inline: true,
-                }
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
-        } else if (subcommand === 'language') {
-            const embed = EmbedUtils.base({
-                title: 'Language / Langue',
-                color: '#3498DB',
-                user: interaction.user,
-            }).setDescription(
-                currentLang === 'fr'
-                    ? 'Veuillez sélectionner la langue du serveur ci-dessous.'
-                    : 'Please select the server language below.'
-            );
-            const select = new StringSelectMenuBuilder()
-                .setCustomId('config_lang_select')
-                .setPlaceholder(
-                    currentLang === 'fr'
-                        ? 'Choisissez une langue...'
-                        : 'Choose a language...'
+            // Explicitly check for permissions just in case
+            if (
+                !interaction.memberPermissions?.has(
+                    PermissionFlagsBits.ManageGuild
                 )
-                .addOptions([
-                    { label: 'English', value: 'en' },
-                    { label: 'Français', value: 'fr' },
-                ]);
-            const row =
-                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                    select
-                );
-            const response = await interaction.reply({
-                embeds: [embed],
-                components: [row],
-                flags: MessageFlags.Ephemeral,
-            });
-            try {
-                const confirmation = await response.awaitMessageComponent({
-                    filter: (i) => i.user.id === interaction.user.id,
-                    time: 60000,
-                    componentType: ComponentType.StringSelect,
-                });
-                const newLang = confirmation.values[0] as 'en' | 'fr';
-                await GuildConfigService.setLanguage(
-                    interaction.guildId,
-                    newLang
-                );
-                const successMsg = I18nService.translate(
-                    'common:CONFIG_LANG_SUCCESS',
+            ) {
+                const errorMsg = I18nService.translate(
+                    'common:CONFIG_NO_PERM',
                     {
-                        lng: newLang,
-                        lang: newLang === 'fr' ? 'Français' : 'English',
+                        lng: lang,
                     }
                 );
-                const successEmbed = EmbedUtils.success(
-                    successMsg,
-                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
+                const embed = EmbedUtils.error(
+                    errorMsg,
+                    I18nService.translate('common:EMBED_TITLE_ACCESS_DENIED', {
+                        lng: lang,
+                    }),
                     interaction.user
                 );
-                await confirmation.update({
-                    embeds: [successEmbed],
-                    components: [],
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
                 });
-            } catch (e) {
-                const timeoutEmbed = EmbedUtils.warn(
-                    currentLang === 'fr' ? 'Temps écoulé.' : 'Timeout.',
-                    I18nService.translate('common:EMBED_TITLE_TIMEOUT', { lng: currentLang }),
+                return;
+            }
+
+            const subcommandGroup =
+                interaction.options.getSubcommandGroup(false);
+            const subcommand = interaction.options.getSubcommand();
+
+            if (subcommandGroup === 'events') {
+                const channel = interaction.options.getChannel('channel', true);
+                if (subcommand === 'add') {
+                    await GuildConfigService.addEventChannel(
+                        interaction.guildId,
+                        channel.id
+                    );
+                    const msg = I18nService.translate(
+                        'common:CONFIG_EVENT_ADD_SUCCESS',
+                        {
+                            lng: lang,
+                            channel: channel.id,
+                        }
+                    );
+                    const embed = EmbedUtils.success(
+                        msg,
+                        I18nService.translate('common:EMBED_TITLE_CONFIG', {
+                            lng: lang,
+                        }),
+                        interaction.user
+                    );
+                    await interaction.reply({ embeds: [embed] });
+                } else if (subcommand === 'remove') {
+                    await GuildConfigService.removeEventChannel(
+                        interaction.guildId,
+                        channel.id
+                    );
+                    const msg = I18nService.translate(
+                        'common:CONFIG_EVENT_REMOVE_SUCCESS',
+                        {
+                            lng: lang,
+                            channel: channel.id,
+                        }
+                    );
+                    const embed = EmbedUtils.success(
+                        msg,
+                        I18nService.translate('common:EMBED_TITLE_CONFIG', {
+                            lng: lang,
+                        }),
+                        interaction.user
+                    );
+                    await interaction.reply({ embeds: [embed] });
+                }
+                return;
+            }
+
+            if (subcommand === 'view') {
+                const config = await GuildConfigService.getGuildSettings(
+                    interaction.guildId
+                );
+                const title = I18nService.translate(
+                    'common:CONFIG_VIEW_TITLE',
+                    {
+                        lng: lang,
+                    }
+                );
+                const desc = I18nService.translate('common:CONFIG_VIEW_DESC', {
+                    lng: lang,
+                });
+                const langLabel = I18nService.translate(
+                    'common:CONFIG_VIEW_LANG',
+                    {
+                        lng: lang,
+                    }
+                );
+                const embed = EmbedUtils.base({
+                    title,
+                    description: desc,
+                    user: interaction.user,
+                }).addFields(
+                    {
+                        name: `${langLabel}`,
+                        value: lang === 'fr' ? 'Français (fr)' : 'English (en)',
+                        inline: true,
+                    },
+                    {
+                        name: `Mod Log`,
+                        value: config.modLogChannel
+                            ? `<#${config.modLogChannel}>`
+                            : 'Disabled',
+                        inline: true,
+                    },
+                    {
+                        name: `Max Warns`,
+                        value: `${config.maxWarns} warns (Auto-Ban)`,
+                        inline: true,
+                    }
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'language') {
+                const embed = EmbedUtils.base({
+                    title: 'Language / Langue',
+                    color: '#3498DB',
+                    user: interaction.user,
+                }).setDescription(
+                    lang === 'fr'
+                        ? 'Veuillez sélectionner la langue du serveur ci-dessous.'
+                        : 'Please select the server language below.'
+                );
+                const select = new StringSelectMenuBuilder()
+                    .setCustomId('config_lang_select')
+                    .setPlaceholder(
+                        lang === 'fr'
+                            ? 'Choisissez une langue...'
+                            : 'Choose a language...'
+                    )
+                    .addOptions([
+                        { label: 'English', value: 'en' },
+                        { label: 'Français', value: 'fr' },
+                    ]);
+                const row =
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+                        select
+                    );
+                const response = await interaction.reply({
+                    embeds: [embed],
+                    components: [row],
+                    flags: MessageFlags.Ephemeral,
+                });
+                try {
+                    const confirmation = await response.awaitMessageComponent({
+                        filter: (i) => i.user.id === interaction.user.id,
+                        time: 60000,
+                        componentType: ComponentType.StringSelect,
+                    });
+                    const newLang = confirmation.values[0] as 'en' | 'fr';
+                    await GuildConfigService.setLanguage(
+                        interaction.guildId,
+                        newLang
+                    );
+                    const successMsg = I18nService.translate(
+                        'common:CONFIG_LANG_SUCCESS',
+                        {
+                            lng: newLang,
+                            lang: newLang === 'fr' ? 'Français' : 'English',
+                        }
+                    );
+                    const successEmbed = EmbedUtils.success(
+                        successMsg,
+                        I18nService.translate(
+                            'common:EMBED_TITLE_CONFIG_UPDATED',
+                            { lng: lang }
+                        ),
+                        interaction.user
+                    );
+                    await confirmation.update({
+                        embeds: [successEmbed],
+                        components: [],
+                    });
+                } catch (e) {
+                    const timeoutEmbed = EmbedUtils.warn(
+                        lang === 'fr' ? 'Temps écoulé.' : 'Timeout.',
+                        I18nService.translate('common:EMBED_TITLE_TIMEOUT', {
+                            lng: lang,
+                        }),
+                        interaction.user
+                    );
+                    await interaction.editReply({
+                        embeds: [timeoutEmbed],
+                        components: [],
+                    });
+                }
+            } else if (subcommand === 'modlog') {
+                const channel = interaction.options.getChannel('channel');
+                await GuildConfigService.setModLogChannel(
+                    interaction.guildId,
+                    channel ? channel.id : null
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate('common:CONFIG_MODLOG_SUCCESS', {
+                        lng: lang,
+                        state: channel ? `<#${channel.id}>` : 'Disabled',
+                    }),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
                     interaction.user
                 );
-                await interaction.editReply({
-                    embeds: [timeoutEmbed],
-                    components: [],
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'maxwarns') {
+                const amount = interaction.options.getInteger('amount', true);
+                await GuildConfigService.setMaxWarns(
+                    interaction.guildId,
+                    amount
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate('common:CONFIG_MAXWARNS_SUCCESS', {
+                        lng: lang,
+                        amount,
+                    }),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'modlog_warning') {
+                const enabled = interaction.options.getBoolean('enabled', true);
+                await GuildConfigService.setModLogWarning(
+                    interaction.guildId,
+                    enabled
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate(
+                        'common:CONFIG_MODLOG_WARNING_SUCCESS',
+                        {
+                            lng: lang,
+                            state: enabled ? 'Enabled' : 'Disabled',
+                        }
+                    ),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
                 });
             }
-        } else if (subcommand === 'modlog') {
-            const channel = interaction.options.getChannel('channel');
-            await GuildConfigService.setModLogChannel(
-                interaction.guildId,
-                channel ? channel.id : null
-            );
-            const embed = EmbedUtils.success(
-                I18nService.translate('common:CONFIG_MODLOG_SUCCESS', {
-                    lng: currentLang,
-                    state: channel ? `<#${channel.id}>` : 'Disabled',
-                }),
-                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
-                interaction.user
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
-        } else if (subcommand === 'maxwarns') {
-            const amount = interaction.options.getInteger('amount', true);
-            await GuildConfigService.setMaxWarns(interaction.guildId, amount);
-            const embed = EmbedUtils.success(
-                I18nService.translate('common:CONFIG_MAXWARNS_SUCCESS', {
-                    lng: currentLang,
-                    amount,
-                }),
-                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
-                interaction.user
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
-        } else if (subcommand === 'modlog_warning') {
-            const enabled = interaction.options.getBoolean('enabled', true);
-            await GuildConfigService.setModLogWarning(
-                interaction.guildId,
-                enabled
-            );
-            const embed = EmbedUtils.success(
-                I18nService.translate('common:CONFIG_MODLOG_WARNING_SUCCESS', {
-                    lng: currentLang,
-                    state: enabled ? 'Enabled' : 'Disabled',
-                }),
-                I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', { lng: currentLang }),
-                interaction.user
-            );
-            await interaction.reply({
-                embeds: [embed],
-                flags: MessageFlags.Ephemeral,
-            });
         }
-    }),
+    ),
 };
 
 export default command;

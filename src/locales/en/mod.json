@@ -13,5 +13,7 @@
     "MOD_UNMUTE_SUCCESS": "Unmuted **{{user}}**. Reason: `{{reason}}`",
     "MOD_KICK_SUCCESS": "Kicked **{{user}}**. Reason: `{{reason}}`",
     "MOD_BAN_SUCCESS": "Banned **{{user}}**. Reason: `{{reason}}`",
-    "MOD_SOFTBAN_SUCCESS": "Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`"
+    "MOD_SOFTBAN_SUCCESS": "Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`",
+    "SYNCBANS_SUCCESS": "Successfully synchronized **{{count}}** bans with the database.",
+    "SYNCBANS_ERROR": "An error occurred while fetching or syncing the bans."
 }

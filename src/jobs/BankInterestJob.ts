@@ -9,17 +9,22 @@ export class BankInterestJob {
         // Runs every day at 00:00 (midnight UTC)
         cron.schedule('0 0 * * *', async () => {
             try {
-                const updated = await db
+                await db
                     .update(users)
                     .set({
                         bank: sql`${users.bank} * 1.01`, // +1% interest
                         updatedAt: new Date(),
                     })
                     .where(gt(users.bank, 0));
-                
-                logger.info('[BankInterestJob] Applied 1% interest to all bank accounts.');
+
+                logger.info(
+                    '[BankInterestJob] Applied 1% interest to all bank accounts.'
+                );
             } catch (error) {
-                logger.error('[BankInterestJob] Error applying bank interest', error);
+                logger.error(
+                    '[BankInterestJob] Error applying bank interest',
+                    error
+                );
             }
         });
     }

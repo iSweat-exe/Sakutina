@@ -20,7 +20,7 @@
     "WORK_SHIFT_SUCCESS": "Vous avez travaillé en tant que **{{job}}** et gagné **{{salary}} ** (et {{exp}}  XP) !",
     "WORK_ERR_NOT_FOUND": "Métier introuvable. Veuillez choisir un ID valide via `/work list`.",
     "WORK_ERR_ALREADY": "Vous occupez déjà ce métier.",
-    "WORK_ERR_EXP": "Vous n'avez pas assez d'expérience () pour ce métier.",
+    "WORK_ERR_EXP": "Vous n'avez pas assez d'expérience pour ce métier. Requis : **{{required}} XP** (vous avez {{current}}).",
     "WORK_ERR_NO_JOB": "Vous n'avez pas de métier actuellement. Utilisez `/work join` pour en trouver un.",
     "WORK_ERR_REMOVED": "Votre métier n'existe plus. Vous êtes désormais au chômage.",
     "WORK_ERR_COOLDOWN": "Vous êtes trop fatigué. Veuillez attendre **{{seconds}} secondes** avant de travailler à nouveau.",

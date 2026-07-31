@@ -4,9 +4,10 @@ import {
     GuildMember,
     TextChannel,
     User,
+    type ColorResolvable,
 } from 'discord.js';
 import { db } from '../repositories/db.js';
-import { warns, users, guildSettings, modActions } from '../repositories/schema.js';
+import { warns, users, modActions } from '../repositories/schema.js';
 import { eq, and, sql } from 'drizzle-orm';
 import { GuildConfigService } from './GuildConfigService.js';
 import { EconomyService } from './EconomyService.js';
@@ -38,7 +39,7 @@ export class ModerationService {
             TextChannel | undefined;
         if (!channel) return;
 
-        let color = '#3498DB'; // Default blue
+        let color: ColorResolvable = '#3498DB'; // Default blue
         if (action === 'WARN' || action === 'MUTE') color = '#F1C40F'; // Yellow
         if (action === 'KICK' || action === 'SOFTBAN') color = '#E67E22'; // Orange
         if (action === 'BAN') color = '#E74C3C'; // Red
@@ -46,7 +47,7 @@ export class ModerationService {
 
         const embed = new EmbedBuilder()
             .setTitle(`Mod Action: ${action}`)
-            .setColor(color as any)
+            .setColor(color)
             .setThumbnail(target.displayAvatarURL())
             .addFields(
                 {
@@ -103,7 +104,9 @@ export class ModerationService {
         await db
             .update(users)
             .set({ ...updateObj, updatedAt: new Date() })
-            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            );
     }
 
     /**
@@ -127,11 +130,18 @@ export class ModerationService {
         });
 
         // Also update legacy stats counters
-        if (actionType === 'KICK' || actionType === 'BAN' || actionType === 'MUTE' || actionType === 'SOFTBAN') {
+        if (
+            actionType === 'KICK' ||
+            actionType === 'BAN' ||
+            actionType === 'MUTE' ||
+            actionType === 'SOFTBAN'
+        ) {
             await this.logModActionStats(
                 userId,
                 guildId,
-                actionType === 'SOFTBAN' ? 'BAN' : actionType as 'KICK' | 'BAN' | 'MUTE'
+                actionType === 'SOFTBAN'
+                    ? 'BAN'
+                    : (actionType as 'KICK' | 'BAN' | 'MUTE')
             );
         }
     }
@@ -155,7 +165,32 @@ export class ModerationService {
         return db
             .select()
             .from(modActions)
-            .where(and(eq(modActions.guildId, guildId), eq(modActions.userId, userId)));
+            .where(
+                and(
+                    eq(modActions.guildId, guildId),
+                    eq(modActions.userId, userId)
+                )
+            );
+    }
+
+    /**
+     * Get the set of user IDs that already have a logged action of a given
+     * type in a guild, in a single query (used to avoid N+1 lookups).
+     */
+    public static async getLoggedUserIds(
+        guildId: string,
+        actionType: string
+    ): Promise<Set<string>> {
+        const rows = await db
+            .select({ userId: modActions.userId })
+            .from(modActions)
+            .where(
+                and(
+                    eq(modActions.guildId, guildId),
+                    eq(modActions.actionType, actionType)
+                )
+            );
+        return new Set(rows.map((r) => r.userId));
     }
 
     /**
@@ -201,7 +236,13 @@ export class ModerationService {
                     moderator,
                     `[Auto-Ban] Reached ${maxWarns} warnings.`
                 );
-                await this.logAction(guild.id, target.id, moderator.id, 'BAN', `[Auto-Ban] Reached ${maxWarns} warnings.`);
+                await this.logAction(
+                    guild.id,
+                    target.id,
+                    moderator.id,
+                    'BAN',
+                    `[Auto-Ban] Reached ${maxWarns} warnings.`
+                );
             } catch (e) {
                 logger.error(
                     `Failed to autoban ${target.id} in ${guild.id}`,
@@ -219,7 +260,7 @@ export class ModerationService {
             reason,
             `Total Warnings: ${userWarns.length}/${maxWarns}`
         );
-        
+
         await this.logAction(guild.id, target.id, moderator.id, 'WARN', reason);
 
         return { autobanned, warnsCount: userWarns.length, maxWarns };
@@ -258,7 +299,13 @@ export class ModerationService {
             reason,
             `Cleared ${deleted.length} warnings.`
         );
-        await this.logAction(guild.id, target.id, moderator.id, 'CLEARWARNS', reason);
+        await this.logAction(
+            guild.id,
+            target.id,
+            moderator.id,
+            'CLEARWARNS',
+            reason
+        );
         return deleted.length;
     }
 }

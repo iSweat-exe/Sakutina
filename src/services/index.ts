@@ -6,4 +6,3 @@ export { I18nService } from './I18nService.js';
 export { ModerationService } from './ModerationService.js';
 export { ProfileService } from './ProfileService.js';
 export { WorkService } from './WorkService.js';
-export { CanvasService } from './CanvasService.js';

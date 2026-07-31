@@ -1,17 +1,5 @@
-# Use the official Bun image based on Debian (glibc) for canvas compatibility
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
-
-# Install system dependencies required by `canvas`
-# (build-essential, cairo, pango, jpeg, gif, etc.)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libcairo2-dev \
-    libpango1.0-dev \
-    libjpeg-dev \
-    libgif-dev \
-    librsvg2-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # --- Installation stage ---
 FROM base AS install

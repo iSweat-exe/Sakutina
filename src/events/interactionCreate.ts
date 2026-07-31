@@ -2,7 +2,11 @@ import type { Interaction } from 'discord.js';
 import type { BotClient } from '../bot.js';
 import type { Event } from '../types/Event.js';
 import { logger } from '../utils/logger.js';
-import { MessageFlags, DiscordAPIError, type InteractionReplyOptions } from 'discord.js';
+import {
+    MessageFlags,
+    DiscordAPIError,
+    type InteractionReplyOptions,
+} from 'discord.js';
 import { I18nService } from '../services/I18nService.js';
 import { GuildConfigService } from '../services/GuildConfigService.js';
 
@@ -11,12 +15,17 @@ const event: Event<'interactionCreate'> = {
     async execute(interaction: Interaction) {
         if (interaction.isAutocomplete()) {
             const client = interaction.client as BotClient;
-            const command = client.commandLoader.commands.get(interaction.commandName);
+            const command = client.commandLoader.commands.get(
+                interaction.commandName
+            );
             if (command && command.autocomplete) {
                 try {
                     await command.autocomplete(interaction);
                 } catch (error) {
-                    logger.error(`[Command:${interaction.commandName}] Autocomplete error:`, error);
+                    logger.error(
+                        `[Command:${interaction.commandName}] Autocomplete error:`,
+                        error
+                    );
                 }
             }
             return;
@@ -38,8 +47,13 @@ const event: Event<'interactionCreate'> = {
         try {
             await command.execute(interaction);
         } catch (error) {
-            if (error instanceof DiscordAPIError && (error.code === 10062 || error.code === 40060)) {
-                logger.warn(`[Command:${interaction.commandName}] Interaction expired or already acknowledged.`);
+            if (
+                error instanceof DiscordAPIError &&
+                (error.code === 10062 || error.code === 40060)
+            ) {
+                logger.warn(
+                    `[Command:${interaction.commandName}] Interaction expired or already acknowledged.`
+                );
                 return;
             }
 

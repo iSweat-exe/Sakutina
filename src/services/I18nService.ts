@@ -16,19 +16,19 @@ await i18next.init({
     ns: ['common', 'economy', 'fun', 'mod', 'users'],
     defaultNS: 'common',
     resources: {
-        en: { 
+        en: {
             common: enCommon,
             economy: enEconomy,
             fun: enFun,
             mod: enMod,
-            users: enUsers
+            users: enUsers,
         },
-        fr: { 
+        fr: {
             common: frCommon,
             economy: frEconomy,
             fun: frFun,
             mod: frMod,
-            users: frUsers
+            users: frUsers,
         },
     },
 });

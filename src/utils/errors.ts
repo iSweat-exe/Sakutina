@@ -48,8 +48,9 @@ export class JobError extends AppError {
             | 'ALREADY_HAVE'
             | 'NO_JOB'
             | 'REMOVED'
-            | 'INSUFFICIENT_EXP'
+            | 'INSUFFICIENT_EXP',
+        meta?: Record<string, unknown>
     ) {
-        super(`WORK_ERR_${code}`, `Job error: ${code}`);
+        super(`WORK_ERR_${code}`, `Job error: ${code}`, meta);
     }
 }

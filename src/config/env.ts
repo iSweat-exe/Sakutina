@@ -17,7 +17,8 @@ interface EnvConfig {
 }
 
 const parseEnv = (): EnvConfig => {
-    const { DISCORD_TOKEN, CLIENT_ID, NODE_ENV, DATABASE_URL, OPENAI_API_KEY } = process.env;
+    const { DISCORD_TOKEN, CLIENT_ID, NODE_ENV, DATABASE_URL, OPENAI_API_KEY } =
+        process.env;
     const validEnvs = ['development', 'production', 'test'] as const;
 
     if (!DISCORD_TOKEN)
@@ -27,7 +28,10 @@ const parseEnv = (): EnvConfig => {
         throw new Error('CRITICAL: DATABASE_URL is missing in env');
     if (!process.env.DEVELOPER_ID)
         throw new Error('CRITICAL: DEVELOPER_ID is missing in env');
-    if (process.env.NODE_ENV && !validEnvs.includes(process.env.NODE_ENV as any)) {
+    if (
+        process.env.NODE_ENV &&
+        !validEnvs.includes(process.env.NODE_ENV as any)
+    ) {
         throw new Error(`NODE_ENV invalide: ${process.env.NODE_ENV}`);
     }
 
