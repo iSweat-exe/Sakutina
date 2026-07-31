@@ -19,14 +19,12 @@ const command: Command = {
             fr: 'Voir les utilisateurs les plus riches',
         }),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
-        // We get top 10 users globally.
-        // In a multi-server setup, you might want this scoped per guild if money is per-guild.
-        // But currently economy is global per user.
-        const topUsers = await EconomyService.getLeaderboard(10);
-        const title = I18nService.translate('common:LEADERBOARD_TITLE', {
+        const guildId = interaction.guildId ?? 'dm';
+        const topUsers = await EconomyService.getLeaderboard(guildId, 10);
+        const title = I18nService.translate('economy:LEADERBOARD_TITLE', {
             lng: lang,
         });
-        const emptyMsg = I18nService.translate('common:LEADERBOARD_EMPTY', {
+        const emptyMsg = I18nService.translate('economy:LEADERBOARD_EMPTY', {
             lng: lang,
         });
         const embed = EmbedUtils.base({

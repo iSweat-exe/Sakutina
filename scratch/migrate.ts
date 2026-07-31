@@ -41,12 +41,12 @@ async function main() {
                 // The audit says remove boilerplate try-catch. Let's see if there's a top-level try catch.
                 let match = inner.match(/^\s*const lang =[^;]+;\s*try\s*\{([\s\S]*?)\}\s*catch\s*\([^)]*\)\s*\{[\s\S]*?\}\s*$/);
                 if (match) {
-                    inner = match[1];
+                    inner = match[1] ?? '';
                 } else {
                     // Try without try-catch (like ping)
                     let match2 = inner.match(/^\s*const lang =[^;]+;([\s\S]*)$/);
                     if (match2) {
-                        inner = match2[1];
+                        inner = match2[1] ?? '';
                     }
                 }
 

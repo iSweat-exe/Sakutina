@@ -261,7 +261,7 @@ const command: Command = {
         if (config.modLogWarning && !config.modLogChannel) {
             warningMsg =
                 '\n\n' +
-                I18nService.translate('common:MOD_LOG_WARNING', { lng: lang });
+                I18nService.translate('mod:MOD_LOG_WARNING', { lng: lang });
         }
         const subcommand = interaction.options.getSubcommand();
         const targetUser = interaction.options.getUser('user', true);
@@ -275,7 +275,7 @@ const command: Command = {
             targetUser.id === interaction.guild.ownerId
         ) {
             const embed = EmbedUtils.error(
-                I18nService.translate('common:MOD_ERR_INVALID_TARGET', {
+                I18nService.translate('mod:MOD_ERR_INVALID_TARGET', {
                     lng: lang,
                 }),
                 'Error',
@@ -290,7 +290,7 @@ const command: Command = {
         if (subcommand === 'warn') {
             if (!targetMember) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NOT_IN_GUILD', {
+                    I18nService.translate('mod:MOD_ERR_NOT_IN_GUILD', {
                         lng: lang,
                     }),
                     'Error',
@@ -309,7 +309,7 @@ const command: Command = {
                 reason
             );
             let replyContent = I18nService.translate(
-                'common:MOD_WARN_SUCCESS',
+                'mod:MOD_WARN_SUCCESS',
                 {
                     lng: lang,
                     user: targetUser.tag,
@@ -321,7 +321,7 @@ const command: Command = {
             if (res.autobanned) {
                 replyContent +=
                     '\n' +
-                    I18nService.translate('common:MOD_AUTOBAN_TRIGGERED', {
+                    I18nService.translate('mod:MOD_AUTOBAN_TRIGGERED', {
                         lng: lang,
                         user: targetUser.tag,
                     });
@@ -342,7 +342,7 @@ const command: Command = {
             );
             if (warns.length === 0) {
                 const embed = EmbedUtils.info(
-                    I18nService.translate('common:MOD_WARNINGS_EMPTY', {
+                    I18nService.translate('mod:MOD_WARNINGS_EMPTY', {
                         lng: lang,
                         user: targetUser.tag,
                     }),
@@ -356,7 +356,7 @@ const command: Command = {
                 return;
             }
             const embed = EmbedUtils.base({
-                title: I18nService.translate('common:MOD_WARNINGS_TITLE', {
+                title: I18nService.translate('mod:MOD_WARNINGS_TITLE', {
                     lng: lang,
                     user: targetUser.tag,
                 }),
@@ -373,13 +373,33 @@ const command: Command = {
                 flags: MessageFlags.Ephemeral,
             });
         } else if (subcommand === 'stats') {
-            const stats = await ModerationService.getModStats(targetUser.id);
+            const stats = await ModerationService.getModStats(
+                targetUser.id,
+                interaction.guild.id
+            );
             const warns = await ModerationService.getWarnings(
                 interaction.guild.id,
                 targetUser.id
             );
+            const history = await ModerationService.getModHistory(
+                interaction.guild.id,
+                targetUser.id
+            );
+            const recentHistory = history
+                .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+                .slice(0, 5);
+            let historyText = recentHistory
+                .map(
+                    (h) =>
+                        `**${h.actionType}** - ${h.reason} (<t:${Math.floor(
+                            h.createdAt.getTime() / 1000
+                        )}:d>)`
+                )
+                .join('\n');
+            if (!historyText) historyText = 'No recent actions';
+
             const embed = EmbedUtils.base({
-                title: I18nService.translate('common:MOD_STATS_TITLE', {
+                title: I18nService.translate('mod:MOD_STATS_TITLE', {
                     lng: lang,
                     user: targetUser.tag,
                 }),
@@ -388,14 +408,11 @@ const command: Command = {
             })
                 .setThumbnail(targetUser.displayAvatarURL())
                 .addFields(
-                    {
-                        name: 'Warnings',
-                        value: `${warns.length}`,
-                        inline: true,
-                    },
+                    { name: '⚠️ Warnings', value: `${warns.length}`,inline: true,},
                     { name: '🔇 Mutes', value: `${stats.mutes}`, inline: true },
                     { name: '👢 Kicks', value: `${stats.kicks}`, inline: true },
-                    { name: '🔨 Bans', value: `${stats.bans}`, inline: true }
+                    { name: '🔨 Bans', value: `${stats.bans}`, inline: true },
+                    { name: '📜 Recent History', value: historyText, inline: false }
                 );
             await interaction.reply({
                 embeds: [embed],
@@ -409,7 +426,7 @@ const command: Command = {
                 reason
             );
             const embed = EmbedUtils.success(
-                I18nService.translate('common:MOD_CLEARWARNS_SUCCESS', {
+                I18nService.translate('mod:MOD_CLEARWARNS_SUCCESS', {
                     lng: lang,
                     user: targetUser.tag,
                     count: deleted,
@@ -434,12 +451,16 @@ const command: Command = {
                     reason,
                     `Duration: ${duration} minutes`
                 );
-                await ModerationService.logModActionStats(
+                await ModerationService.logAction(
+                    interaction.guildId!,
                     targetUser.id,
-                    'MUTE'
+                    interaction.user.id,
+                    'MUTE',
+                    reason,
+                    new Date(Date.now() + duration * 60 * 1000)
                 );
                 const embed = EmbedUtils.success(
-                    I18nService.translate('common:MOD_MUTE_SUCCESS', {
+                    I18nService.translate('mod:MOD_MUTE_SUCCESS', {
                         lng: lang,
                         user: targetUser.tag,
                         duration,
@@ -454,7 +475,7 @@ const command: Command = {
                 });
             } catch (e) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NO_PERM', {
+                    I18nService.translate('mod:MOD_ERR_NO_PERM', {
                         lng: lang,
                     }),
                     'Error',
@@ -476,8 +497,15 @@ const command: Command = {
                     interaction.user,
                     reason
                 );
+                await ModerationService.logAction(
+                    interaction.guildId!,
+                    targetUser.id,
+                    interaction.user.id,
+                    'UNMUTE',
+                    reason
+                );
                 const embed = EmbedUtils.success(
-                    I18nService.translate('common:MOD_UNMUTE_SUCCESS', {
+                    I18nService.translate('mod:MOD_UNMUTE_SUCCESS', {
                         lng: lang,
                         user: targetUser.tag,
                         reason,
@@ -491,7 +519,7 @@ const command: Command = {
                 });
             } catch (e) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NO_PERM', {
+                    I18nService.translate('mod:MOD_ERR_NO_PERM', {
                         lng: lang,
                     }),
                     'Error',
@@ -513,12 +541,15 @@ const command: Command = {
                     interaction.user,
                     reason
                 );
-                await ModerationService.logModActionStats(
+                await ModerationService.logAction(
+                    interaction.guildId!,
                     targetUser.id,
-                    'KICK'
+                    interaction.user.id,
+                    'KICK',
+                    reason
                 );
                 const embed = EmbedUtils.success(
-                    I18nService.translate('common:MOD_KICK_SUCCESS', {
+                    I18nService.translate('mod:MOD_KICK_SUCCESS', {
                         lng: lang,
                         user: targetUser.tag,
                         reason,
@@ -532,7 +563,7 @@ const command: Command = {
                 });
             } catch (e) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NO_PERM', {
+                    I18nService.translate('mod:MOD_ERR_NO_PERM', {
                         lng: lang,
                     }),
                     'Error',
@@ -553,9 +584,15 @@ const command: Command = {
                     interaction.user,
                     reason
                 );
-                await ModerationService.logModActionStats(targetUser.id, 'BAN');
+                await ModerationService.logAction(
+                    interaction.guildId!,
+                    targetUser.id,
+                    interaction.user.id,
+                    'BAN',
+                    reason
+                );
                 const embed = EmbedUtils.success(
-                    I18nService.translate('common:MOD_BAN_SUCCESS', {
+                    I18nService.translate('mod:MOD_BAN_SUCCESS', {
                         lng: lang,
                         user: targetUser.tag,
                         reason,
@@ -569,7 +606,7 @@ const command: Command = {
                 });
             } catch (e) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NO_PERM', {
+                    I18nService.translate('mod:MOD_ERR_NO_PERM', {
                         lng: lang,
                     }),
                     'Error',
@@ -597,9 +634,15 @@ const command: Command = {
                     interaction.user,
                     reason
                 );
-                await ModerationService.logModActionStats(targetUser.id, 'BAN');
+                await ModerationService.logAction(
+                    interaction.guildId!,
+                    targetUser.id,
+                    interaction.user.id,
+                    'SOFTBAN',
+                    reason
+                );
                 const embed = EmbedUtils.success(
-                    I18nService.translate('common:MOD_SOFTBAN_SUCCESS', {
+                    I18nService.translate('mod:MOD_SOFTBAN_SUCCESS', {
                         lng: lang,
                         user: targetUser.tag,
                         reason,
@@ -613,7 +656,7 @@ const command: Command = {
                 });
             } catch (e) {
                 const embed = EmbedUtils.error(
-                    I18nService.translate('common:MOD_ERR_NO_PERM', {
+                    I18nService.translate('mod:MOD_ERR_NO_PERM', {
                         lng: lang,
                     }),
                     'Error',

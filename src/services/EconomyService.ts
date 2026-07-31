@@ -1,6 +1,6 @@
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, sql, desc, and } from 'drizzle-orm';
 import { db } from '../repositories/db.js';
-import { users } from '../repositories/schema.js';
+import { users, transactions } from '../repositories/schema.js';
 import {
     InsufficientFundsError,
     CooldownError,
@@ -11,18 +11,60 @@ import { DAILY_REWARD } from '../modules/economy/constants.js';
 
 export class EconomyService {
     /**
-     * Ensure user exists in the database.
+     * Log a transaction.
      */
-    public static async ensureUser(discordId: string) {
+    public static async logTransaction(
+        userId: string,
+        guildId: string,
+        type: string,
+        amount: number,
+        details?: string,
+        tx?: any
+    ) {
+        const executor = tx ?? db;
+        await executor.insert(transactions).values({
+            userId,
+            guildId,
+            type,
+            amount,
+            details,
+        });
+    }
+
+    /**
+     * Get recent transactions for a user in a specific guild.
+     */
+    public static async getRecentTransactions(userId: string, guildId: string, limit = 10) {
+        return db
+            .select()
+            .from(transactions)
+            .where(and(eq(transactions.userId, userId), eq(transactions.guildId, guildId)))
+            .orderBy(desc(transactions.createdAt))
+            .limit(limit);
+    }
+
+    /**
+     * Delete transactions older than X days.
+     */
+    public static async purgeOldTransactions(days = 14) {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        await db.delete(transactions).where(sql`${transactions.createdAt} < ${cutoffDate}`);
+    }
+
+    /**
+     * Ensure user exists in the database for a specific guild.
+     */
+    public static async ensureUser(discordId: string, guildId: string) {
         let user = await db
             .select()
             .from(users)
-            .where(eq(users.discordId, discordId))
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
             .then((res) => res[0]);
         if (!user) {
             const inserted = await db
                 .insert(users)
-                .values({ discordId })
+                .values({ discordId, guildId })
                 .returning()
                 .then((res) => res[0]);
             if (!inserted) throw new Error('Failed to insert user');
@@ -34,37 +76,38 @@ export class EconomyService {
     /**
      * Get a user's balances (wallet + bank).
      */
-    public static async getBalance(discordId: string) {
-        const user = await this.ensureUser(discordId);
+    public static async getBalance(discordId: string, guildId: string) {
+        const user = await this.ensureUser(discordId, guildId);
         return { balance: user.balance, bank: user.bank };
     }
 
     /**
      * Add funds to a user's wallet.
      */
-    public static async addBalance(discordId: string, amount: number) {
+    public static async addBalance(discordId: string, guildId: string, amount: number, reason: string = 'Admin added balance', type: string = 'add_balance') {
         if (amount < 0) throw new Error('Amount must be positive');
-        await this.ensureUser(discordId);
+        await this.ensureUser(discordId, guildId);
         const updated = await db
             .update(users)
             .set({
                 balance: sql`${users.balance} + ${amount}`,
                 updatedAt: new Date(),
             })
-            .where(eq(users.discordId, discordId))
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
             .returning()
             .then((res) => res[0]);
         if (!updated)
             throw new Error('User unexpectedly disappeared during update');
+        await this.logTransaction(discordId, guildId, type, amount, reason);
         return updated.balance;
     }
 
     /**
      * Remove funds from a user's wallet.
      */
-    public static async removeBalance(discordId: string, amount: number) {
+    public static async removeBalance(discordId: string, guildId: string, amount: number, reason: string = 'Admin removed balance', type: string = 'remove_balance') {
         if (amount < 0) throw new Error('Amount must be positive');
-        const user = await this.ensureUser(discordId);
+        const user = await this.ensureUser(discordId, guildId);
         if (user.balance < amount) throw new InsufficientFundsError();
 
         const updated = await db
@@ -73,11 +116,12 @@ export class EconomyService {
                 balance: sql`${users.balance} - ${amount}`,
                 updatedAt: new Date(),
             })
-            .where(eq(users.discordId, discordId))
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
             .returning()
             .then((res) => res[0]);
         if (!updated)
             throw new Error('User unexpectedly disappeared during update');
+        await this.logTransaction(discordId, guildId, type, -amount, reason);
         return updated.balance;
     }
 
@@ -87,19 +131,20 @@ export class EconomyService {
     public static async payUser(
         senderId: string,
         receiverId: string,
+        guildId: string,
         amount: number
     ) {
         if (amount <= 0) throw new Error('Amount must be positive');
         if (senderId === receiverId) throw new CannotPaySelfError();
 
-        await this.ensureUser(senderId);
-        await this.ensureUser(receiverId);
+        await this.ensureUser(senderId, guildId);
+        await this.ensureUser(receiverId, guildId);
 
         await db.transaction(async (tx) => {
             const sender = await tx
                 .select()
                 .from(users)
-                .where(eq(users.discordId, senderId))
+                .where(and(eq(users.discordId, senderId), eq(users.guildId, guildId)))
                 .then((res) => res[0]);
             if (!sender || sender.balance < amount)
                 throw new InsufficientFundsError();
@@ -110,7 +155,7 @@ export class EconomyService {
                     balance: sql`${users.balance} - ${amount}`,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, senderId));
+                .where(and(eq(users.discordId, senderId), eq(users.guildId, guildId)));
 
             await tx
                 .update(users)
@@ -118,21 +163,25 @@ export class EconomyService {
                     balance: sql`${users.balance} + ${amount}`,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, receiverId));
+                .where(and(eq(users.discordId, receiverId), eq(users.guildId, guildId)));
+                
+            await this.logTransaction(senderId, guildId, 'pay', -amount, `Paid ${amount} to user ${receiverId}`, tx);
+            await this.logTransaction(receiverId, guildId, 'pay', amount, `Received ${amount} from user ${senderId}`, tx);
         });
     }
 
     /**
      * Deposit funds from wallet to bank.
      */
-    public static async deposit(discordId: string, amount: number) {
+    public static async deposit(discordId: string, guildId: string, amount: number) {
         if (amount <= 0) throw new Error('Amount must be positive');
+        await this.ensureUser(discordId, guildId);
         
         await db.transaction(async (tx) => {
             const user = await tx
                 .select()
                 .from(users)
-                .where(eq(users.discordId, discordId))
+                .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
                 .then((res) => res[0]);
             
             if (!user) throw new Error('User not found');
@@ -145,25 +194,28 @@ export class EconomyService {
                     bank: sql`${users.bank} + ${amount}`,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, discordId));
+                .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+                
+            await this.logTransaction(discordId, guildId, 'bank_deposit', amount, `Deposited ${amount} to bank`, tx);
         });
     }
 
     /**
      * Withdraw funds from bank to wallet.
      */
-    public static async withdraw(discordId: string, amount: number) {
+    public static async withdraw(discordId: string, guildId: string, amount: number) {
         if (amount <= 0) throw new Error('Amount must be positive');
+        await this.ensureUser(discordId, guildId);
 
         await db.transaction(async (tx) => {
             const user = await tx
                 .select()
                 .from(users)
-                .where(eq(users.discordId, discordId))
+                .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
                 .then((res) => res[0]);
             
             if (!user) throw new Error('User not found');
-            if (user.bank < amount) throw new InsufficientFundsError(); // or a specific BankInsufficientFundsError, but this is fine
+            if (user.bank < amount) throw new InsufficientFundsError();
 
             await tx
                 .update(users)
@@ -172,7 +224,9 @@ export class EconomyService {
                     balance: sql`${users.balance} + ${amount}`,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, discordId));
+                .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+                
+            await this.logTransaction(discordId, guildId, 'bank_withdraw', amount, `Withdrew ${amount} from bank`, tx);
         });
     }
 
@@ -180,11 +234,11 @@ export class EconomyService {
      * Rob another user. Steals 1-5% of their wallet.
      * Has a 24-hour cooldown.
      */
-    public static async rob(robberId: string, victimId: string) {
+    public static async rob(robberId: string, victimId: string, guildId: string) {
         if (robberId === victimId) throw new Error('Cannot rob yourself');
 
-        await this.ensureUser(robberId);
-        await this.ensureUser(victimId);
+        await this.ensureUser(robberId, guildId);
+        await this.ensureUser(victimId, guildId);
 
         let stolenAmount = 0;
 
@@ -192,12 +246,12 @@ export class EconomyService {
             const robber = await tx
                 .select()
                 .from(users)
-                .where(eq(users.discordId, robberId))
+                .where(and(eq(users.discordId, robberId), eq(users.guildId, guildId)))
                 .then((res) => res[0]);
             const victim = await tx
                 .select()
                 .from(users)
-                .where(eq(users.discordId, victimId))
+                .where(and(eq(users.discordId, victimId), eq(users.guildId, guildId)))
                 .then((res) => res[0]);
 
             if (!robber || !victim) throw new Error('User not found');
@@ -214,7 +268,7 @@ export class EconomyService {
 
             if (victim.balance <= 0) {
                 // Still update cooldown even if they had no money
-                await tx.update(users).set({ robLastAttempt: now }).where(eq(users.discordId, robberId));
+                await tx.update(users).set({ robLastAttempt: now }).where(and(eq(users.discordId, robberId), eq(users.guildId, guildId)));
                 throw new EmptyWalletError();
             }
 
@@ -229,7 +283,7 @@ export class EconomyService {
                     balance: sql`${users.balance} - ${stolenAmount}`,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, victimId));
+                .where(and(eq(users.discordId, victimId), eq(users.guildId, guildId)));
 
             await tx
                 .update(users)
@@ -238,7 +292,10 @@ export class EconomyService {
                     robLastAttempt: now,
                     updatedAt: new Date(),
                 })
-                .where(eq(users.discordId, robberId));
+                .where(and(eq(users.discordId, robberId), eq(users.guildId, guildId)));
+                
+            await this.logTransaction(robberId, guildId, 'rob', stolenAmount, `Robbed ${stolenAmount} from user ${victimId}`, tx);
+            await this.logTransaction(victimId, guildId, 'robbed', -stolenAmount, `Robbed by user ${robberId} for ${stolenAmount}`, tx);
         });
 
         return stolenAmount;
@@ -249,9 +306,10 @@ export class EconomyService {
      */
     public static async claimDaily(
         discordId: string,
+        guildId: string,
         rewardAmount: number = DAILY_REWARD
     ) {
-        const user = await this.ensureUser(discordId);
+        const user = await this.ensureUser(discordId, guildId);
 
         const now = new Date();
         // 24 hours cooldown
@@ -272,19 +330,21 @@ export class EconomyService {
                 dailyLastClaim: now,
                 updatedAt: new Date(),
             })
-            .where(eq(users.discordId, discordId))
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
             .returning()
             .then((res) => res[0]);
         if (!updated)
             throw new Error('User unexpectedly disappeared during update');
 
+        await this.logTransaction(discordId, guildId, 'daily', rewardAmount, 'Claimed daily reward');
+
         return updated.balance;
     }
 
     /**
-     * Get the richest users (wallet + bank), sorted and limited in SQL.
+     * Get the richest users in a guild, sorted and limited in SQL.
      */
-    public static async getLeaderboard(limit: number = 10) {
+    public static async getLeaderboard(guildId: string, limit: number = 10) {
         return db
             .select({
                 discordId: users.discordId,
@@ -293,6 +353,7 @@ export class EconomyService {
                 ),
             })
             .from(users)
+            .where(eq(users.guildId, guildId))
             .orderBy(desc(sql`${users.balance} + ${users.bank}`))
             .limit(limit);
     }

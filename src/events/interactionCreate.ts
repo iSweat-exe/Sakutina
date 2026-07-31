@@ -2,7 +2,7 @@ import type { Interaction } from 'discord.js';
 import type { BotClient } from '../bot.js';
 import type { Event } from '../types/Event.js';
 import { logger } from '../utils/logger.js';
-import { MessageFlags, type InteractionReplyOptions } from 'discord.js';
+import { MessageFlags, DiscordAPIError, type InteractionReplyOptions } from 'discord.js';
 import { I18nService } from '../services/I18nService.js';
 import { GuildConfigService } from '../services/GuildConfigService.js';
 
@@ -38,6 +38,11 @@ const event: Event<'interactionCreate'> = {
         try {
             await command.execute(interaction);
         } catch (error) {
+            if (error instanceof DiscordAPIError && (error.code === 10062 || error.code === 40060)) {
+                logger.warn(`[Command:${interaction.commandName}] Interaction expired or already acknowledged.`);
+                return;
+            }
+
             logger.error(
                 `[Command:${interaction.commandName}] Execution error:`,
                 error

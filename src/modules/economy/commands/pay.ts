@@ -40,10 +40,11 @@ const command: Command = {
                 .setMinValue(1)
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         const targetUser = interaction.options.getUser('user', true);
         const amount = interaction.options.getInteger('amount', true);
         if (targetUser.bot) {
-            const msg = I18nService.translate('common:PAY_BOT_ERROR', {
+            const msg = I18nService.translate('economy:PAY_BOT_ERROR', {
                 lng: lang,
             });
             const embed = EmbedUtils.error(msg, 'Error', interaction.user);
@@ -55,11 +56,12 @@ const command: Command = {
         }
         try {
             await EconomyService.payUser(
-                interaction.user.id,
-                targetUser.id,
-                amount
-            );
-            const msg = I18nService.translate('common:PAY_SUCCESS', {
+            interaction.user.id,
+            targetUser.id,
+            guildId,
+            amount
+        );
+            const msg = I18nService.translate('economy:PAY_SUCCESS', {
                 lng: lang,
                 amount,
                 user: targetUser.toString(),
@@ -72,7 +74,7 @@ const command: Command = {
             await interaction.reply({ embeds: [embed] });
         } catch (error: unknown) {
             if (error instanceof CannotPaySelfError) {
-                const msg = I18nService.translate('common:PAY_SELF_ERROR', {
+                const msg = I18nService.translate('economy:PAY_SELF_ERROR', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.error(msg, 'Error', interaction.user);
@@ -81,7 +83,7 @@ const command: Command = {
                     flags: MessageFlags.Ephemeral,
                 });
             } else if (error instanceof InsufficientFundsError) {
-                const msg = I18nService.translate('common:INSUFFICIENT_FUNDS', {
+                const msg = I18nService.translate('economy:INSUFFICIENT_FUNDS', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.error(

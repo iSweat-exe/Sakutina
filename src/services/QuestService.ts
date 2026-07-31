@@ -20,13 +20,14 @@ export class QuestService {
     /**
      * Increment progress for a specific quest type (e.g., 'work', 'casino').
      */
-    public static async incrementProgress(userId: string, actionType: string) {
+    public static async incrementProgress(userId: string, guildId: string, actionType: string) {
         const userAllQuests = await db
             .select()
             .from(userQuests)
             .where(
                 and(
                     eq(userQuests.userId, userId),
+                    eq(userQuests.guildId, guildId),
                     eq(userQuests.completed, false)
                 )
             );
@@ -45,17 +46,17 @@ export class QuestService {
                     .where(eq(userQuests.id, quest.id));
 
                 if (isCompleted) {
-                    await this.rewardQuest(userId, quest.questId, quest.type as 'daily' | 'weekly');
+                    await this.rewardQuest(userId, guildId, quest.questId, quest.type as 'daily' | 'weekly');
                 }
             }
         }
     }
 
-    private static async rewardQuest(userId: string, questId: string, type: 'daily' | 'weekly') {
+    private static async rewardQuest(userId: string, guildId: string, questId: string, type: 'daily' | 'weekly') {
         const configList = QUESTS_CONFIG[type];
         const config = configList.find(q => q.id === questId);
         if (config) {
-            await EconomyService.addBalance(userId, config.reward);
+            await EconomyService.addBalance(userId, guildId, config.reward, 'Quest completed', 'quest_reward');
             try {
                 const user = await botClient.users.fetch(userId);
                 if (user) {
@@ -75,10 +76,10 @@ export class QuestService {
     /**
      * Get a user's active quests
      */
-    public static async getUserQuests(userId: string) {
+    public static async getUserQuests(userId: string, guildId: string) {
         return await db
             .select()
             .from(userQuests)
-            .where(eq(userQuests.userId, userId));
+            .where(and(eq(userQuests.userId, userId), eq(userQuests.guildId, guildId)));
     }
 }

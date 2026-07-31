@@ -17,7 +17,7 @@ const command: Command = {
             fr: 'Répond avec Pong et donne la latence',
         }),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
-        const message = I18nService.translate('common:PING_RESPONSE', {
+        const message = I18nService.translate('fun:PING_RESPONSE', {
             lng: lang,
         });
         const ping = interaction.client.ws.ping;

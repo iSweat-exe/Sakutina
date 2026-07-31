@@ -1,0 +1,18 @@
+{
+    "PROFILE_TITLE": "Profile of {{user}}",
+    "PROFILE_BOT_ERROR": "Bots don't have a profile.",
+    "PROFILE_GENERAL": "General Info",
+    "PROFILE_LEVEL": "Level",
+    "PROFILE_XP": "Experience",
+    "PROFILE_WEALTH": "Wealth",
+    "PROFILE_WALLET": "Wallet",
+    "PROFILE_BANK": "Bank",
+    "PROFILE_TOTAL": "Total Net Worth",
+    "PROFILE_WORK": "Career",
+    "PROFILE_JOB": "Current Job",
+    "PROFILE_SHIFTS": "Shifts Completed",
+    "PROFILE_CASINO": "Casino Stats",
+    "PROFILE_GAMES": "Games Played",
+    "PROFILE_WINRATE": "Win Rate",
+    "PROFILE_WLR": "W/L Record"
+}

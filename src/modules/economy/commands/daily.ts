@@ -19,12 +19,10 @@ const command: Command = {
             fr: 'Réclamer votre récompense journalière',
         }),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         // User choice: default is 500
-        const newBalance = await EconomyService.claimDaily(
-            interaction.user.id,
-            DAILY_REWARD
-        );
-        const msg = I18nService.translate('common:DAILY_SUCCESS', {
+        const newBalance = await EconomyService.claimDaily(interaction.user.id, guildId, DAILY_REWARD);
+        const msg = I18nService.translate('economy:DAILY_SUCCESS', {
             lng: lang,
             amount: DAILY_REWARD,
             balance: newBalance,

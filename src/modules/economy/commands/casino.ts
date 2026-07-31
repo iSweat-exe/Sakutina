@@ -96,15 +96,17 @@ const command: Command = {
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const subcommand = interaction.options.getSubcommand();
+        const guildId = interaction.guildId ?? 'dm';
         const bet = interaction.options.getInteger('bet', true);
         try {
             if (subcommand === 'doubleornothing') {
                 const result = await CasinoService.doubleOrNothing(
                     interaction.user.id,
+                    guildId,
                     bet
                 );
                 if (result.win) {
-                    const msg = I18nService.translate('common:CASINO_DON_WIN', {
+                    const msg = I18nService.translate('economy:CASINO_DON_WIN', {
                         lng: lang,
                         bet,
                         won: result.amount,
@@ -117,7 +119,7 @@ const command: Command = {
                     await interaction.reply({ embeds: [embed] });
                 } else {
                     const msg = I18nService.translate(
-                        'common:CASINO_DON_LOSE',
+                        'economy:CASINO_DON_LOSE',
                         { lng: lang, bet }
                     );
                     const embed = EmbedUtils.error(
@@ -127,10 +129,11 @@ const command: Command = {
                     );
                     await interaction.reply({ embeds: [embed] });
                 }
-                await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
+                await QuestService.incrementProgress(interaction.user.id, guildId, 'casino').catch(() => {});
             } else if (subcommand === 'coinflip') {
                 const balanceData = await EconomyService.getBalance(
-                    interaction.user.id
+                    interaction.user.id,
+                    guildId
                 );
                 if (balanceData.balance < bet) {
                     throw new InsufficientFundsError();
@@ -189,16 +192,17 @@ const command: Command = {
                     try {
                         const result = await CasinoService.coinflip(
                             interaction.user.id,
+                            guildId,
                             bet,
                             choice
                         );
                         const localizedResult = I18nService.translate(
-                            `common:CASINO_COIN_${result.result.toUpperCase()}`,
+                            `economy:CASINO_COIN_${result.result.toUpperCase()}`,
                             { lng: lang }
                         );
                         if (result.win) {
                             const msg = I18nService.translate(
-                                'common:CASINO_COIN_WIN',
+                                'economy:CASINO_COIN_WIN',
                                 {
                                     lng: lang,
                                     bet,
@@ -217,7 +221,7 @@ const command: Command = {
                             });
                         } else {
                             const msg = I18nService.translate(
-                                'common:CASINO_COIN_LOSE',
+                                'economy:CASINO_COIN_LOSE',
                                 { lng: lang, bet, result: localizedResult }
                             );
                             const embedLose = EmbedUtils.error(
@@ -230,11 +234,11 @@ const command: Command = {
                                 components: [],
                             });
                         }
-                        await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
+                        await QuestService.incrementProgress(interaction.user.id, guildId, 'casino').catch(() => {});
                     } catch (err: unknown) {
                         if (err instanceof InsufficientFundsError) {
                             const msg = I18nService.translate(
-                                'common:INSUFFICIENT_FUNDS',
+                                'economy:INSUFFICIENT_FUNDS',
                                 { lng: lang }
                             );
                             const errEmbed = EmbedUtils.error(
@@ -266,7 +270,8 @@ const command: Command = {
             } else if (subcommand === 'rps') {
                 // Early balance check to avoid rendering buttons if insufficient funds
                 const balanceData = await EconomyService.getBalance(
-                    interaction.user.id
+                    interaction.user.id,
+                    guildId
                 );
                 if (balanceData.balance < bet) {
                     throw new InsufficientFundsError();
@@ -327,22 +332,23 @@ const command: Command = {
                     try {
                         const result = await CasinoService.rps(
                             interaction.user.id,
+                            guildId,
                             bet,
                             choice
                         );
                         const botChoiceLoc = I18nService.translate(
-                            `common:CASINO_RPS_${result.botChoice!.toUpperCase()}`,
+                            `economy:CASINO_RPS_${result.botChoice!.toUpperCase()}`,
                             { lng: lang }
                         );
                         const userChoiceLoc = I18nService.translate(
-                            `common:CASINO_RPS_${choice.toUpperCase()}`,
+                            `economy:CASINO_RPS_${choice.toUpperCase()}`,
                             { lng: lang }
                         );
                         let msg = '';
                         let finalEmbed;
                         if (result.state === 'win') {
                             msg = I18nService.translate(
-                                'common:CASINO_RPS_WIN',
+                                'economy:CASINO_RPS_WIN',
                                 {
                                     lng: lang,
                                     bot: botChoiceLoc,
@@ -357,7 +363,7 @@ const command: Command = {
                             );
                         } else if (result.state === 'lose') {
                             msg = I18nService.translate(
-                                'common:CASINO_RPS_LOSE',
+                                'economy:CASINO_RPS_LOSE',
                                 {
                                     lng: lang,
                                     bot: botChoiceLoc,
@@ -372,7 +378,7 @@ const command: Command = {
                             );
                         } else {
                             msg = I18nService.translate(
-                                'common:CASINO_RPS_TIE',
+                                'economy:CASINO_RPS_TIE',
                                 {
                                     lng: lang,
                                     bot: botChoiceLoc,
@@ -389,11 +395,11 @@ const command: Command = {
                             embeds: [finalEmbed],
                             components: [],
                         });
-                        await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
+                        await QuestService.incrementProgress(interaction.user.id, guildId, 'casino').catch(() => {});
                     } catch (err: unknown) {
                         if (err instanceof InsufficientFundsError) {
                             const msg = I18nService.translate(
-                                'common:INSUFFICIENT_FUNDS',
+                                'economy:INSUFFICIENT_FUNDS',
                                 { lng: lang }
                             );
                             const errEmbed = EmbedUtils.error(
@@ -425,6 +431,7 @@ const command: Command = {
             } else if (subcommand === 'slots') {
                 const result = await CasinoService.slots(
                     interaction.user.id,
+                    guildId,
                     bet
                 );
                 const embed = EmbedUtils.base({
@@ -435,19 +442,19 @@ const command: Command = {
 **[ ${result.reels.join(' | ')} ]**
 ${
     result.win
-        ? I18nService.translate('common:CASINO_SLOTS_WIN', {
+        ? I18nService.translate('economy:CASINO_SLOTS_WIN', {
               lng: lang,
               won: result.winAmount,
           })
-        : I18nService.translate('common:CASINO_SLOTS_LOSE', { lng: lang, bet })
+        : I18nService.translate('economy:CASINO_SLOTS_LOSE', { lng: lang, bet })
 }
 `);
                 await interaction.reply({ embeds: [embed] });
-                await QuestService.incrementProgress(interaction.user.id, 'casino').catch(() => {});
+                await QuestService.incrementProgress(interaction.user.id, guildId, 'casino').catch(() => {});
             }
         } catch (error: unknown) {
             if (error instanceof InsufficientFundsError) {
-                const msg = I18nService.translate('common:INSUFFICIENT_FUNDS', {
+                const msg = I18nService.translate('economy:INSUFFICIENT_FUNDS', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.error(

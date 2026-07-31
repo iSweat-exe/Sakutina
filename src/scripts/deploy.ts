@@ -9,7 +9,15 @@ const deploy = async () => {
     const modulesPath = join(process.cwd(), 'src', 'modules'); //TODO: use import.meta.dir
     await loader.loadCommands(modulesPath);
 
-    const commandsData = loader.commands.map((cmd) => cmd.data.toJSON());
+    const commandsData = loader.commands.map((cmd) => {
+        const json = cmd.data.toJSON();
+        // Enable DMs by setting contexts and integration types (Discord API v10)
+        return {
+            ...json,
+            integration_types: [0, 1], // 0: GuildInstall, 1: UserInstall
+            contexts: [0, 1, 2], // 0: Guild, 1: Bot DM, 2: Private Channel
+        };
+    });
 
     const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
 

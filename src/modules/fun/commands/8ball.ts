@@ -21,7 +21,7 @@ const command: Command = {
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const question = interaction.options.getString('question', true);
 
-        const answers = I18nService.translate('common:8BALL_ANSWERS', {
+        const answers = I18nService.translate('fun:8BALL_ANSWERS', {
             lng: lang,
             returnObjects: true
         }) as unknown as string[];
@@ -29,16 +29,16 @@ const command: Command = {
         const answer = answers[Math.floor(Math.random() * answers.length)];
 
         const embed = EmbedUtils.base({
-            title: I18nService.translate('common:8BALL_TITLE', { lng: lang }),
+            title: I18nService.translate('fun:8BALL_TITLE', { lng: lang }),
             user: interaction.user,
         })
             .addFields(
                 {
-                    name: `🎱 ${I18nService.translate('common:8BALL_QUESTION', { lng: lang })}`,
+                    name: `🎱 ${I18nService.translate('fun:8BALL_QUESTION', { lng: lang })}`,
                     value: question,
                 },
                 {
-                    name: `🎱 ${I18nService.translate('common:8BALL_RESPONSE', { lng: lang })}`,
+                    name: `🎱 ${I18nService.translate('fun:8BALL_RESPONSE', { lng: lang })}`,
                     value: answer || '...',
                 }
             );

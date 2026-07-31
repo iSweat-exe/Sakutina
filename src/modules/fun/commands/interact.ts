@@ -15,11 +15,11 @@ import { db } from '../../../repositories/db.js';
 import { interactionStats } from '../../../repositories/schema.js';
 import { sql } from 'drizzle-orm';
 
-async function incrementInteraction(userId: string, type: string): Promise<number> {
+async function incrementInteraction(userId: string, guildId: string, type: string): Promise<number> {
     const result = await db.insert(interactionStats)
-        .values({ userId, interactionType: type, count: 1 })
+        .values({ userId, guildId, interactionType: type, count: 1 })
         .onConflictDoUpdate({
-            target: [interactionStats.userId, interactionStats.interactionType],
+            target: [interactionStats.userId, interactionStats.guildId, interactionStats.interactionType],
             set: { count: sql`${interactionStats.count} + 1` }
         })
         .returning({ count: interactionStats.count });
@@ -109,6 +109,7 @@ const command: Command = {
     data: builder,
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const subcommand = interaction.options.getSubcommand();
+        const guildId = interaction.guildId ?? 'dm';
         const target = interaction.options.getUser('target', false);
 
         let deferred = false;
@@ -135,7 +136,7 @@ const command: Command = {
 
         if (target && target.id === interaction.user.id) {
             const embed = EmbedUtils.error(
-                I18nService.translate('common:INTERACT_SELF_ERROR', { lng: lang }),
+                I18nService.translate('fun:INTERACT_SELF_ERROR', { lng: lang }),
                 I18nService.translate('common:EMBED_TITLE_ERROR', { lng: lang }),
                 interaction.user
             );
@@ -145,7 +146,7 @@ const command: Command = {
 
         if (target && target.bot) {
             const embed = EmbedUtils.error(
-                I18nService.translate('common:INTERACT_BOT_ERROR', { lng: lang }),
+                I18nService.translate('fun:INTERACT_BOT_ERROR', { lng: lang }),
                 I18nService.translate('common:EMBED_TITLE_ERROR', { lng: lang }),
                 interaction.user
             );
@@ -159,15 +160,15 @@ const command: Command = {
         let msgKey = target ? `INTERACT_${up}_TARGET` : `INTERACT_${up}`;
         let btnKey = `INTERACT_BTN_${up}`;
 
-        let text = I18nService.translate(`common:${msgKey}`, {
+        let text = I18nService.translate(`fun:${msgKey}`, {
             lng: lang,
             user: interaction.user.displayName,
             target: target?.displayName || ''
         });
 
         if (target) {
-            const count = await incrementInteraction(target.id, subcommand);
-            const statText = I18nService.translate('common:INTERACT_STATS', {
+            const count = await incrementInteraction(target.id, guildId, subcommand);
+            const statText = I18nService.translate('fun:INTERACT_STATS', {
                 lng: lang,
                 target: target.displayName,
                 count,
@@ -192,7 +193,7 @@ const command: Command = {
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
                         .setCustomId(`interact_${subcommand}`)
-                        .setLabel(I18nService.translate(`common:${btnKey}`, { lng: lang }))
+                        .setLabel(I18nService.translate(`fun:${btnKey}`, { lng: lang }))
                         .setStyle(ButtonStyle.Secondary)
                 )
             );
@@ -213,7 +214,7 @@ const command: Command = {
         collector.on('collect', async (i) => {
             if (i.user.id !== target.id) {
                 await i.reply({
-                    content: I18nService.translate('common:INTERACT_BTN_NOT_TARGET', { lng: lang }),
+                    content: I18nService.translate('fun:INTERACT_BTN_NOT_TARGET', { lng: lang }),
                     flags: MessageFlags.Ephemeral
                 });
                 return;
@@ -223,14 +224,14 @@ const command: Command = {
 
             const newGifData = await getGif(subcommand);
             
-            let newText = I18nService.translate(`common:INTERACT_${up}_BACK`, {
+            let newText = I18nService.translate(`fun:INTERACT_${up}_BACK`, {
                 lng: lang,
                 user: target.displayName,          
                 target: interaction.user.displayName 
             });
 
-            const backCount = await incrementInteraction(interaction.user.id, subcommand);
-            const backStatText = I18nService.translate('common:INTERACT_STATS', {
+            const backCount = await incrementInteraction(interaction.user.id, guildId, subcommand);
+            const backStatText = I18nService.translate('fun:INTERACT_STATS', {
                 lng: lang,
                 target: interaction.user.displayName,
                 count: backCount,

@@ -20,11 +20,12 @@ const command: Command = {
                 .setRequired(true)
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         const target = interaction.options.getUser('user', true);
 
         if (target.bot) {
             const embed = EmbedUtils.error(
-                I18nService.translate('common:ROB_BOT_ERROR', { lng: lang }),
+                I18nService.translate('economy:ROB_BOT_ERROR', { lng: lang }),
                 I18nService.translate('common:EMBED_TITLE_ERROR', { lng: lang }),
                 interaction.user
             );
@@ -32,8 +33,8 @@ const command: Command = {
             return;
         }
 
-        const stolen = await EconomyService.rob(interaction.user.id, target.id);
-        const msg = I18nService.translate('common:ROB_SUCCESS', {
+        const stolen = await EconomyService.rob(interaction.user.id, target.id, guildId);
+        const msg = I18nService.translate('economy:ROB_SUCCESS', {
             lng: lang,
             amount: stolen,
             target: target.toString()

@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../repositories/db.js';
 import { users } from '../repositories/schema.js';
 import { EconomyService } from './EconomyService.js';
@@ -14,11 +14,11 @@ export class WorkService {
         return AVAILABLE_JOBS.find((j) => j.id === id);
     }
 
-    public static async joinJob(discordId: string, jobId: string) {
+    public static async joinJob(discordId: string, guildId: string, jobId: string) {
         const job = this.getJob(jobId);
         if (!job) throw new JobError('NOT_FOUND');
 
-        const user = await EconomyService.ensureUser(discordId);
+        const user = await EconomyService.ensureUser(discordId, guildId);
 
         if (user.currentJob === jobId) throw new JobError('ALREADY_HAVE');
         if (user.experience < job.minExperience)
@@ -27,29 +27,29 @@ export class WorkService {
         await db
             .update(users)
             .set({ currentJob: jobId, updatedAt: new Date() })
-            .where(eq(users.discordId, discordId));
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
 
         return job;
     }
 
-    public static async leaveJob(discordId: string) {
-        const user = await EconomyService.ensureUser(discordId);
+    public static async leaveJob(discordId: string, guildId: string) {
+        const user = await EconomyService.ensureUser(discordId, guildId);
         if (!user.currentJob) throw new JobError('NO_JOB');
 
         await db
             .update(users)
             .set({ currentJob: null, updatedAt: new Date() })
-            .where(eq(users.discordId, discordId));
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
     }
 
-    public static async workShift(discordId: string) {
-        const user = await EconomyService.ensureUser(discordId);
+    public static async workShift(discordId: string, guildId: string) {
+        const user = await EconomyService.ensureUser(discordId, guildId);
         if (!user.currentJob) throw new JobError('NO_JOB');
 
         const job = this.getJob(user.currentJob);
         if (!job) {
             // Job no longer exists? Force leave.
-            await this.leaveJob(discordId);
+            await this.leaveJob(discordId, guildId);
             throw new JobError('REMOVED');
         }
 
@@ -79,13 +79,15 @@ export class WorkService {
                 workLastShift: now,
                 updatedAt: new Date(),
             })
-            .where(eq(users.discordId, discordId));
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+
+        await EconomyService.logTransaction(discordId, guildId, 'work', salary, `Worked as ${job.title}`);
 
         return { salary, expGain, jobTitle: job.title };
     }
 
-    public static async getStats(discordId: string) {
-        const user = await EconomyService.ensureUser(discordId);
+    public static async getStats(discordId: string, guildId: string) {
+        const user = await EconomyService.ensureUser(discordId, guildId);
         return {
             currentJob: user.currentJob
                 ? (this.getJob(user.currentJob)?.title ?? 'Unknown')

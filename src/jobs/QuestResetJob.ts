@@ -13,7 +13,7 @@ export class QuestResetJob {
                 // Delete all old daily quests
                 await db.delete(userQuests).where(eq(userQuests.type, 'daily'));
 
-                const allUsers = await db.select({ id: users.discordId }).from(users);
+                const allUsers = await db.select({ id: users.discordId, guildId: users.guildId }).from(users);
                 
                 const now = new Date();
                 const expiresAt = new Date(now);
@@ -27,6 +27,7 @@ export class QuestResetJob {
                     for (const q of selected) {
                         inserts.push({
                             userId: user.id,
+                            guildId: user.guildId,
                             questId: q.id,
                             target: q.target,
                             type: 'daily',
@@ -54,7 +55,7 @@ export class QuestResetJob {
             try {
                 await db.delete(userQuests).where(eq(userQuests.type, 'weekly'));
 
-                const allUsers = await db.select({ id: users.discordId }).from(users);
+                const allUsers = await db.select({ id: users.discordId, guildId: users.guildId }).from(users);
                 
                 const now = new Date();
                 const expiresAt = new Date(now);
@@ -67,6 +68,7 @@ export class QuestResetJob {
                     for (const q of selected) {
                         inserts.push({
                             userId: user.id,
+                            guildId: user.guildId,
                             questId: q.id,
                             target: q.target,
                             type: 'weekly',

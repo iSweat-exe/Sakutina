@@ -13,19 +13,15 @@ export class ProfileService {
     /**
      * Retrieves the full unified profile for a user.
      */
-    public static async getProfile(discordId: string) {
-        const user = await EconomyService.ensureUser(discordId);
-
+    public static async getProfile(discordId: string, guildId: string) {
+        const user = await EconomyService.ensureUser(discordId, guildId);
+        
         const level = this.calculateLevel(user.experience);
-        const jobInfo = user.currentJob
-            ? WorkService.getJob(user.currentJob)
-            : null;
-
+        const jobInfo = user.currentJob ? WorkService.getJob(user.currentJob) : null;
+        
         let winRate = 0;
         if (user.casinoGamesPlayed > 0) {
-            winRate = Math.round(
-                (user.casinoWins / user.casinoGamesPlayed) * 100
-            );
+            winRate = Math.round((user.casinoWins / user.casinoGamesPlayed) * 100);
         }
 
         return {

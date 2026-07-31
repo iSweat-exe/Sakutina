@@ -10,7 +10,8 @@ import {
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
-    discordId: text('discord_id').notNull().unique(),
+    discordId: text('discord_id').notNull(),
+    guildId: text('guild_id').notNull(),
     experience: integer('experience').default(0).notNull(),
     balance: integer('balance').default(0).notNull(),
     bank: integer('bank').default(0).notNull(),
@@ -30,6 +31,10 @@ export const users = pgTable('users', {
     robLastAttempt: timestamp('rob_last_attempt'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        userGuildUnique: uniqueIndex('user_guild_unique').on(table.discordId, table.guildId),
+    };
 });
 
 export const guildSettings = pgTable('guild_settings', {
@@ -70,6 +75,7 @@ export const guildEventChannels = pgTable('guild_event_channels', {
 export const userQuests = pgTable('user_quests', {
     id: serial('id').primaryKey(),
     userId: text('user_id').notNull(),
+    guildId: text('guild_id').notNull(),
     questId: text('quest_id').notNull(),
     progress: integer('progress').default(0).notNull(),
     target: integer('target').notNull(),
@@ -81,10 +87,32 @@ export const userQuests = pgTable('user_quests', {
 export const interactionStats = pgTable('interaction_stats', {
     id: serial('id').primaryKey(),
     userId: text('user_id').notNull(),
+    guildId: text('guild_id').notNull(),
     interactionType: text('interaction_type').notNull(), // e.g. 'hug', 'kiss', 'pat'
     count: integer('count').default(0).notNull(),
 }, (table) => {
     return {
-        userInteractionUnique: uniqueIndex('user_interaction_unique').on(table.userId, table.interactionType),
+        userInteractionUnique: uniqueIndex('user_interaction_unique').on(table.userId, table.guildId, table.interactionType),
     };
+});
+
+export const modActions = pgTable('mod_actions', {
+    id: serial('id').primaryKey(),
+    guildId: text('guild_id').notNull(),
+    userId: text('user_id').notNull(),
+    moderatorId: text('moderator_id').notNull(),
+    actionType: text('action_type').notNull(), // 'BAN', 'KICK', 'MUTE', 'WARN', 'UNMUTE', 'SOFTBAN', etc.
+    reason: text('reason').notNull(),
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const transactions = pgTable('transactions', {
+    id: serial('id').primaryKey(),
+    userId: text('user_id').notNull(),
+    guildId: text('guild_id').notNull(),
+    type: text('type').notNull(), // 'daily', 'work', 'rob', 'pay', 'casino', 'bank_deposit', 'bank_withdraw', etc.
+    amount: integer('amount').notNull(), // Can be positive or negative
+    details: text('details'), // Extra info like 'Paid user 123', 'Robbed 456'
+    createdAt: timestamp('created_at').defaultNow().notNull(),
 });

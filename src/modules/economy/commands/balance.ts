@@ -29,22 +29,24 @@ const command: Command = {
                 .setRequired(false)
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         const targetUser =
             interaction.options.getUser('user') || interaction.user;
         const { balance, bank } = await EconomyService.getBalance(
-            targetUser.id
+            targetUser.id,
+            guildId
         );
-        const title = I18nService.translate('common:BALANCE_TITLE', {
+        const title = I18nService.translate('economy:BALANCE_TITLE', {
             lng: lang,
             user: targetUser.username,
         });
-        const walletLabel = I18nService.translate('common:BALANCE_WALLET', {
+        const walletLabel = I18nService.translate('economy:BALANCE_WALLET', {
             lng: lang,
         });
-        const bankLabel = I18nService.translate('common:BALANCE_BANK', {
+        const bankLabel = I18nService.translate('economy:BALANCE_BANK', {
             lng: lang,
         });
-        const totalLabel = I18nService.translate('common:BALANCE_TOTAL', {
+        const totalLabel = I18nService.translate('economy:BALANCE_TOTAL', {
             lng: lang,
         });
         const embed = EmbedUtils.base({

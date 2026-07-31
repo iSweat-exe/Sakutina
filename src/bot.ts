@@ -8,6 +8,7 @@ import { closeDb } from './repositories/db.js';
 import { BankInterestJob } from './jobs/BankInterestJob.js';
 import { ReminderJob } from './jobs/ReminderJob.js';
 import { QuestResetJob } from './jobs/QuestResetJob.js';
+import { TransactionCleanupJob } from './jobs/TransactionCleanupJob.js';
 
 // Extended client to attach commands
 export class BotClient extends Client {
@@ -38,6 +39,7 @@ const start = async () => {
         BankInterestJob.start();
         ReminderJob.start();
         QuestResetJob.start();
+        TransactionCleanupJob.start();
 
         await botClient.login(env.DISCORD_TOKEN);
     } catch (error) {

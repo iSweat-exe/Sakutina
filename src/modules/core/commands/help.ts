@@ -94,10 +94,9 @@ const command: Command = {
             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
                 select
             );
-        const response = await interaction.reply({
+        const response = await interaction.editReply({
             embeds: [embed],
             components: [row],
-            flags: MessageFlags.Ephemeral,
         });
         const collector = response.createMessageComponentCollector({
             filter: (i) => i.user.id === interaction.user.id,
@@ -123,7 +122,21 @@ const command: Command = {
                     ) {
                         cmdDesc = dataJson.description_localizations['fr'];
                     }
-                    categoryDesc += `**\`/${cmdName}\`** - ${cmdDesc}\n\n`;
+                    categoryDesc += `**\`/${cmdName}\`** - ${cmdDesc}\n`;
+
+                    if (dataJson.options) {
+                        const subcommands = dataJson.options.filter((opt: any) => opt.type === 1); // 1 = Subcommand
+                        if (subcommands.length > 0) {
+                            categoryDesc += subcommands.map((sub: any) => {
+                                let subDesc = sub.description;
+                                if (lang === 'fr' && sub.description_localizations && sub.description_localizations['fr']) {
+                                    subDesc = sub.description_localizations['fr'];
+                                }
+                                return `> ↳ \`${sub.name}\`: ${subDesc}`;
+                            }).join('\n') + '\n';
+                        }
+                    }
+                    categoryDesc += '\n';
                 }
             }
             const categoryTitle = I18nService.translate(
@@ -145,7 +158,7 @@ const command: Command = {
                 // message might be deleted, ignore
             }
         });
-    }),
+    }, { defer: true, ephemeral: true }),
 };
 
 export default command;

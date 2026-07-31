@@ -68,9 +68,10 @@ const command: Command = {
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
         const subcommand = interaction.options.getSubcommand();
+        const guildId = interaction.guildId ?? 'dm';
         try {
             if (subcommand === 'list') {
-                const title = I18nService.translate('common:WORK_LIST_TITLE', {
+                const title = I18nService.translate('economy:WORK_LIST_TITLE', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.base({
@@ -86,7 +87,7 @@ const command: Command = {
                 embed.setDescription(desc);
                 await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'join') {
-                const stats = await WorkService.getStats(interaction.user.id);
+                const stats = await WorkService.getStats(interaction.user.id, guildId);
                 const embed = EmbedUtils.base({
                     title: 'Job Application',
                     color: '#3498DB',
@@ -128,10 +129,11 @@ const command: Command = {
                     try {
                         const job = await WorkService.joinJob(
                             interaction.user.id,
+                            guildId,
                             jobId
                         );
                         const msg = I18nService.translate(
-                            'common:WORK_JOIN_SUCCESS',
+                            'economy:WORK_JOIN_SUCCESS',
                             { lng: lang, job: job!.title }
                         );
                         const successEmbed = EmbedUtils.success(
@@ -151,17 +153,17 @@ const command: Command = {
                         if (err instanceof JobError) {
                             if (err.code === 'JOB_ALREADY_HAVE')
                                 errorMsg = I18nService.translate(
-                                    'common:WORK_ERR_ALREADY',
+                                    'economy:WORK_ERR_ALREADY',
                                     { lng: lang }
                                 );
                             else if (err.code === 'JOB_INSUFFICIENT_EXP')
                                 errorMsg = I18nService.translate(
-                                    'common:WORK_ERR_EXP',
+                                    'economy:WORK_ERR_EXP',
                                     { lng: lang }
                                 );
                             else if (err.code === 'JOB_NOT_FOUND')
                                 errorMsg = I18nService.translate(
-                                    'common:WORK_ERR_NOT_FOUND',
+                                    'economy:WORK_ERR_NOT_FOUND',
                                     { lng: lang }
                                 );
                         }
@@ -189,8 +191,8 @@ const command: Command = {
                     });
                 }
             } else if (subcommand === 'leave') {
-                await WorkService.leaveJob(interaction.user.id);
-                const msg = I18nService.translate('common:WORK_LEAVE_SUCCESS', {
+                await WorkService.leaveJob(interaction.user.id, guildId);
+                const msg = I18nService.translate('economy:WORK_LEAVE_SUCCESS', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.success(
@@ -200,8 +202,8 @@ const command: Command = {
                 );
                 await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'stats') {
-                const stats = await WorkService.getStats(interaction.user.id);
-                const title = I18nService.translate('common:WORK_STATS_TITLE', {
+                const stats = await WorkService.getStats(interaction.user.id, guildId);
+                const title = I18nService.translate('economy:WORK_STATS_TITLE', {
                     lng: lang,
                 });
                 const embed = EmbedUtils.base({
@@ -227,8 +229,8 @@ const command: Command = {
                 );
                 await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'shift') {
-                const result = await WorkService.workShift(interaction.user.id);
-                const msg = I18nService.translate('common:WORK_SHIFT_SUCCESS', {
+                const result = await WorkService.workShift(interaction.user.id, guildId);
+                const msg = I18nService.translate('economy:WORK_SHIFT_SUCCESS', {
                     lng: lang,
                     job: result.jobTitle,
                     salary: result.salary,
@@ -241,16 +243,16 @@ const command: Command = {
                 );
                 await interaction.reply({ embeds: [embed] });
                 
-                await QuestService.incrementProgress(interaction.user.id, 'work').catch(() => {});
+                await QuestService.incrementProgress(interaction.user.id, guildId, 'work').catch(() => {});
             }
         } catch (error: unknown) {
             if (error instanceof JobError) {
                 const keyMap: Record<string, string> = {
-                    JOB_NOT_FOUND: 'common:WORK_ERR_NOT_FOUND',
-                    JOB_ALREADY_HAVE: 'common:WORK_ERR_ALREADY',
-                    JOB_INSUFFICIENT_EXP: 'common:WORK_ERR_EXP',
-                    JOB_NO_JOB: 'common:WORK_ERR_NO_JOB',
-                    JOB_REMOVED: 'common:WORK_ERR_REMOVED',
+                    JOB_NOT_FOUND: 'economy:WORK_ERR_NOT_FOUND',
+                    JOB_ALREADY_HAVE: 'economy:WORK_ERR_ALREADY',
+                    JOB_INSUFFICIENT_EXP: 'economy:WORK_ERR_EXP',
+                    JOB_NO_JOB: 'economy:WORK_ERR_NO_JOB',
+                    JOB_REMOVED: 'economy:WORK_ERR_REMOVED',
                 };
                 const msg = I18nService.translate(
                     keyMap[error.code] ?? 'common:ERROR_GENERIC',
@@ -262,7 +264,7 @@ const command: Command = {
                     flags: MessageFlags.Ephemeral,
                 });
             } else if (error instanceof CooldownError) {
-                const msg = I18nService.translate('common:WORK_ERR_COOLDOWN', {
+                const msg = I18nService.translate('economy:WORK_ERR_COOLDOWN', {
                     lng: lang,
                     seconds: error.remaining,
                 });

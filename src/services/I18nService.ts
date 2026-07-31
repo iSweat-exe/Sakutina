@@ -1,14 +1,35 @@
 import i18next from 'i18next';
 import enCommon from '../locales/en/common.json';
 import frCommon from '../locales/fr/common.json';
+import enEconomy from '../locales/en/economy.json';
+import frEconomy from '../locales/fr/economy.json';
+import enFun from '../locales/en/fun.json';
+import frFun from '../locales/fr/fun.json';
+import enMod from '../locales/en/mod.json';
+import frMod from '../locales/fr/mod.json';
+import enUsers from '../locales/en/users.json';
+import frUsers from '../locales/fr/users.json';
 
 await i18next.init({
     lng: 'en',
     fallbackLng: 'en',
-    ns: 'common',
+    ns: ['common', 'economy', 'fun', 'mod', 'users'],
+    defaultNS: 'common',
     resources: {
-        en: { common: enCommon },
-        fr: { common: frCommon },
+        en: { 
+            common: enCommon,
+            economy: enEconomy,
+            fun: enFun,
+            mod: enMod,
+            users: enUsers
+        },
+        fr: { 
+            common: frCommon,
+            economy: frEconomy,
+            fun: frFun,
+            mod: frMod,
+            users: frUsers
+        },
     },
 });
 

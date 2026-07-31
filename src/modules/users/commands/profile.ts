@@ -28,11 +28,12 @@ const command: Command = {
                 .setRequired(false)
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         const targetUser =
             interaction.options.getUser('user') || interaction.user;
         if (targetUser.bot) {
             const embed = EmbedUtils.error(
-                I18nService.translate('common:PROFILE_BOT_ERROR', {
+                I18nService.translate('users:PROFILE_BOT_ERROR', {
                     lng: lang,
                 }),
                 'Error',
@@ -44,52 +45,52 @@ const command: Command = {
             });
             return;
         }
-        const profile = await ProfileService.getProfile(targetUser.id);
+        const profile = await ProfileService.getProfile(targetUser.id, guildId);
         // Translation strings (will add to JSONs next)
-        const title = I18nService.translate('common:PROFILE_TITLE', {
+        const title = I18nService.translate('users:PROFILE_TITLE', {
             lng: lang,
             user: targetUser.username,
         });
-        const generalHeader = I18nService.translate('common:PROFILE_GENERAL', {
+        const generalHeader = I18nService.translate('users:PROFILE_GENERAL', {
             lng: lang,
         });
-        const levelLabel = I18nService.translate('common:PROFILE_LEVEL', {
+        const levelLabel = I18nService.translate('users:PROFILE_LEVEL', {
             lng: lang,
         });
-        const xpLabel = I18nService.translate('common:PROFILE_XP', {
+        const xpLabel = I18nService.translate('users:PROFILE_XP', {
             lng: lang,
         });
-        const wealthHeader = I18nService.translate('common:PROFILE_WEALTH', {
+        const wealthHeader = I18nService.translate('users:PROFILE_WEALTH', {
             lng: lang,
         });
-        const walletLabel = I18nService.translate('common:PROFILE_WALLET', {
+        const walletLabel = I18nService.translate('users:PROFILE_WALLET', {
             lng: lang,
         });
-        const bankLabel = I18nService.translate('common:PROFILE_BANK', {
+        const bankLabel = I18nService.translate('users:PROFILE_BANK', {
             lng: lang,
         });
-        const totalLabel = I18nService.translate('common:PROFILE_TOTAL', {
+        const totalLabel = I18nService.translate('users:PROFILE_TOTAL', {
             lng: lang,
         });
-        const workHeader = I18nService.translate('common:PROFILE_WORK', {
+        const workHeader = I18nService.translate('users:PROFILE_WORK', {
             lng: lang,
         });
-        const jobLabel = I18nService.translate('common:PROFILE_JOB', {
+        const jobLabel = I18nService.translate('users:PROFILE_JOB', {
             lng: lang,
         });
-        const shiftsLabel = I18nService.translate('common:PROFILE_SHIFTS', {
+        const shiftsLabel = I18nService.translate('users:PROFILE_SHIFTS', {
             lng: lang,
         });
-        const casinoHeader = I18nService.translate('common:PROFILE_CASINO', {
+        const casinoHeader = I18nService.translate('users:PROFILE_CASINO', {
             lng: lang,
         });
-        const gamesLabel = I18nService.translate('common:PROFILE_GAMES', {
+        const gamesLabel = I18nService.translate('users:PROFILE_GAMES', {
             lng: lang,
         });
-        const winrateLabel = I18nService.translate('common:PROFILE_WINRATE', {
+        const winrateLabel = I18nService.translate('users:PROFILE_WINRATE', {
             lng: lang,
         });
-        const wlrLabel = I18nService.translate('common:PROFILE_WLR', {
+        const wlrLabel = I18nService.translate('users:PROFILE_WLR', {
             lng: lang,
         }); // Wins/Losses
         // Format Dates

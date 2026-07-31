@@ -4,13 +4,24 @@ import { I18nService } from '../services/I18nService.js';
 import { EmbedUtils } from './EmbedUtils.js';
 import { AppError } from './errors.js';
 
+export interface CommandHandlerOptions {
+    defer?: boolean;
+    ephemeral?: boolean;
+}
+
 export function createCommandHandler(
     handler: (
         interaction: ChatInputCommandInteraction,
         lang: string
-    ) => Promise<void>
+    ) => Promise<void>,
+    options?: CommandHandlerOptions
 ) {
     return async (interaction: ChatInputCommandInteraction) => {
+        if (options?.defer) {
+            await interaction.deferReply({
+                flags: options.ephemeral ? MessageFlags.Ephemeral : undefined,
+            });
+        }
         const lang = await GuildConfigService.getGuildLanguage(
             interaction.guildId
         );

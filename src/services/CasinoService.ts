@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../repositories/db.js';
 import { users } from '../repositories/schema.js';
 import { EconomyService } from './EconomyService.js';
@@ -7,7 +7,7 @@ export class CasinoService {
     /**
      * Helper to log casino stats.
      */
-    private static async logGame(discordId: string, isWin: boolean) {
+    private static async logGame(discordId: string, guildId: string, isWin: boolean) {
         await db
             .update(users)
             .set({
@@ -20,24 +20,24 @@ export class CasinoService {
                     : sql`${users.casinoLosses}`,
                 updatedAt: new Date(),
             })
-            .where(eq(users.discordId, discordId));
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
     }
 
     /**
      * Double or Nothing game.
      * 50% chance to win double the bet, 50% chance to lose it.
      */
-    public static async doubleOrNothing(discordId: string, bet: number) {
+    public static async doubleOrNothing(discordId: string, guildId: string, bet: number) {
         if (bet <= 0) throw new Error('Bet must be positive');
 
         // Will throw if insufficient funds
-        await EconomyService.removeBalance(discordId, bet);
+        await EconomyService.removeBalance(discordId, guildId, bet, 'Double or nothing bet', 'casino');
 
         const isWin = Math.random() >= 0.5;
-        await this.logGame(discordId, isWin);
+        await this.logGame(discordId, guildId, isWin);
 
         if (isWin) {
-            await EconomyService.addBalance(discordId, bet * 2);
+            await EconomyService.addBalance(discordId, guildId, bet * 2, 'Double or nothing win', 'casino');
             return { win: true, amount: bet * 2 };
         } else {
             return { win: false, amount: 0 };
@@ -50,20 +50,21 @@ export class CasinoService {
      */
     public static async coinflip(
         discordId: string,
+        guildId: string,
         bet: number,
         choice: 'heads' | 'tails'
     ) {
         if (bet <= 0) throw new Error('Bet must be positive');
 
-        await EconomyService.removeBalance(discordId, bet);
+        await EconomyService.removeBalance(discordId, guildId, bet, 'Coinflip bet', 'casino');
 
         const result = Math.random() >= 0.5 ? 'heads' : 'tails';
         const isWin = choice === result;
 
-        await this.logGame(discordId, isWin);
+        await this.logGame(discordId, guildId, isWin);
 
         if (isWin) {
-            await EconomyService.addBalance(discordId, bet * 2);
+            await EconomyService.addBalance(discordId, guildId, bet * 2, 'Coinflip win', 'casino');
             return { win: true, amount: bet * 2, result };
         } else {
             return { win: false, amount: 0, result };
@@ -76,12 +77,13 @@ export class CasinoService {
      */
     public static async rps(
         discordId: string,
+        guildId: string,
         bet: number,
         choice: 'rock' | 'paper' | 'scissors'
     ) {
         if (bet <= 0) throw new Error('Bet must be positive');
 
-        await EconomyService.removeBalance(discordId, bet);
+        await EconomyService.removeBalance(discordId, guildId, bet, 'RPS bet', 'casino');
 
         const choices = ['rock', 'paper', 'scissors'] as const;
         const botChoice = choices[Math.floor(Math.random() * choices.length)];
@@ -99,8 +101,8 @@ export class CasinoService {
         }
 
         if (result === 'win') {
-            await this.logGame(discordId, true);
-            await EconomyService.addBalance(discordId, bet * 2);
+            await this.logGame(discordId, guildId, true);
+            await EconomyService.addBalance(discordId, guildId, bet * 2, 'RPS win', 'casino');
             return { state: result, botChoice, returnAmount: bet * 2 };
         } else if (result === 'tie') {
             // Don't log a win or loss for tie, but increment games played?
@@ -108,11 +110,11 @@ export class CasinoService {
             await db
                 .update(users)
                 .set({ casinoGamesPlayed: sql`${users.casinoGamesPlayed} + 1` })
-                .where(eq(users.discordId, discordId));
-            await EconomyService.addBalance(discordId, bet); // Refund
+                .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            await EconomyService.addBalance(discordId, guildId, bet, 'RPS tie refund', 'casino'); // Refund
             return { state: result, botChoice, returnAmount: bet };
         } else {
-            await this.logGame(discordId, false);
+            await this.logGame(discordId, guildId, false);
             return { state: result, botChoice, returnAmount: 0 };
         }
     }
@@ -121,10 +123,10 @@ export class CasinoService {
      * Slots game.
      * Simple 3-reel slot machine.
      */
-    public static async slots(discordId: string, bet: number) {
+    public static async slots(discordId: string, guildId: string, bet: number) {
         if (bet <= 0) throw new Error('Bet must be positive');
 
-        await EconomyService.removeBalance(discordId, bet);
+        await EconomyService.removeBalance(discordId, guildId, bet, 'Slots bet', 'casino');
 
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎'];
         const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
@@ -143,10 +145,10 @@ export class CasinoService {
         const winAmount = Math.floor(bet * multiplier);
         const isWin = winAmount > 0;
 
-        await this.logGame(discordId, isWin);
+        await this.logGame(discordId, guildId, isWin);
 
         if (isWin) {
-            await EconomyService.addBalance(discordId, winAmount);
+            await EconomyService.addBalance(discordId, guildId, winAmount, 'Slots win', 'casino');
         }
 
         return {

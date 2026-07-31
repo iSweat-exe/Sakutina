@@ -1,6 +1,5 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder, AutocompleteInteraction } from 'discord.js';
 import type { Command } from '../../../types/Command.js';
-import type { AutocompleteInteraction } from 'discord.js';
 import { I18nService } from '../../../services/I18nService.js';
 import { EconomyService } from '../../../services/EconomyService.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
@@ -47,20 +46,21 @@ const command: Command = {
                 )
         ),
     execute: createCommandHandler(async (interaction: ChatInputCommandInteraction, lang: string) => {
+        const guildId = interaction.guildId ?? 'dm';
         const subcommand = interaction.options.getSubcommand();
         const amount = interaction.options.getInteger('amount', true);
 
         if (subcommand === 'deposit') {
-            await EconomyService.deposit(interaction.user.id, amount);
-            const msg = I18nService.translate('common:BANK_DEPOSIT_SUCCESS', {
+            await EconomyService.deposit(interaction.user.id, guildId, amount);
+            const msg = I18nService.translate('economy:BANK_DEPOSIT_SUCCESS', {
                 lng: lang,
                 amount
             });
             const embed = EmbedUtils.success(msg, I18nService.translate('common:EMBED_TITLE_BANK', { lng: lang }), interaction.user);
             await interaction.reply({ embeds: [embed] });
         } else if (subcommand === 'withdraw') {
-            await EconomyService.withdraw(interaction.user.id, amount);
-            const msg = I18nService.translate('common:BANK_WITHDRAW_SUCCESS', {
+            await EconomyService.withdraw(interaction.user.id, guildId, amount);
+            const msg = I18nService.translate('economy:BANK_WITHDRAW_SUCCESS', {
                 lng: lang,
                 amount
             });
@@ -73,9 +73,10 @@ const command: Command = {
         const focusedOption = interaction.options.getFocused(true);
 
         if (focusedOption.name === 'amount') {
+            const guildId = interaction.guildId ?? 'dm';
             const userId = interaction.user.id;
             try {
-                const balances = await EconomyService.getBalance(userId);
+                const balances = await EconomyService.getBalance(userId, guildId);
                 let maxAmount = 0;
 
                 if (subcommand === 'deposit') {

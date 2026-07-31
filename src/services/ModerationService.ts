@@ -6,7 +6,7 @@ import {
     User,
 } from 'discord.js';
 import { db } from '../repositories/db.js';
-import { warns, users, guildSettings } from '../repositories/schema.js';
+import { warns, users, guildSettings, modActions } from '../repositories/schema.js';
 import { eq, and, sql } from 'drizzle-orm';
 import { GuildConfigService } from './GuildConfigService.js';
 import { EconomyService } from './EconomyService.js';
@@ -87,9 +87,10 @@ export class ModerationService {
      */
     public static async logModActionStats(
         discordId: string,
+        guildId: string,
         action: 'KICK' | 'BAN' | 'MUTE'
     ) {
-        await EconomyService.ensureUser(discordId);
+        await EconomyService.ensureUser(discordId, guildId);
 
         let updateObj = {};
         if (action === 'KICK')
@@ -102,19 +103,59 @@ export class ModerationService {
         await db
             .update(users)
             .set({ ...updateObj, updatedAt: new Date() })
-            .where(eq(users.discordId, discordId));
+            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+    }
+
+    /**
+     * Log a detailed moderation action
+     */
+    public static async logAction(
+        guildId: string,
+        userId: string,
+        moderatorId: string,
+        actionType: string,
+        reason: string,
+        expiresAt?: Date
+    ) {
+        await db.insert(modActions).values({
+            guildId,
+            userId,
+            moderatorId,
+            actionType,
+            reason,
+            expiresAt,
+        });
+
+        // Also update legacy stats counters
+        if (actionType === 'KICK' || actionType === 'BAN' || actionType === 'MUTE' || actionType === 'SOFTBAN') {
+            await this.logModActionStats(
+                userId,
+                guildId,
+                actionType === 'SOFTBAN' ? 'BAN' : actionType as 'KICK' | 'BAN' | 'MUTE'
+            );
+        }
     }
 
     /**
      * Get mod stats for a user
      */
-    public static async getModStats(discordId: string) {
-        const user = await EconomyService.ensureUser(discordId);
+    public static async getModStats(discordId: string, guildId: string) {
+        const user = await EconomyService.ensureUser(discordId, guildId);
         return {
             kicks: user.modKicks,
             bans: user.modBans,
             mutes: user.modMutes,
         };
+    }
+
+    /**
+     * Get mod history for a user
+     */
+    public static async getModHistory(guildId: string, userId: string) {
+        return db
+            .select()
+            .from(modActions)
+            .where(and(eq(modActions.guildId, guildId), eq(modActions.userId, userId)));
     }
 
     /**
@@ -160,7 +201,7 @@ export class ModerationService {
                     moderator,
                     `[Auto-Ban] Reached ${maxWarns} warnings.`
                 );
-                await this.logModActionStats(target.id, 'BAN');
+                await this.logAction(guild.id, target.id, moderator.id, 'BAN', `[Auto-Ban] Reached ${maxWarns} warnings.`);
             } catch (e) {
                 logger.error(
                     `Failed to autoban ${target.id} in ${guild.id}`,
@@ -178,6 +219,8 @@ export class ModerationService {
             reason,
             `Total Warnings: ${userWarns.length}/${maxWarns}`
         );
+        
+        await this.logAction(guild.id, target.id, moderator.id, 'WARN', reason);
 
         return { autobanned, warnsCount: userWarns.length, maxWarns };
     }
@@ -215,6 +258,7 @@ export class ModerationService {
             reason,
             `Cleared ${deleted.length} warnings.`
         );
+        await this.logAction(guild.id, target.id, moderator.id, 'CLEARWARNS', reason);
         return deleted.length;
     }
 }

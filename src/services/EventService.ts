@@ -1,7 +1,7 @@
 import { Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ButtonInteraction } from 'discord.js';
 import { db } from '../repositories/db.js';
 import { users } from '../repositories/schema.js';
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { EconomyService } from './EconomyService.js';
 import { EmbedUtils } from '../utils/EmbedUtils.js';
 import { I18nService } from './I18nService.js';
@@ -15,6 +15,7 @@ export class EventService {
         if (Math.random() > 0.05) return;
         
         const lang = message.guildId ? await GuildConfigService.getGuildLanguage(message.guildId) : 'en';
+        const guildId = message.guildId ?? 'dm';
 
         const eventType = Math.floor(Math.random() * 3); // 0: coins, 1: xp bonus, 2: job bonus
         
@@ -50,19 +51,19 @@ export class EventService {
 
                 if (eventType === 0) {
                     const amount = Math.floor(Math.random() * 100) + 50; // 50-150 coins
-                    await EconomyService.addBalance(i.user.id, amount);
+                    await EconomyService.addBalance(i.user.id, guildId, amount, 'Event reward', 'event_reward');
                     rewardMsg = I18nService.translate('common:EVENT_REWARD_COINS', { lng: lang, user: i.user.username, amount });
                 } else if (eventType === 1) {
                     const until = new Date();
                     until.setHours(until.getHours() + 1); // 1 hour 2x XP
-                    await EconomyService.ensureUser(i.user.id);
-                    await db.update(users).set({ bonusXpUntil: until }).where(eq(users.discordId, i.user.id));
+                    await EconomyService.ensureUser(i.user.id, guildId);
+                    await db.update(users).set({ bonusXpUntil: until }).where(and(eq(users.discordId, i.user.id), eq(users.guildId, guildId)));
                     rewardMsg = I18nService.translate('common:EVENT_REWARD_XP', { lng: lang, user: i.user.username });
                 } else {
                     const until = new Date();
                     until.setHours(until.getHours() + 1); // 1 hour 2x Money (Jobs)
-                    await EconomyService.ensureUser(i.user.id);
-                    await db.update(users).set({ bonusMoneyUntil: until }).where(eq(users.discordId, i.user.id));
+                    await EconomyService.ensureUser(i.user.id, guildId);
+                    await db.update(users).set({ bonusMoneyUntil: until }).where(and(eq(users.discordId, i.user.id), eq(users.guildId, guildId)));
                     rewardMsg = I18nService.translate('common:EVENT_REWARD_MONEY', { lng: lang, user: i.user.username });
                 }
 
