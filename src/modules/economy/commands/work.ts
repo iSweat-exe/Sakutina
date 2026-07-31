@@ -1,6 +1,7 @@
 import { createCommandHandler } from '../../../utils/index.js';
 import {
     ChatInputCommandInteraction,
+    GuildMember,
     MessageFlags,
     SlashCommandBuilder,
     ActionRowBuilder,
@@ -14,6 +15,8 @@ import { AVAILABLE_JOBS } from '../constants.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
 import { JobError, CooldownError } from '../../../utils/errors.js';
 import { QuestService } from '../../../services/QuestService.js';
+import { LevelRoleService } from '../../../services/LevelRoleService.js';
+import { formatDuration } from '../../../utils/time.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -83,8 +86,10 @@ const command: Command = {
                     });
                     let desc = '';
                     for (const job of AVAILABLE_JOBS) {
-                        desc += `**${job.title}** (ID: \`${job.id}\`)\n`;
-                        desc += `└ Exp required: ${job.minExperience} | Salary: ${job.salaryMin}-${job.salaryMax}\n\n`;
+                        const base = job.ranks[0]!;
+                        const top = job.ranks[job.ranks.length - 1]!;
+                        desc += `**${base.title}** (ID: \`${job.id}\`)\n`;
+                        desc += `└ Exp required: ${job.minExperience} | Salary: ${base.salaryMin}-${base.salaryMax} 💰 → up to ${top.salaryMin}-${top.salaryMax} 💰 across ${job.ranks.length} ranks\n\n`;
                     }
                     embed.setDescription(desc);
                     await interaction.reply({ embeds: [embed] });
@@ -106,11 +111,14 @@ const command: Command = {
                                 : 'Choose a job...'
                         )
                         .addOptions(
-                            AVAILABLE_JOBS.map((j) => ({
-                                label: j.title,
-                                description: `Salary: ${j.salaryMin}-${j.salaryMax} | Req Exp: ${j.minExperience}`,
-                                value: j.id,
-                            }))
+                            AVAILABLE_JOBS.map((j) => {
+                                const base = j.ranks[0]!;
+                                return {
+                                    label: base.title,
+                                    description: `Salary: ${base.salaryMin}-${base.salaryMax} | Req Exp: ${j.minExperience}`,
+                                    value: j.id,
+                                };
+                            })
                         );
                     const row =
                         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -137,7 +145,7 @@ const command: Command = {
                             );
                             const msg = I18nService.translate(
                                 'economy:WORK_JOIN_SUCCESS',
-                                { lng: lang, job: job!.title }
+                                { lng: lang, job: job!.ranks[0]!.title }
                             );
                             const successEmbed = EmbedUtils.success(
                                 msg,
@@ -231,23 +239,37 @@ const command: Command = {
                             inline: true,
                         },
                         {
+                            name: 'Career Shifts',
+                            value: `${stats.shiftsDone}`,
+                            inline: true,
+                        },
+                        {
                             name: 'Experience',
                             value: `${stats.experience}`,
                             inline: true,
                         },
                         {
-                            name: 'Total Shifts',
-                            value: `${stats.shiftsDone}`,
+                            name: '🔥 Streak',
+                            value: `${stats.streak} day(s)`,
                             inline: true,
                         }
                     );
+                    if (stats.currentJob) {
+                        embed.addFields({
+                            name: 'Rank Progress',
+                            value: stats.nextRankTitle
+                                ? `${stats.shiftsUntilNextRank} shift(s) until **${stats.nextRankTitle}**`
+                                : '🏆 Max rank reached!',
+                            inline: false,
+                        });
+                    }
                     await interaction.reply({ embeds: [embed] });
                 } else if (subcommand === 'shift') {
                     const result = await WorkService.workShift(
                         interaction.user.id,
                         guildId
                     );
-                    const msg = I18nService.translate(
+                    let msg = I18nService.translate(
                         'economy:WORK_SHIFT_SUCCESS',
                         {
                             lng: lang,
@@ -256,6 +278,30 @@ const command: Command = {
                             exp: result.expGain,
                         }
                     );
+                    if (result.streak > 1) {
+                        msg +=
+                            '\n' +
+                            I18nService.translate('economy:WORK_STREAK_LABEL', {
+                                lng: lang,
+                                streak: result.streak,
+                            });
+                    }
+                    if (result.bonusMoneyActive) {
+                        msg +=
+                            '\n' +
+                            I18nService.translate(
+                                'economy:WORK_BONUS_MONEY_ACTIVE',
+                                { lng: lang }
+                            );
+                    }
+                    if (result.bonusXpActive) {
+                        msg +=
+                            '\n' +
+                            I18nService.translate(
+                                'economy:WORK_BONUS_XP_ACTIVE',
+                                { lng: lang }
+                            );
+                    }
                     const embed = EmbedUtils.success(
                         msg,
                         'Work Shift Complete',
@@ -263,11 +309,55 @@ const command: Command = {
                     );
                     await interaction.reply({ embeds: [embed] });
 
+                    if (result.promoted) {
+                        const promoMsg = I18nService.translate(
+                            'economy:WORK_PROMOTED',
+                            { lng: lang, rank: result.newRankTitle }
+                        );
+                        await interaction
+                            .followUp({
+                                embeds: [
+                                    EmbedUtils.success(
+                                        promoMsg,
+                                        'Promotion!',
+                                        interaction.user
+                                    ),
+                                ],
+                            })
+                            .catch(() => {});
+                    }
+
                     await QuestService.incrementProgress(
                         interaction.user.id,
                         guildId,
                         'work'
                     ).catch(() => {});
+
+                    if (interaction.guild && interaction.member) {
+                        const member = interaction.member as GuildMember;
+                        const granted =
+                            await LevelRoleService.checkAndAssignRole(
+                                member,
+                                result.newLevel
+                            ).catch(() => false);
+                        if (granted) {
+                            const roleMsg = I18nService.translate(
+                                'economy:LEVEL_ROLE_GRANTED',
+                                { lng: lang, level: result.newLevel }
+                            );
+                            await interaction
+                                .followUp({
+                                    embeds: [
+                                        EmbedUtils.success(
+                                            roleMsg,
+                                            'Level Up!',
+                                            interaction.user
+                                        ),
+                                    ],
+                                })
+                                .catch(() => {});
+                        }
+                    }
                 }
             } catch (error: unknown) {
                 if (error instanceof JobError) {
@@ -296,7 +386,7 @@ const command: Command = {
                         'economy:WORK_ERR_COOLDOWN',
                         {
                             lng: lang,
-                            seconds: error.remaining,
+                            duration: formatDuration(error.remaining),
                         }
                     );
                     const embed = EmbedUtils.warn(

@@ -86,6 +86,9 @@ const command: Command = {
             const shiftsLabel = I18nService.translate('users:PROFILE_SHIFTS', {
                 lng: lang,
             });
+            const streakLabel = I18nService.translate('users:PROFILE_STREAK', {
+                lng: lang,
+            });
             const casinoHeader = I18nService.translate('users:PROFILE_CASINO', {
                 lng: lang,
             });
@@ -101,10 +104,17 @@ const command: Command = {
             const wlrLabel = I18nService.translate('users:PROFILE_WLR', {
                 lng: lang,
             }); // Wins/Losses
+            const marriedLabel = I18nService.translate(
+                'users:PROFILE_MARRIED_TO',
+                { lng: lang }
+            );
             // Format Dates
             const joinedStr = `<t:${Math.floor(profile.createdAt.getTime() / 1000)}:R>`;
+            const displayTitle = profile.title
+                ? `${profile.title} ${title}`
+                : title;
             const embed = EmbedUtils.base({
-                title,
+                title: displayTitle,
                 color: '#9B59B6',
                 user: interaction.user,
             })
@@ -122,7 +132,11 @@ const command: Command = {
                     },
                     {
                         name: `${workHeader}`,
-                        value: `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}`,
+                        value:
+                            `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}` +
+                            (profile.work.streak > 0
+                                ? `\n**${streakLabel}:** 🔥 ${profile.work.streak}`
+                                : ''),
                         inline: true,
                     },
                     {
@@ -132,6 +146,13 @@ const command: Command = {
                     }
                 )
                 .setFooter({ text: `ID: ${targetUser.id}` });
+            if (profile.marriedTo) {
+                embed.addFields({
+                    name: `💍 ${marriedLabel}`,
+                    value: `<@${profile.marriedTo}>`,
+                    inline: true,
+                });
+            }
             await interaction.reply({ embeds: [embed] });
         }
     ),

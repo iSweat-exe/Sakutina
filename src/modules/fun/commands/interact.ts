@@ -14,6 +14,8 @@ import { createCommandHandler } from '../../../utils/index.js';
 import { db } from '../../../repositories/db.js';
 import { interactionStats } from '../../../repositories/schema.js';
 import { sql } from 'drizzle-orm';
+import { getGif } from '../../../utils/gif.js';
+import { logger } from '../../../utils/logger.js';
 
 async function incrementInteraction(
     userId: string,
@@ -146,38 +148,6 @@ const ACTIONS = [
     },
     { name: 'yawn', fr: 'bailler', desc: 'Yawn', frDesc: 'Bailler' },
 ];
-
-interface GifData {
-    url: string;
-    animeName?: string;
-}
-
-const FALLBACK_GIFS = [
-    'https://media.tenor.com/kCZjTqCKiggAAAAC/hug.gif',
-    'https://media.tenor.com/qF7mO4nnL0sAAAAC/anya-forger-spy-x-family.gif',
-];
-
-async function getGif(type: string): Promise<GifData> {
-    try {
-        const res = await fetch(`https://nekos.best/api/v2/${type}`);
-        if (res.ok) {
-            const data = (await res.json()) as any;
-            if (data?.results?.[0]?.url) {
-                return {
-                    url: data.results[0].url,
-                    animeName: data.results[0].anime_name,
-                };
-            }
-        }
-    } catch (e) {
-        // Fallback below
-    }
-    return {
-        url: FALLBACK_GIFS[
-            Math.floor(Math.random() * FALLBACK_GIFS.length)
-        ] as string,
-    };
-}
 
 const builder = new SlashCommandBuilder()
     .setName('interact')
@@ -333,58 +303,68 @@ const command: Command = {
             });
 
             collector.on('collect', async (i) => {
-                if (i.user.id !== target.id) {
-                    await i.reply({
-                        content: I18nService.translate(
-                            'fun:INTERACT_BTN_NOT_TARGET',
-                            { lng: lang }
-                        ),
-                        flags: MessageFlags.Ephemeral,
-                    });
-                    return;
-                }
-
-                await i.deferUpdate();
-
-                const newGifData = await getGif(subcommand);
-
-                let newText = I18nService.translate(`fun:INTERACT_${up}_BACK`, {
-                    lng: lang,
-                    user: target.displayName,
-                    target: interaction.user.displayName,
-                });
-
-                const backCount = await incrementInteraction(
-                    interaction.user.id,
-                    guildId,
-                    subcommand
-                );
-                const backStatText = I18nService.translate(
-                    'fun:INTERACT_STATS',
-                    {
-                        lng: lang,
-                        target: interaction.user.displayName,
-                        count: backCount,
-                        action: subcommand,
+                try {
+                    if (i.user.id !== target.id) {
+                        await i.reply({
+                            content: I18nService.translate(
+                                'fun:INTERACT_BTN_NOT_TARGET',
+                                { lng: lang }
+                            ),
+                            flags: MessageFlags.Ephemeral,
+                        });
+                        return;
                     }
-                );
-                newText += `\n${backStatText}`;
 
-                if (newGifData.animeName) {
-                    newText += `\n-# Anime: ${newGifData.animeName}`;
+                    await i.deferUpdate();
+
+                    const newGifData = await getGif(subcommand);
+
+                    let newText = I18nService.translate(
+                        `fun:INTERACT_${up}_BACK`,
+                        {
+                            lng: lang,
+                            user: target.displayName,
+                            target: interaction.user.displayName,
+                        }
+                    );
+
+                    const backCount = await incrementInteraction(
+                        interaction.user.id,
+                        guildId,
+                        subcommand
+                    );
+                    const backStatText = I18nService.translate(
+                        'fun:INTERACT_STATS',
+                        {
+                            lng: lang,
+                            target: interaction.user.displayName,
+                            count: backCount,
+                            action: subcommand,
+                        }
+                    );
+                    newText += `\n${backStatText}`;
+
+                    if (newGifData.animeName) {
+                        newText += `\n-# Anime: ${newGifData.animeName}`;
+                    }
+
+                    const newEmbed = EmbedUtils.base({
+                        user: i.user, // Now the target is the user
+                    })
+                        .setDescription(newText)
+                        .setImage(newGifData.url);
+
+                    await i.editReply({
+                        embeds: [newEmbed],
+                        components: [], // Remove button once clicked
+                    });
+                    collector.stop();
+                } catch (error) {
+                    logger.error(
+                        `[Interact:${subcommand}] Failed to process back-interaction`,
+                        error
+                    );
                 }
-
-                const newEmbed = EmbedUtils.base({
-                    user: i.user, // Now the target is the user
-                })
-                    .setDescription(newText)
-                    .setImage(newGifData.url);
-
-                await i.editReply({
-                    embeds: [newEmbed],
-                    components: [], // Remove button once clicked
-                });
-                collector.stop();
             });
 
             collector.on('end', async (_, reason) => {

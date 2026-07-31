@@ -31,6 +31,7 @@
     "AI_UNAVAILABLE": "Indisponible pour le moment.",
     "AI_SIMULATION": "**IA (Simulation) :** Vous avez demandé \"{{prompt}}\". C'est une excellente question, l'intégration est prête !",
     "REMINDER_SET_SUCCESS": "Je vous rappellerai de **\"{{message}}\"** dans {{duration}} minute(s).",
+    "REMINDER_REPEAT_SUFFIX": "(répété toutes les {{minutes}} minute(s))",
     "REMINDER_PING": "{{user}} Rappel : **{{message}}**",
     "EVENT_CLAIM_BUTTON": "Récupérer",
     "EVENT_SPAWN_DESC": "Un événement aléatoire vient d'apparaître ! Cliquez sur le bouton pour récupérer la récompense.",
@@ -51,5 +52,16 @@
     "EMBED_TITLE_CONFIG": "Configuration",
     "EMBED_TITLE_CONFIG_UPDATED": "Configuration Mise à Jour",
     "EMBED_TITLE_ACCESS_DENIED": "Accès Refusé",
-    "EMBED_TITLE_TIMEOUT": "Temps écoulé"
+    "EMBED_TITLE_TIMEOUT": "Temps écoulé",
+    "CONFIG_AUTOMOD_SUCCESS": "La modération automatique est maintenant **{{state}}**.",
+    "CONFIG_LEVELROLE_SUCCESS": "Le rôle de niveau a été défini sur : **{{state}}**",
+    "CONFIG_LEADERBOARD_CHANNEL_SUCCESS": "Le salon de récompense hebdomadaire du classement est désormais : **{{state}}**",
+    "SERVERSTATS_TITLE": "📊 Statistiques de {{server}}",
+    "SERVERSTATS_MEMBERS": "Membres",
+    "SERVERSTATS_TRACKED_USERS": "Utilisateurs Suivis",
+    "SERVERSTATS_TOTAL_WEALTH": "Richesse Totale du Serveur",
+    "SERVERSTATS_AVG_WEALTH": "Richesse Moyenne",
+    "SERVERSTATS_TRANSACTIONS": "Transactions Totales",
+    "SERVERSTATS_WARNS": "Avertissements Totaux",
+    "SERVERSTATS_MOD_ACTIONS": "Actions de Modération Totales"
 }

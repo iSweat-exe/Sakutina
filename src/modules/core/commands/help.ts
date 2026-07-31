@@ -9,11 +9,12 @@ import {
 import type { Command } from '../../../types/Command.js';
 import { I18nService } from '../../../services/I18nService.js';
 import { EmbedUtils } from '../../../utils/EmbedUtils.js';
+import { logger } from '../../../utils/logger.js';
 import type { BotClient } from '../../../bot.js';
 
 const CATEGORIES = {
     config: ['config'],
-    core: ['dev', 'help'],
+    core: ['dev', 'help', 'serverstats'],
     economy: [
         'balance',
         'bank',
@@ -24,11 +25,12 @@ const CATEGORIES = {
         'pay',
         'quests',
         'rob',
+        'shop',
         'work',
     ],
     fun: ['ping', '8ball', 'interact', 'ask'],
     moderation: ['mod', 'syncbans'],
-    users: ['profile', 'remindme'],
+    users: ['profile', 'remindme', 'marry'],
 } as const;
 
 type CategoryKey = keyof typeof CATEGORIES;
@@ -118,66 +120,75 @@ const command: Command = {
                 componentType: ComponentType.StringSelect,
             });
             collector.on('collect', async (i) => {
-                const selectedCategory = i.values[0] as CategoryKey;
-                const categoryCommandNames = CATEGORIES[selectedCategory];
-                const client = interaction.client as BotClient;
-                const allCommands = client.commandLoader.commands;
-                let categoryDesc = '';
-                for (const cmdName of categoryCommandNames) {
-                    const cmd = allCommands.get(cmdName);
-                    if (cmd) {
-                        // Fallback mechanism to get local description
-                        let cmdDesc = cmd.data.description;
-                        const dataJson = cmd.data.toJSON();
-                        if (
-                            lang === 'fr' &&
-                            dataJson.description_localizations &&
-                            dataJson.description_localizations['fr']
-                        ) {
-                            cmdDesc = dataJson.description_localizations['fr'];
-                        }
-                        categoryDesc += `**\`/${cmdName}\`** - ${cmdDesc}\n`;
+                try {
+                    const selectedCategory = i.values[0] as CategoryKey;
+                    const categoryCommandNames = CATEGORIES[selectedCategory];
+                    const client = interaction.client as BotClient;
+                    const allCommands = client.commandLoader.commands;
+                    let categoryDesc = '';
+                    for (const cmdName of categoryCommandNames) {
+                        const cmd = allCommands.get(cmdName);
+                        if (cmd) {
+                            // Fallback mechanism to get local description
+                            let cmdDesc = cmd.data.description;
+                            const dataJson = cmd.data.toJSON();
+                            if (
+                                lang === 'fr' &&
+                                dataJson.description_localizations &&
+                                dataJson.description_localizations['fr']
+                            ) {
+                                cmdDesc =
+                                    dataJson.description_localizations['fr'];
+                            }
+                            categoryDesc += `**\`/${cmdName}\`** - ${cmdDesc}\n`;
 
-                        if (dataJson.options) {
-                            const subcommands = dataJson.options.filter(
-                                (opt: any) => opt.type === 1
-                            ); // 1 = Subcommand
-                            if (subcommands.length > 0) {
-                                categoryDesc +=
-                                    subcommands
-                                        .map((sub: any) => {
-                                            let subDesc = sub.description;
-                                            if (
-                                                lang === 'fr' &&
-                                                sub.description_localizations &&
-                                                sub.description_localizations[
-                                                    'fr'
-                                                ]
-                                            ) {
-                                                subDesc =
+                            if (dataJson.options) {
+                                const subcommands = dataJson.options.filter(
+                                    (opt: any) => opt.type === 1
+                                ); // 1 = Subcommand
+                                if (subcommands.length > 0) {
+                                    categoryDesc +=
+                                        subcommands
+                                            .map((sub: any) => {
+                                                let subDesc = sub.description;
+                                                if (
+                                                    lang === 'fr' &&
+                                                    sub.description_localizations &&
                                                     sub
                                                         .description_localizations[
                                                         'fr'
-                                                    ];
-                                            }
-                                            return `> ↳ \`${sub.name}\`: ${subDesc}`;
-                                        })
-                                        .join('\n') + '\n';
+                                                    ]
+                                                ) {
+                                                    subDesc =
+                                                        sub
+                                                            .description_localizations[
+                                                            'fr'
+                                                        ];
+                                                }
+                                                return `> ↳ \`${sub.name}\`: ${subDesc}`;
+                                            })
+                                            .join('\n') + '\n';
+                                }
                             }
+                            categoryDesc += '\n';
                         }
-                        categoryDesc += '\n';
                     }
+                    const categoryTitle = I18nService.translate(
+                        `common:HELP_CAT_${selectedCategory.toUpperCase()}`,
+                        { lng: lang }
+                    );
+                    const categoryEmbed = EmbedUtils.info(
+                        categoryDesc || 'No commands found.',
+                        `📂 ${categoryTitle}`,
+                        interaction.user
+                    );
+                    await i.update({
+                        embeds: [categoryEmbed],
+                        components: [row],
+                    });
+                } catch (error) {
+                    logger.error('[Help] Failed to render category', error);
                 }
-                const categoryTitle = I18nService.translate(
-                    `common:HELP_CAT_${selectedCategory.toUpperCase()}`,
-                    { lng: lang }
-                );
-                const categoryEmbed = EmbedUtils.info(
-                    categoryDesc || 'No commands found.',
-                    `📂 ${categoryTitle}`,
-                    interaction.user
-                );
-                await i.update({ embeds: [categoryEmbed], components: [row] });
             });
             collector.on('end', async () => {
                 // Clean up the components after timeout

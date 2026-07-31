@@ -15,5 +15,8 @@
     "MOD_BAN_SUCCESS": "**{{user}}** a été banni. Raison : `{{reason}}`",
     "MOD_SOFTBAN_SUCCESS": "**{{user}}** a été soft-banni (Banni puis débanni pour nettoyer ses messages). Raison : `{{reason}}`",
     "SYNCBANS_SUCCESS": "**{{count}}** bannissements ont été synchronisés avec la base de données.",
-    "SYNCBANS_ERROR": "Une erreur est survenue lors de la récupération ou de la synchronisation des bannissements."
+    "SYNCBANS_ERROR": "Une erreur est survenue lors de la récupération ou de la synchronisation des bannissements.",
+    "AUTOMOD_REASON_SPAM": "[Auto-Modération] Spam de messages détecté.",
+    "AUTOMOD_REASON_LINK": "[Auto-Modération] Lien non autorisé publié.",
+    "AUTOMOD_NOTICE": "{{user}}, votre message a été supprimé par la modération automatique et vous avez reçu un avertissement."
 }

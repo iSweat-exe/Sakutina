@@ -9,6 +9,7 @@ import { BankInterestJob } from './jobs/BankInterestJob.js';
 import { ReminderJob } from './jobs/ReminderJob.js';
 import { QuestResetJob } from './jobs/QuestResetJob.js';
 import { TransactionCleanupJob } from './jobs/TransactionCleanupJob.js';
+import { WeeklyLeaderboardJob } from './jobs/WeeklyLeaderboardJob.js';
 
 // Extended client to attach commands
 export class BotClient extends Client {
@@ -28,6 +29,20 @@ export class BotClient extends Client {
 
 export const botClient = new BotClient();
 
+// discord.js emits 'error' on the client whenever the underlying WebSocket
+// connection has an issue. EventEmitter throws synchronously if 'error' has
+// no listener, which would otherwise crash the process on every gateway
+// hiccup — so this listener alone is critical, not just for visibility.
+botClient.on('error', (error) => {
+    logger.error('[Client] WebSocket error:', error);
+});
+botClient.on('shardError', (error, shardId) => {
+    logger.error(`[Client] Shard ${shardId} error:`, error);
+});
+botClient.on('warn', (message) => {
+    logger.warn(`[Client] ${message}`);
+});
+
 const start = async () => {
     try {
         const modulesPath = join(process.cwd(), 'src', 'modules'); //TODO: use import.meta.dir
@@ -42,6 +57,7 @@ const start = async () => {
         ReminderJob.start();
         QuestResetJob.start();
         TransactionCleanupJob.start();
+        WeeklyLeaderboardJob.start();
 
         await botClient.login(env.DISCORD_TOKEN);
     } catch (error) {
@@ -72,6 +88,12 @@ process.on('unhandledRejection', (reason) => {
 });
 process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception:', error);
+    // Per Node's own guidance, it's not safe to keep running after a truly
+    // uncaught exception — the process (and any Discord.js internal state)
+    // may be corrupted. ShardingManager (respawn: true) and the Docker
+    // restart policy both bring a fresh, clean process back up within
+    // seconds, which is safer than silently limping along indefinitely.
+    process.exit(1);
 });
 
 start();

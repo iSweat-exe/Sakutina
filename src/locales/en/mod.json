@@ -15,5 +15,8 @@
     "MOD_BAN_SUCCESS": "Banned **{{user}}**. Reason: `{{reason}}`",
     "MOD_SOFTBAN_SUCCESS": "Softbanned **{{user}}** (Banned and immediately unbanned to clear messages). Reason: `{{reason}}`",
     "SYNCBANS_SUCCESS": "Successfully synchronized **{{count}}** bans with the database.",
-    "SYNCBANS_ERROR": "An error occurred while fetching or syncing the bans."
+    "SYNCBANS_ERROR": "An error occurred while fetching or syncing the bans.",
+    "AUTOMOD_REASON_SPAM": "[Auto-Mod] Message spam detected.",
+    "AUTOMOD_REASON_LINK": "[Auto-Mod] Unauthorized link posted.",
+    "AUTOMOD_NOTICE": "{{user}}, your message was removed by auto-moderation and you received a warning."
 }

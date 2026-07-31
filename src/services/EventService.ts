@@ -13,6 +13,7 @@ import { EconomyService } from './EconomyService.js';
 import { EmbedUtils } from '../utils/EmbedUtils.js';
 import { I18nService } from './I18nService.js';
 import { GuildConfigService } from './GuildConfigService.js';
+import { logger } from '../utils/logger.js';
 
 export class EventService {
     /**
@@ -64,67 +65,20 @@ export class EventService {
             });
 
             collector.on('collect', async (i: ButtonInteraction) => {
-                await i.deferUpdate();
-                let rewardMsg = '';
-
-                if (eventType === 0) {
-                    const amount = Math.floor(Math.random() * 100) + 50; // 50-150 coins
-                    await EconomyService.addBalance(
-                        i.user.id,
+                try {
+                    await this.handleClaim(
+                        i,
+                        eventType,
                         guildId,
-                        amount,
-                        'Event reward',
-                        'event_reward'
+                        lang,
+                        eventMsg
                     );
-                    rewardMsg = I18nService.translate(
-                        'common:EVENT_REWARD_COINS',
-                        { lng: lang, user: i.user.username, amount }
-                    );
-                } else if (eventType === 1) {
-                    const until = new Date();
-                    until.setHours(until.getHours() + 1); // 1 hour 2x XP
-                    await EconomyService.ensureUser(i.user.id, guildId);
-                    await db
-                        .update(users)
-                        .set({ bonusXpUntil: until })
-                        .where(
-                            and(
-                                eq(users.discordId, i.user.id),
-                                eq(users.guildId, guildId)
-                            )
-                        );
-                    rewardMsg = I18nService.translate(
-                        'common:EVENT_REWARD_XP',
-                        { lng: lang, user: i.user.username }
-                    );
-                } else {
-                    const until = new Date();
-                    until.setHours(until.getHours() + 1); // 1 hour 2x Money (Jobs)
-                    await EconomyService.ensureUser(i.user.id, guildId);
-                    await db
-                        .update(users)
-                        .set({ bonusMoneyUntil: until })
-                        .where(
-                            and(
-                                eq(users.discordId, i.user.id),
-                                eq(users.guildId, guildId)
-                            )
-                        );
-                    rewardMsg = I18nService.translate(
-                        'common:EVENT_REWARD_MONEY',
-                        { lng: lang, user: i.user.username }
+                } catch (error) {
+                    logger.error(
+                        '[EventService] Failed to process event claim',
+                        error
                     );
                 }
-
-                const successEmbed = EmbedUtils.base({
-                    title: I18nService.translate('common:EVENT_CLAIMED_TITLE', {
-                        lng: lang,
-                    }),
-                    description: rewardMsg,
-                    color: '#00FF00',
-                });
-
-                await eventMsg.edit({ embeds: [successEmbed], components: [] });
             });
 
             collector.on('end', (collected: any) => {
@@ -146,7 +100,81 @@ export class EventService {
                 }
             });
         } catch (err) {
-            // Error handling
+            logger.error(
+                '[EventService] Failed to set up event collector',
+                err
+            );
         }
+    }
+
+    private static async handleClaim(
+        i: ButtonInteraction,
+        eventType: number,
+        guildId: string,
+        lang: string,
+        eventMsg: Message
+    ) {
+        await i.deferUpdate();
+        let rewardMsg = '';
+
+        if (eventType === 0) {
+            const amount = Math.floor(Math.random() * 100) + 50; // 50-150 coins
+            await EconomyService.addBalance(
+                i.user.id,
+                guildId,
+                amount,
+                'Event reward',
+                'event_reward'
+            );
+            rewardMsg = I18nService.translate('common:EVENT_REWARD_COINS', {
+                lng: lang,
+                user: i.user.username,
+                amount,
+            });
+        } else if (eventType === 1) {
+            const until = new Date();
+            until.setHours(until.getHours() + 1); // 1 hour 2x XP
+            await EconomyService.ensureUser(i.user.id, guildId);
+            await db
+                .update(users)
+                .set({ bonusXpUntil: until })
+                .where(
+                    and(
+                        eq(users.discordId, i.user.id),
+                        eq(users.guildId, guildId)
+                    )
+                );
+            rewardMsg = I18nService.translate('common:EVENT_REWARD_XP', {
+                lng: lang,
+                user: i.user.username,
+            });
+        } else {
+            const until = new Date();
+            until.setHours(until.getHours() + 1); // 1 hour 2x Money (Jobs)
+            await EconomyService.ensureUser(i.user.id, guildId);
+            await db
+                .update(users)
+                .set({ bonusMoneyUntil: until })
+                .where(
+                    and(
+                        eq(users.discordId, i.user.id),
+                        eq(users.guildId, guildId)
+                    )
+                );
+            rewardMsg = I18nService.translate('common:EVENT_REWARD_MONEY', {
+                lng: lang,
+                user: i.user.username,
+            });
+        }
+
+        const successEmbed = EmbedUtils.base({
+            title: I18nService.translate('common:EVENT_CLAIMED_TITLE', {
+                lng: lang,
+            }),
+            description: rewardMsg,
+            color: '#00FF00',
+        });
+
+        await eventMsg.edit({ embeds: [successEmbed], components: [] });
     }
 }

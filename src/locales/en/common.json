@@ -31,6 +31,7 @@
     "AI_UNAVAILABLE": "Unavailable for this moment.",
     "AI_SIMULATION": "**AI (Simulation):** You asked \"{{prompt}}\". That's a great question, the integration is ready!",
     "REMINDER_SET_SUCCESS": "I will remind you about **\"{{message}}\"** in {{duration}} minute(s).",
+    "REMINDER_REPEAT_SUFFIX": "(repeating every {{minutes}} minute(s))",
     "REMINDER_PING": "{{user}} Reminder: **{{message}}**",
     "EVENT_CLAIM_BUTTON": "Claim",
     "EVENT_SPAWN_DESC": "A random event just spawned! Click the button to claim the reward.",
@@ -51,5 +52,16 @@
     "EMBED_TITLE_CONFIG": "Config",
     "EMBED_TITLE_CONFIG_UPDATED": "Configuration Updated",
     "EMBED_TITLE_ACCESS_DENIED": "Access Denied",
-    "EMBED_TITLE_TIMEOUT": "Timeout"
+    "EMBED_TITLE_TIMEOUT": "Timeout",
+    "CONFIG_AUTOMOD_SUCCESS": "Auto-Moderation is now **{{state}}**.",
+    "CONFIG_LEVELROLE_SUCCESS": "Level role has been set to: **{{state}}**",
+    "CONFIG_LEADERBOARD_CHANNEL_SUCCESS": "Weekly leaderboard reward channel set to: **{{state}}**",
+    "SERVERSTATS_TITLE": "📊 Statistics for {{server}}",
+    "SERVERSTATS_MEMBERS": "Members",
+    "SERVERSTATS_TRACKED_USERS": "Tracked Users",
+    "SERVERSTATS_TOTAL_WEALTH": "Total Server Wealth",
+    "SERVERSTATS_AVG_WEALTH": "Average Wealth",
+    "SERVERSTATS_TRANSACTIONS": "Total Transactions",
+    "SERVERSTATS_WARNS": "Total Warnings",
+    "SERVERSTATS_MOD_ACTIONS": "Total Mod Actions"
 }

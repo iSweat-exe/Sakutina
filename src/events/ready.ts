@@ -2,6 +2,7 @@ import type { Client } from 'discord.js';
 import type { Event } from '../types/Event.js';
 import { logger } from '../utils/logger.js';
 import { checkDbConnection } from '../repositories/db.js';
+import { PresenceService } from '../services/PresenceService.js';
 
 const event: Event<'clientReady'> = {
     name: 'clientReady',
@@ -9,6 +10,7 @@ const event: Event<'clientReady'> = {
     async execute(client: Client) {
         logger.info(`[Ready] Logged in as ${client.user?.tag}`);
         await checkDbConnection();
+        PresenceService.start(client);
     },
 };
 

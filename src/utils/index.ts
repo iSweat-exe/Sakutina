@@ -7,4 +7,6 @@ export {
     CooldownError,
     CannotPaySelfError,
     JobError,
+    ShopError,
+    MarriageError,
 } from './errors.js';

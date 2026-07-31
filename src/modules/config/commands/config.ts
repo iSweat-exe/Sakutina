@@ -108,6 +108,85 @@ const command: Command = {
                         .setRequired(true)
                 )
         )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('automod')
+                .setNameLocalizations({ fr: 'auto_modo' })
+                .setDescription(
+                    'Toggle automatic moderation (spam/link detection). Disabled by default.'
+                )
+                .setDescriptionLocalizations({
+                    fr: 'Activer/désactiver la modération automatique (spam/liens). Désactivée par défaut.',
+                })
+                .addBooleanOption((option) =>
+                    option
+                        .setName('enabled')
+                        .setNameLocalizations({ fr: 'active' })
+                        .setDescription('True to enable, False to disable')
+                        .setDescriptionLocalizations({
+                            fr: 'Vrai pour activer, Faux pour désactiver',
+                        })
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('levelrole')
+                .setNameLocalizations({ fr: 'role_niveau' })
+                .setDescription(
+                    'Set the role automatically granted at a given level'
+                )
+                .setDescriptionLocalizations({
+                    fr: 'Définir le rôle attribué automatiquement à partir d’un niveau donné',
+                })
+                .addRoleOption((option) =>
+                    option
+                        .setName('role')
+                        .setNameLocalizations({ fr: 'role' })
+                        .setDescription(
+                            'The role to grant (leave empty to disable)'
+                        )
+                        .setDescriptionLocalizations({
+                            fr: 'Le rôle à attribuer (laisser vide pour désactiver)',
+                        })
+                        .setRequired(false)
+                )
+                .addIntegerOption((option) =>
+                    option
+                        .setName('threshold')
+                        .setNameLocalizations({ fr: 'seuil' })
+                        .setDescription('The level required to get the role')
+                        .setDescriptionLocalizations({
+                            fr: 'Le niveau requis pour obtenir le rôle',
+                        })
+                        .setRequired(false)
+                        .setMinValue(1)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('leaderboardchannel')
+                .setNameLocalizations({ fr: 'salon_classement' })
+                .setDescription(
+                    'Set the channel for the weekly top-3 leaderboard reward announcement'
+                )
+                .setDescriptionLocalizations({
+                    fr: "Définir le salon d'annonce de la récompense hebdomadaire du classement (top 3)",
+                })
+                .addChannelOption((option) =>
+                    option
+                        .setName('channel')
+                        .setNameLocalizations({ fr: 'salon' })
+                        .setDescription(
+                            'The channel to announce in (leave empty to disable)'
+                        )
+                        .setDescriptionLocalizations({
+                            fr: "Le salon d'annonce (laisser vide pour désactiver)",
+                        })
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)
+                )
+        )
         .addSubcommandGroup((group) =>
             group
                 .setName('events')
@@ -291,6 +370,26 @@ const command: Command = {
                         name: `Max Warns`,
                         value: `${config.maxWarns} warns (Auto-Ban)`,
                         inline: true,
+                    },
+                    {
+                        name: `Auto-Mod`,
+                        value: config.autoModEnabled ? 'Enabled' : 'Disabled',
+                        inline: true,
+                    },
+                    {
+                        name: `Level Role`,
+                        value:
+                            config.levelRoleId && config.levelRoleThreshold
+                                ? `<@&${config.levelRoleId}> at level ${config.levelRoleThreshold}`
+                                : 'Disabled',
+                        inline: true,
+                    },
+                    {
+                        name: `Leaderboard Reward Channel`,
+                        value: config.leaderboardChannel
+                            ? `<#${config.leaderboardChannel}>`
+                            : 'Disabled',
+                        inline: true,
                     }
                 );
                 await interaction.reply({
@@ -422,6 +521,73 @@ const command: Command = {
                         {
                             lng: lang,
                             state: enabled ? 'Enabled' : 'Disabled',
+                        }
+                    ),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'automod') {
+                const enabled = interaction.options.getBoolean('enabled', true);
+                await GuildConfigService.setAutoModEnabled(
+                    interaction.guildId,
+                    enabled
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate('common:CONFIG_AUTOMOD_SUCCESS', {
+                        lng: lang,
+                        state: enabled ? 'Enabled' : 'Disabled',
+                    }),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'levelrole') {
+                const role = interaction.options.getRole('role');
+                const threshold = interaction.options.getInteger('threshold');
+                await GuildConfigService.setLevelRole(
+                    interaction.guildId,
+                    role ? role.id : null,
+                    role ? (threshold ?? 1) : null
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate('common:CONFIG_LEVELROLE_SUCCESS', {
+                        lng: lang,
+                        state: role
+                            ? `<@&${role.id}> @ level ${threshold ?? 1}`
+                            : 'Disabled',
+                    }),
+                    I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {
+                        lng: lang,
+                    }),
+                    interaction.user
+                );
+                await interaction.reply({
+                    embeds: [embed],
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (subcommand === 'leaderboardchannel') {
+                const channel = interaction.options.getChannel('channel');
+                await GuildConfigService.setLeaderboardChannel(
+                    interaction.guildId,
+                    channel ? channel.id : null
+                );
+                const embed = EmbedUtils.success(
+                    I18nService.translate(
+                        'common:CONFIG_LEADERBOARD_CHANNEL_SUCCESS',
+                        {
+                            lng: lang,
+                            state: channel ? `<#${channel.id}>` : 'Disabled',
                         }
                     ),
                     I18nService.translate('common:EMBED_TITLE_CONFIG_UPDATED', {

@@ -15,6 +15,9 @@ await i18next.init({
     fallbackLng: 'en',
     ns: ['common', 'economy', 'fun', 'mod', 'users'],
     defaultNS: 'common',
+    // Interpolated values (e.g. Discord mentions like <@id>) must not be
+    // HTML-escaped — this isn't rendered as HTML, it's sent to Discord.
+    interpolation: { escapeValue: false },
     resources: {
         en: {
             common: enCommon,

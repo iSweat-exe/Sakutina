@@ -18,17 +18,26 @@ export class CommandLoader {
             for (const file of files.filter(
                 (f) => f.endsWith('.ts') || f.endsWith('.js')
             )) {
-                const commandModule = await import(join(commandsPath, file));
-                const command: Command = commandModule.default;
-
-                if (command && 'data' in command && 'execute' in command) {
-                    this.commands.set(command.data.name, command);
-                    logger.info(
-                        `[CommandLoader] Loaded command: /${command.data.name}`
+                try {
+                    const commandModule = await import(
+                        join(commandsPath, file)
                     );
-                } else {
-                    logger.warn(
-                        `[CommandLoader] File ${file} does not export a valid command.`
+                    const command: Command = commandModule.default;
+
+                    if (command && 'data' in command && 'execute' in command) {
+                        this.commands.set(command.data.name, command);
+                        logger.info(
+                            `[CommandLoader] Loaded command: /${command.data.name}`
+                        );
+                    } else {
+                        logger.warn(
+                            `[CommandLoader] File ${file} does not export a valid command.`
+                        );
+                    }
+                } catch (error) {
+                    logger.error(
+                        `[CommandLoader] Failed to load command file ${file}`,
+                        error
                     );
                 }
             }

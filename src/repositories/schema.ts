@@ -20,8 +20,11 @@ export const users = pgTable(
         bank: integer('bank').default(0).notNull(),
         dailyLastClaim: timestamp('daily_last_claim'),
         currentJob: text('current_job'),
+        currentJobShifts: integer('current_job_shifts').default(0).notNull(),
         workShiftsDone: integer('work_shifts_done').default(0).notNull(),
         workLastShift: timestamp('work_last_shift'),
+        workStreak: integer('work_streak').default(0).notNull(),
+        workStreakDate: timestamp('work_streak_date'),
         casinoGamesPlayed: integer('casino_games_played').default(0).notNull(),
         casinoWins: integer('casino_wins').default(0).notNull(),
         casinoLosses: integer('casino_losses').default(0).notNull(),
@@ -30,8 +33,8 @@ export const users = pgTable(
         modMutes: integer('mod_mutes').default(0).notNull(),
         bonusXpUntil: timestamp('bonus_xp_until'),
         bonusMoneyUntil: timestamp('bonus_money_until'),
-        bonusJobUntil: timestamp('bonus_job_until'),
         robLastAttempt: timestamp('rob_last_attempt'),
+        equippedTitle: text('equipped_title'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },
@@ -52,6 +55,10 @@ export const guildSettings = pgTable('guild_settings', {
     modLogChannel: text('mod_log_channel'),
     maxWarns: integer('max_warns').default(3).notNull(),
     modLogWarning: boolean('mod_log_warning').default(true).notNull(),
+    autoModEnabled: boolean('auto_mod_enabled').default(false).notNull(),
+    levelRoleId: text('level_role_id'),
+    levelRoleThreshold: integer('level_role_threshold'),
+    leaderboardChannel: text('leaderboard_channel'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -84,6 +91,7 @@ export const reminders = pgTable(
         channelId: text('channel_id').notNull(),
         message: text('message').notNull(),
         remindAt: timestamp('remind_at').notNull(),
+        repeatMinutes: integer('repeat_minutes'),
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
     (table) => {
@@ -186,6 +194,53 @@ export const transactions = pgTable(
             ),
             createdAtIdx: index('transactions_created_at_idx').on(
                 table.createdAt
+            ),
+        };
+    }
+);
+
+export const userInventory = pgTable(
+    'user_inventory',
+    {
+        id: serial('id').primaryKey(),
+        discordId: text('discord_id').notNull(),
+        guildId: text('guild_id').notNull(),
+        itemKey: text('item_key').notNull(),
+        purchasedAt: timestamp('purchased_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            userItemUnique: uniqueIndex('user_inventory_item_unique').on(
+                table.discordId,
+                table.guildId,
+                table.itemKey
+            ),
+            userGuildIdx: index('user_inventory_user_guild_idx').on(
+                table.discordId,
+                table.guildId
+            ),
+        };
+    }
+);
+
+export const marriages = pgTable(
+    'marriages',
+    {
+        id: serial('id').primaryKey(),
+        guildId: text('guild_id').notNull(),
+        user1Id: text('user1_id').notNull(),
+        user2Id: text('user2_id').notNull(),
+        marriedAt: timestamp('married_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            guildUser1Idx: index('marriages_guild_user1_idx').on(
+                table.guildId,
+                table.user1Id
+            ),
+            guildUser2Idx: index('marriages_guild_user2_idx').on(
+                table.guildId,
+                table.user2Id
             ),
         };
     }

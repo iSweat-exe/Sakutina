@@ -9,6 +9,10 @@ export interface GuildSettings {
     modLogChannel: string | null;
     maxWarns: number;
     modLogWarning: boolean;
+    autoModEnabled: boolean;
+    levelRoleId: string | null;
+    levelRoleThreshold: number | null;
+    leaderboardChannel: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -157,6 +161,10 @@ export class GuildConfigService {
                     modLogChannel: null,
                     maxWarns: 3,
                     modLogWarning: true,
+                    autoModEnabled: false,
+                    levelRoleId: null,
+                    levelRoleThreshold: null,
+                    leaderboardChannel: null,
                 })
                 .returning()
                 .then((res) => res[0]);
@@ -241,6 +249,83 @@ export class GuildConfigService {
             .returning()
             .then((res) => res[0]);
         if (!updated) throw new Error('Failed to upsert mod log warning');
+
+        this.setCached(guildId, updated);
+        return updated;
+    }
+
+    /**
+     * Toggle auto-moderation (spam/link detection). Disabled by default.
+     */
+    public static async setAutoModEnabled(
+        guildId: string,
+        enabled: boolean
+    ): Promise<GuildSettings> {
+        const updated = await db
+            .insert(guildSettings)
+            .values({ guildId, autoModEnabled: enabled })
+            .onConflictDoUpdate({
+                target: guildSettings.guildId,
+                set: { autoModEnabled: enabled, updatedAt: new Date() },
+            })
+            .returning()
+            .then((res) => res[0]);
+        if (!updated) throw new Error('Failed to upsert auto-mod setting');
+
+        this.setCached(guildId, updated);
+        return updated;
+    }
+
+    /**
+     * Configure the role auto-granted once a member reaches a given level.
+     * Pass roleId = null to disable.
+     */
+    public static async setLevelRole(
+        guildId: string,
+        roleId: string | null,
+        threshold: number | null
+    ): Promise<GuildSettings> {
+        const updated = await db
+            .insert(guildSettings)
+            .values({
+                guildId,
+                levelRoleId: roleId,
+                levelRoleThreshold: threshold,
+            })
+            .onConflictDoUpdate({
+                target: guildSettings.guildId,
+                set: {
+                    levelRoleId: roleId,
+                    levelRoleThreshold: threshold,
+                    updatedAt: new Date(),
+                },
+            })
+            .returning()
+            .then((res) => res[0]);
+        if (!updated) throw new Error('Failed to upsert level role');
+
+        this.setCached(guildId, updated);
+        return updated;
+    }
+
+    /**
+     * Configure the channel used for the weekly leaderboard reward
+     * announcement. Pass null to disable the feature.
+     */
+    public static async setLeaderboardChannel(
+        guildId: string,
+        channelId: string | null
+    ): Promise<GuildSettings> {
+        const updated = await db
+            .insert(guildSettings)
+            .values({ guildId, leaderboardChannel: channelId })
+            .onConflictDoUpdate({
+                target: guildSettings.guildId,
+                set: { leaderboardChannel: channelId, updatedAt: new Date() },
+            })
+            .returning()
+            .then((res) => res[0]);
+        if (!updated) throw new Error('Failed to upsert leaderboard channel');
 
         this.setCached(guildId, updated);
         return updated;

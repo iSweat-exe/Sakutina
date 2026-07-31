@@ -5,6 +5,17 @@ import { logger } from './utils/logger.js';
 
 const botPath = join(process.cwd(), 'src', 'bot.ts');
 
+// This is the parent process that forks one child process per shard (bot.ts).
+// It has no supervisor of its own beyond the OS/Docker restart policy, so it
+// needs the same last-resort safety nets as bot.ts to avoid dying silently.
+process.on('unhandledRejection', (reason) => {
+    logger.error('[ShardingManager process] Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (error) => {
+    logger.error('[ShardingManager process] Uncaught Exception:', error);
+    process.exit(1);
+});
+
 const manager = new ShardingManager(botPath, {
     token: env.DISCORD_TOKEN,
     respawn: true,
@@ -17,6 +28,9 @@ manager.on('shardCreate', (shard) => {
 
     shard.on('error', (error) => {
         logger.error(`[Shard ${shard.id}] Error:`, error);
+    });
+    shard.on('death', () => {
+        logger.warn(`[Shard ${shard.id}] Process died, respawn expected.`);
     });
 });
 

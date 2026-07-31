@@ -49,10 +49,21 @@ export class ReminderJob {
                         );
                     }
 
-                    // Delete reminder after sending (or failing to send if channel is inaccessible)
-                    await db
-                        .delete(reminders)
-                        .where(eq(reminders.id, reminder.id));
+                    if (reminder.repeatMinutes) {
+                        // Reschedule from now (not from the original remindAt)
+                        // to avoid catch-up spam if the bot was offline.
+                        const nextRemindAt = new Date(
+                            now.getTime() + reminder.repeatMinutes * 60000
+                        );
+                        await db
+                            .update(reminders)
+                            .set({ remindAt: nextRemindAt })
+                            .where(eq(reminders.id, reminder.id));
+                    } else {
+                        await db
+                            .delete(reminders)
+                            .where(eq(reminders.id, reminder.id));
+                    }
                 }
             } catch (error) {
                 logger.error('[ReminderJob] Error processing reminders', error);
