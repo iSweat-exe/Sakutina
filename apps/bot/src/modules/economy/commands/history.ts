@@ -3,10 +3,10 @@ import {
     SlashCommandBuilder,
     MessageFlags,
 } from 'discord.js';
-import { type Command } from '../../../types/Command.js';
-import { createCommandHandler } from '../../../utils/commandHandler.js';
-import { EconomyService } from '../../../services/EconomyService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
+import { type Command } from '@/types/Command.js';
+import { createCommandHandler } from '@/utils/commandHandler.js';
+import { EconomyService } from '@/services/EconomyService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

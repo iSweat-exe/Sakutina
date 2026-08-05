@@ -9,4 +9,6 @@ export {
     JobError,
     ShopError,
     MarriageError,
+    GiveawayError,
+    InvestError,
 } from './errors.js';

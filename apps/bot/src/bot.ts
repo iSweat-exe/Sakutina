@@ -12,6 +12,9 @@ import { ReminderJob } from './jobs/ReminderJob.js';
 import { QuestResetJob } from './jobs/QuestResetJob.js';
 import { TransactionCleanupJob } from './jobs/TransactionCleanupJob.js';
 import { WeeklyLeaderboardJob } from './jobs/WeeklyLeaderboardJob.js';
+import { GiveawayDrawJob } from './jobs/GiveawayDrawJob.js';
+import { StockPriceJob } from './jobs/StockPriceJob.js';
+import { InvestmentService } from './services/InvestmentService.js';
 
 // Extended client to attach commands
 export class BotClient extends Client {
@@ -56,11 +59,14 @@ const start = async () => {
         await eventLoader.loadEvents(eventsPath, botClient);
 
         // Start Jobs
+        await InvestmentService.ensureStocksSeeded();
         BankInterestJob.start();
         ReminderJob.start();
         QuestResetJob.start();
         TransactionCleanupJob.start();
         WeeklyLeaderboardJob.start();
+        GiveawayDrawJob.start();
+        StockPriceJob.start();
 
         await botClient.login(env.DISCORD_TOKEN);
     } catch (error) {

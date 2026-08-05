@@ -72,3 +72,27 @@ export class MarriageError extends AppError {
         super(`MARRIAGE_ERR_${code}`, `Marriage error: ${code}`, meta);
     }
 }
+
+export class GiveawayError extends AppError {
+    constructor(
+        code:
+            | 'NOT_FOUND'
+            | 'ALREADY_ENDED'
+            | 'ALREADY_ENTERED'
+            | 'MISSING_ROLE'
+            | 'NOT_ENDED'
+            | 'NO_ENTRIES',
+        meta?: Record<string, unknown>
+    ) {
+        super(`GIVEAWAY_ERR_${code}`, `Giveaway error: ${code}`, meta);
+    }
+}
+
+export class InvestError extends AppError {
+    constructor(
+        code: 'NOT_FOUND' | 'INSUFFICIENT_SHARES',
+        meta?: Record<string, unknown>
+    ) {
+        super(`INVEST_ERR_${code}`, `Invest error: ${code}`, meta);
+    }
+}

@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { createCommandHandler } from '../../../utils/index.js';
-import { QuestService, QUESTS_CONFIG } from '../../../services/QuestService.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { createCommandHandler } from '@/utils/index.js';
+import { QuestService, QUESTS_CONFIG } from '@/services/QuestService.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

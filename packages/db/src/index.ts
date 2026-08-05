@@ -16,6 +16,12 @@ import type {
     channelActivity,
     activityHourly,
     voiceChannelStats,
+    giveaways,
+    giveawayEntries,
+    giveawayWinners,
+    stocks,
+    userHoldings,
+    stockPriceHistory,
 } from './schema.js';
 
 export type User = typeof users.$inferSelect;
@@ -33,3 +39,9 @@ export type Marriage = typeof marriages.$inferSelect;
 export type ChannelActivity = typeof channelActivity.$inferSelect;
 export type ActivityHourly = typeof activityHourly.$inferSelect;
 export type VoiceChannelStats = typeof voiceChannelStats.$inferSelect;
+export type Giveaway = typeof giveaways.$inferSelect;
+export type GiveawayEntry = typeof giveawayEntries.$inferSelect;
+export type GiveawayWinner = typeof giveawayWinners.$inferSelect;
+export type Stock = typeof stocks.$inferSelect;
+export type UserHolding = typeof userHoldings.$inferSelect;
+export type StockPriceHistoryRow = typeof stockPriceHistory.$inferSelect;

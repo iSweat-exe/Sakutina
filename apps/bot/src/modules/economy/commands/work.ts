@@ -1,4 +1,4 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     ChatInputCommandInteraction,
     GuildMember,
@@ -8,15 +8,15 @@ import {
     StringSelectMenuBuilder,
     ComponentType,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { WorkService } from '../../../services/WorkService.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { WorkService } from '@/services/WorkService.js';
 import { AVAILABLE_JOBS } from '../constants.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { JobError, CooldownError } from '../../../utils/errors.js';
-import { QuestService } from '../../../services/QuestService.js';
-import { LevelRoleService } from '../../../services/LevelRoleService.js';
-import { formatDuration } from '../../../utils/time.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { JobError, CooldownError } from '@/utils/errors.js';
+import { QuestService } from '@/services/QuestService.js';
+import { LevelRoleService } from '@/services/LevelRoleService.js';
+import { formatDuration } from '@/utils/time.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

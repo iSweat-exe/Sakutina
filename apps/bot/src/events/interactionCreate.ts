@@ -9,6 +9,9 @@ import {
 } from 'discord.js';
 import { I18nService } from '../services/I18nService.js';
 import { GuildConfigService } from '../services/GuildConfigService.js';
+import { GiveawayService } from '../services/GiveawayService.js';
+import { AppError } from '../utils/errors.js';
+import { handleInvestButton } from '../modules/economy/commands/invest.js';
 
 const event: Event<'interactionCreate'> = {
     name: 'interactionCreate',
@@ -27,6 +30,77 @@ const event: Event<'interactionCreate'> = {
                         error
                     );
                 }
+            }
+            return;
+        }
+
+        if (interaction.isButton()) {
+            const [namespace, action, rawId] = interaction.customId.split(':');
+            if (namespace === 'giveaway' && action === 'join') {
+                const giveawayId = Number(rawId);
+                const lang = interaction.guildId
+                    ? await GuildConfigService.getGuildLanguage(
+                          interaction.guildId
+                      )
+                    : 'en';
+
+                if (Number.isNaN(giveawayId)) {
+                    logger.warn(
+                        `[Button] Malformed giveaway customId: ${interaction.customId}`
+                    );
+                    return;
+                }
+
+                try {
+                    const memberRoleIds = interaction.inCachedGuild()
+                        ? interaction.member.roles.cache.map((r) => r.id)
+                        : [];
+                    const giveaway = await GiveawayService.enter(
+                        giveawayId,
+                        interaction.user.id,
+                        memberRoleIds
+                    );
+                    const msg = I18nService.translate(
+                        'social:GIVEAWAY_ENTER_SUCCESS',
+                        { lng: lang, prize: giveaway.prize }
+                    );
+                    await interaction.reply({
+                        content: msg,
+                        flags: MessageFlags.Ephemeral,
+                    });
+                } catch (error) {
+                    // The generic AppError->embed fallback in commandHandler.ts
+                    // only checks the 'common' namespace, so button-driven
+                    // errors (which live in 'social') must be translated here.
+                    const msg =
+                        error instanceof AppError
+                            ? I18nService.translate(`social:${error.code}`, {
+                                  lng: lang,
+                                  ...error.meta,
+                              })
+                            : I18nService.translate('common:ERROR_GENERIC', {
+                                  lng: lang,
+                              });
+                    await interaction
+                        .reply({
+                            content: msg,
+                            flags: MessageFlags.Ephemeral,
+                        })
+                        .catch(() => null);
+                    if (!(error instanceof AppError)) {
+                        logger.error(
+                            '[Button:giveaway:join] Unexpected error:',
+                            error
+                        );
+                    }
+                }
+            } else if (namespace === 'invest') {
+                const lang = interaction.guildId
+                    ? await GuildConfigService.getGuildLanguage(
+                          interaction.guildId
+                      )
+                    : 'en';
+                await handleInvestButton(interaction, lang);
             }
             return;
         }

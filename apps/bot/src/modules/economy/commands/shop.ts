@@ -1,14 +1,14 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     ChatInputCommandInteraction,
     MessageFlags,
     SlashCommandBuilder,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { ShopService } from '../../../services/ShopService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { ShopError, InsufficientFundsError } from '../../../utils/errors.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { ShopService } from '@/services/ShopService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { ShopError, InsufficientFundsError } from '@/utils/errors.js';
 import { SHOP_ITEMS } from '../constants.js';
 
 const command: Command = {

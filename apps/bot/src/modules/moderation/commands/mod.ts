@@ -1,16 +1,16 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
     SlashCommandBuilder,
     PermissionFlagsBits,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { GuildConfigService } from '../../../services/GuildConfigService.js';
-import { ModerationService } from '../../../services/ModerationService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { logger } from '../../../utils/logger.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { GuildConfigService } from '@/services/GuildConfigService.js';
+import { ModerationService } from '@/services/ModerationService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { logger } from '@/utils/logger.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

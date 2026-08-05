@@ -303,3 +303,112 @@ export const voiceChannelStats = pgTable(
         };
     }
 );
+
+export const giveaways = pgTable(
+    'giveaways',
+    {
+        id: serial('id').primaryKey(),
+        guildId: text('guild_id').notNull(),
+        channelId: text('channel_id').notNull(),
+        messageId: text('message_id'),
+        hostId: text('host_id').notNull(),
+        prize: text('prize').notNull(),
+        winnerCount: integer('winner_count').default(1).notNull(),
+        requiredRoleId: text('required_role_id'),
+        status: text('status').default('active').notNull(), // 'active' | 'ended'
+        endsAt: timestamp('ends_at').notNull(),
+        endedAt: timestamp('ended_at'),
+        createdAt: timestamp('created_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            statusEndsAtIdx: index('giveaways_status_ends_at_idx').on(
+                table.status,
+                table.endsAt
+            ),
+        };
+    }
+);
+
+export const giveawayEntries = pgTable(
+    'giveaway_entries',
+    {
+        id: serial('id').primaryKey(),
+        giveawayId: integer('giveaway_id').notNull(),
+        userId: text('user_id').notNull(),
+        enteredAt: timestamp('entered_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            giveawayUserUnique: uniqueIndex(
+                'giveaway_entries_giveaway_user_unique'
+            ).on(table.giveawayId, table.userId),
+        };
+    }
+);
+
+export const giveawayWinners = pgTable(
+    'giveaway_winners',
+    {
+        id: serial('id').primaryKey(),
+        giveawayId: integer('giveaway_id').notNull(),
+        userId: text('user_id').notNull(),
+        rerolled: boolean('rerolled').default(false).notNull(),
+        wonAt: timestamp('won_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            giveawayIdx: index('giveaway_winners_giveaway_idx').on(
+                table.giveawayId
+            ),
+        };
+    }
+);
+
+export const stocks = pgTable('stocks', {
+    id: serial('id').primaryKey(),
+    ticker: text('ticker').notNull().unique(),
+    name: text('name').notNull(),
+    price: integer('price').notNull(),
+    previousPrice: integer('previous_price').notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const userHoldings = pgTable(
+    'user_holdings',
+    {
+        id: serial('id').primaryKey(),
+        discordId: text('discord_id').notNull(),
+        guildId: text('guild_id').notNull(),
+        ticker: text('ticker').notNull(),
+        quantity: integer('quantity').default(0).notNull(),
+        avgBuyPrice: integer('avg_buy_price').default(0).notNull(),
+    },
+    (table) => {
+        return {
+            userTickerUnique: uniqueIndex(
+                'user_holdings_user_ticker_unique'
+            ).on(table.discordId, table.guildId, table.ticker),
+        };
+    }
+);
+
+// Price snapshots recorded on every StockPriceJob tick, used to render the
+// line chart in /invest chart. Not scoped per-guild since stock prices are
+// global.
+export const stockPriceHistory = pgTable(
+    'stock_price_history',
+    {
+        id: serial('id').primaryKey(),
+        ticker: text('ticker').notNull(),
+        price: integer('price').notNull(),
+        recordedAt: timestamp('recorded_at').defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            tickerRecordedIdx: index(
+                'stock_price_history_ticker_recorded_idx'
+            ).on(table.ticker, table.recordedAt),
+        };
+    }
+);

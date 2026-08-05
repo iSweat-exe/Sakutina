@@ -1,0 +1,21 @@
+{
+    "GIVEAWAY_EMBED_TITLE": "🎉 Giveaway 🎉",
+    "GIVEAWAY_EMBED_DESC": "**Prix :** {{prize}}\n**Organisé par :** {{host}}\n**Gagnants :** {{winnerCount}}\n**Fin :** <t:{{timestamp}}:R>{{roleLine}}\n\nCliquez sur le bouton ci-dessous pour participer !",
+    "GIVEAWAY_EMBED_ROLE_LINE": "\n**Rôle requis :** {{role}}",
+    "GIVEAWAY_JOIN_BUTTON": "Participer",
+    "GIVEAWAY_ENDED_TITLE": "🎉 Giveaway Terminé 🎉",
+    "GIVEAWAY_ENDED_DESC_WINNERS": "**Prix :** {{prize}}\n**Gagnant(s) :** {{winners}}",
+    "GIVEAWAY_ENDED_DESC_NO_WINNERS": "**Prix :** {{prize}}\nAucune participation valide — impossible de tirer un gagnant.",
+    "GIVEAWAY_ANNOUNCE": "Félicitations {{winners}} ! Vous avez gagné **{{prize}}** !",
+    "GIVEAWAY_ANNOUNCE_NO_WINNERS": "Le giveaway pour **{{prize}}** s'est terminé sans participation valide.",
+    "GIVEAWAY_START_SUCCESS": "Giveaway lancé dans {{channel}} !",
+    "GIVEAWAY_ENTER_SUCCESS": "Vous avez rejoint le giveaway pour **{{prize}}** ! Bonne chance !",
+    "GIVEAWAY_END_SUCCESS": "Giveaway terminé de manière anticipée.",
+    "GIVEAWAY_REROLL_SUCCESS": "Giveaway retiré au sort ! Nouveau(x) gagnant(s) : {{winners}}",
+    "GIVEAWAY_ERR_NOT_FOUND": "Giveaway introuvable.",
+    "GIVEAWAY_ERR_ALREADY_ENDED": "Ce giveaway est déjà terminé.",
+    "GIVEAWAY_ERR_ALREADY_ENTERED": "Vous avez déjà participé à ce giveaway !",
+    "GIVEAWAY_ERR_MISSING_ROLE": "Vous devez avoir le rôle {{role}} pour participer à ce giveaway.",
+    "GIVEAWAY_ERR_NOT_ENDED": "Ce giveaway n'est pas encore terminé.",
+    "GIVEAWAY_ERR_NO_ENTRIES": "Il n'y a aucune participation éligible pour tirer un gagnant."
+}

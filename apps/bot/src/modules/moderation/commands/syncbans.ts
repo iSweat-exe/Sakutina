@@ -3,12 +3,12 @@ import {
     PermissionFlagsBits,
     SlashCommandBuilder,
 } from 'discord.js';
-import { type Command } from '../../../types/Command.js';
-import { createCommandHandler } from '../../../utils/commandHandler.js';
-import { ModerationService } from '../../../services/ModerationService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { EconomyService } from '../../../services/EconomyService.js';
-import { I18nService } from '../../../services/I18nService.js';
+import { type Command } from '@/types/Command.js';
+import { createCommandHandler } from '@/utils/commandHandler.js';
+import { ModerationService } from '@/services/ModerationService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { EconomyService } from '@/services/EconomyService.js';
+import { I18nService } from '@/services/I18nService.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

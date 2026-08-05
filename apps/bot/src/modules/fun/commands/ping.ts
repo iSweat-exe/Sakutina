@@ -1,10 +1,10 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import { MessageFlags } from 'discord.js';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import { SlashCommandBuilder } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

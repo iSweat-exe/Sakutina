@@ -21,7 +21,7 @@
     "MARRY_SELF_ERROR": "You cannot marry yourself.",
     "MARRY_ALREADY_MARRIED": "You are already married. Use `/marry divorce` first.",
     "MARRY_TARGET_MARRIED": "**{{user}}** is already married to someone else.",
-    "MARRY_PROPOSE_TITLE": "ðŸ’ Marriage Proposal",
+    "MARRY_PROPOSE_TITLE": "💍 Marriage Proposal",
     "MARRY_PROPOSE_DESC": "{{proposer}} proposes marriage to {{target}}! Do you accept?",
     "MARRY_BTN_NOT_TARGET": "You cannot use this button, this proposal isn't addressed to you!",
     "MARRY_SUCCESS": "ðŸŽ‰ {{user1}} and {{user2}} are now married! May your wallets prosper together.",

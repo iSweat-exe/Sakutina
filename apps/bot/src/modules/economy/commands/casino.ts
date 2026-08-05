@@ -1,4 +1,4 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     ChatInputCommandInteraction,
     MessageFlags,
@@ -8,13 +8,13 @@ import {
     ButtonStyle,
     ComponentType,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { CasinoService } from '../../../services/CasinoService.js';
-import { EconomyService } from '../../../services/EconomyService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { InsufficientFundsError } from '../../../utils/errors.js';
-import { QuestService } from '../../../services/QuestService.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { CasinoService } from '@/services/CasinoService.js';
+import { EconomyService } from '@/services/EconomyService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { InsufficientFundsError } from '@/utils/errors.js';
+import { QuestService } from '@/services/QuestService.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

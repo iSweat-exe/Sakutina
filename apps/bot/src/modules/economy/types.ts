@@ -27,3 +27,15 @@ export interface ShopItemInfo {
     name: string;
     price: number;
 }
+
+/**
+ * Type definition for a fictional stock traded via /invest. `volatility` is
+ * the max fraction of the current price the random walk can swing by per
+ * tick (see InvestmentService.tickAllPrices).
+ */
+export interface StockInfo {
+    ticker: string;
+    name: string;
+    basePrice: number;
+    volatility: number;
+}

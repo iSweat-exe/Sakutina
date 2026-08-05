@@ -1,4 +1,4 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
@@ -6,11 +6,11 @@ import {
     EmbedBuilder,
     PermissionFlagsBits,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { env } from '../../../config/env.js';
-import { I18nService } from '../../../services/I18nService.js';
+import type { Command } from '@/types/Command.js';
+import { env } from '@/config/env.js';
+import { I18nService } from '@/services/I18nService.js';
 import { db } from '@sakutina/db';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
 import { sql } from 'drizzle-orm';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';

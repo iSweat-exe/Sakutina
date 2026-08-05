@@ -1,4 +1,4 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -10,13 +10,13 @@ import {
     MessageFlags,
     SlashCommandBuilder,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { MarriageService } from '../../../services/MarriageService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { MarriageError } from '../../../utils/errors.js';
-import { getGif } from '../../../utils/gif.js';
-import { logger } from '../../../utils/logger.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { MarriageService } from '@/services/MarriageService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { MarriageError } from '@/utils/errors.js';
+import { getGif } from '@/utils/gif.js';
+import { logger } from '@/utils/logger.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()

@@ -7,14 +7,14 @@ import {
     ComponentType,
     MessageFlags,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { createCommandHandler } from '../../../utils/index.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { createCommandHandler } from '@/utils/index.js';
 import { db, interactionStats } from '@sakutina/db';
 import { sql } from 'drizzle-orm';
-import { getGif } from '../../../utils/gif.js';
-import { logger } from '../../../utils/logger.js';
+import { getGif } from '@/utils/gif.js';
+import { logger } from '@/utils/logger.js';
 
 async function incrementInteraction(
     userId: string,

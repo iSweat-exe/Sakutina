@@ -9,11 +9,13 @@ import enMod from '../locales/en/mod.json';
 import frMod from '../locales/fr/mod.json';
 import enUsers from '../locales/en/users.json';
 import frUsers from '../locales/fr/users.json';
+import enSocial from '../locales/en/social.json';
+import frSocial from '../locales/fr/social.json';
 
 await i18next.init({
     lng: 'en',
     fallbackLng: 'en',
-    ns: ['common', 'economy', 'fun', 'mod', 'users'],
+    ns: ['common', 'economy', 'fun', 'mod', 'users', 'social'],
     defaultNS: 'common',
     // Interpolated values (e.g. Discord mentions like <@id>) must not be
     // HTML-escaped â€” this isn't rendered as HTML, it's sent to Discord.
@@ -25,6 +27,7 @@ await i18next.init({
             fun: enFun,
             mod: enMod,
             users: enUsers,
+            social: enSocial,
         },
         fr: {
             common: frCommon,
@@ -32,6 +35,7 @@ await i18next.init({
             fun: frFun,
             mod: frMod,
             users: frUsers,
+            social: frSocial,
         },
     },
 });

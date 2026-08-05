@@ -1,13 +1,13 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     MessageFlags,
     ChatInputCommandInteraction,
     SlashCommandBuilder,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { ProfileService } from '../../../services/ProfileService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { ProfileService } from '@/services/ProfileService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -125,7 +125,7 @@ const command: Command = {
                     },
                     {
                         name: `${wealthHeader}`,
-                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} ðŸ’¸`,
+                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} 💖¸`,
                         inline: true,
                     },
                     {
@@ -146,7 +146,7 @@ const command: Command = {
                 .setFooter({ text: `ID: ${targetUser.id}` });
             if (profile.marriedTo) {
                 embed.addFields({
-                    name: `ðŸ’ ${marriedLabel}`,
+                    name: `💍 ${marriedLabel}`,
                     value: `<@${profile.marriedTo}>`,
                     inline: true,
                 });

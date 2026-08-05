@@ -1,4 +1,4 @@
-import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '@/utils/index.js';
 import {
     ChatInputCommandInteraction,
     SlashCommandBuilder,
@@ -6,11 +6,11 @@ import {
     StringSelectMenuBuilder,
     ComponentType,
 } from 'discord.js';
-import type { Command } from '../../../types/Command.js';
-import { I18nService } from '../../../services/I18nService.js';
-import { EmbedUtils } from '../../../utils/EmbedUtils.js';
-import { logger } from '../../../utils/logger.js';
-import type { BotClient } from '../../../bot.js';
+import type { Command } from '@/types/Command.js';
+import { I18nService } from '@/services/I18nService.js';
+import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { logger } from '@/utils/logger.js';
+import type { BotClient } from '@/bot.js';
 
 const CATEGORIES = {
     config: ['config'],
@@ -21,6 +21,7 @@ const CATEGORIES = {
         'casino',
         'daily',
         'history',
+        'invest',
         'leaderboard',
         'pay',
         'quests',
@@ -30,6 +31,7 @@ const CATEGORIES = {
     ],
     fun: ['ping', '8ball', 'interact', 'ask'],
     moderation: ['mod', 'syncbans'],
+    social: ['giveaway'],
     users: ['profile', 'remindme', 'marry'],
 } as const;
 
@@ -97,6 +99,13 @@ const command: Command = {
                         }),
                         value: 'moderation',
                         description: 'Server Moderation',
+                    },
+                    {
+                        label: I18nService.translate('common:HELP_CAT_SOCIAL', {
+                            lng: lang,
+                        }),
+                        value: 'social',
+                        description: 'Giveaways',
                     },
                     {
                         label: I18nService.translate('common:HELP_CAT_USERS', {
