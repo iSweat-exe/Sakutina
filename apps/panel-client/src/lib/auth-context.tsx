@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import { api, ApiError } from './api';
 
 export interface PanelUser {

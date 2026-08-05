@@ -1,4 +1,4 @@
-﻿{
+{
     "MOD_LOG_WARNING": "*Astuce : Vous n'avez pas configuré de salon Mod Log ! Utilisez `/config modlog` pour en définir un, ou désactivez ce rappel avec `/config modlog_warning`.*",
     "MOD_ERR_INVALID_TARGET": "Vous ne pouvez pas effectuer cette action sur cet utilisateur.",
     "MOD_ERR_NOT_IN_GUILD": "Cet utilisateur n'est pas présent sur le serveur.",

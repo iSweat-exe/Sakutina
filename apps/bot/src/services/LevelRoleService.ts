@@ -1,4 +1,4 @@
-﻿import { GuildMember } from 'discord.js';
+import { GuildMember } from 'discord.js';
 import { GuildConfigService } from './GuildConfigService.js';
 import { logger } from '../utils/logger.js';
 

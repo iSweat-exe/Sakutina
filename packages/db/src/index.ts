@@ -1,4 +1,4 @@
-﻿export { db, checkDbConnection, closeDb } from './client.js';
+export { db, checkDbConnection, closeDb } from './client.js';
 export * from './schema.js';
 
 import type {

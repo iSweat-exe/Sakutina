@@ -1,4 +1,4 @@
-﻿import cron from 'node-cron';
+import cron from 'node-cron';
 import { db, guildSettings } from '@sakutina/db';
 import { isNotNull } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';

@@ -1,4 +1,4 @@
-﻿import { eq, or } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { db, marriages } from '@sakutina/db';
 import { MarriageError } from '../utils/errors.js';
 

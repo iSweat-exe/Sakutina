@@ -1,4 +1,4 @@
-﻿import type { Client } from 'discord.js';
+import type { Client } from 'discord.js';
 import type { Event } from '../types/Event.js';
 import { logger } from '../utils/logger.js';
 import { checkDbConnection } from '@sakutina/db';

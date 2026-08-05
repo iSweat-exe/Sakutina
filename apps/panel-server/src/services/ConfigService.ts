@@ -1,4 +1,4 @@
-﻿import { db, guildSettings, type GuildSettingsRow } from '@sakutina/db';
+import { db, guildSettings, type GuildSettingsRow } from '@sakutina/db';
 import { eq } from 'drizzle-orm';
 import { Cache, CacheKeys } from '@sakutina/cache';
 

@@ -1,4 +1,4 @@
-﻿export { EconomyService } from './EconomyService.js';
+export { EconomyService } from './EconomyService.js';
 export { CasinoService } from './CasinoService.js';
 export { GuildConfigService } from './GuildConfigService.js';
 export type { GuildSettings } from './GuildConfigService.js';

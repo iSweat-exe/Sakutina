@@ -1,4 +1,4 @@
-﻿import { env } from '../config/env.js';
+import { env } from '../config/env.js';
 
 const API_BASE = 'https://discord.com/api/v10';
 

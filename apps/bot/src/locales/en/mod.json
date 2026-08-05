@@ -1,4 +1,4 @@
-﻿{
+{
     "MOD_LOG_WARNING": "*Tip: You haven't set up a Mod Log channel! Use `/config modlog` to set one up, or disable this message with `/config modlog_warning`.*",
     "MOD_ERR_INVALID_TARGET": "You cannot perform this action on this user.",
     "MOD_ERR_NOT_IN_GUILD": "This user is not currently in the server.",

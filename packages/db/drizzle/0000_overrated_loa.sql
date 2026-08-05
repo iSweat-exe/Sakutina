@@ -1,4 +1,4 @@
-﻿CREATE TABLE "guild_settings" (
+CREATE TABLE "guild_settings" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"guild_id" text NOT NULL,
 	"language" text DEFAULT 'en' NOT NULL,

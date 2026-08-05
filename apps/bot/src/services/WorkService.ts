@@ -1,4 +1,4 @@
-﻿import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { db, users } from '@sakutina/db';
 import { EconomyService } from './EconomyService.js';
 import { JobError, CooldownError } from '../utils/errors.js';

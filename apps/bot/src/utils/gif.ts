@@ -1,4 +1,4 @@
-﻿export interface GifData {
+export interface GifData {
     url: string;
     animeName?: string;
 }

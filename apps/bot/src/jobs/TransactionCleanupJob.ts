@@ -1,4 +1,4 @@
-﻿import cron from 'node-cron';
+import cron from 'node-cron';
 import { logger } from '../utils/logger.js';
 import { EconomyService } from '../services/EconomyService.js';
 

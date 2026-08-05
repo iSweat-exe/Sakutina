@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { ConfigService, type ConfigUpdate } from '../services/ConfigService.js';
 import { getGuildId } from '../utils/params.js';

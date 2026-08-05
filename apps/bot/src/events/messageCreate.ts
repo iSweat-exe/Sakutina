@@ -1,4 +1,4 @@
-﻿import { Events, GuildMember, Message } from 'discord.js';
+import { Events, GuildMember, Message } from 'discord.js';
 import { GuildConfigService } from '../services/GuildConfigService.js';
 import { EventService } from '../services/EventService.js';
 import { AutoModService } from '../services/AutoModService.js';

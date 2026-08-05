@@ -1,4 +1,4 @@
-﻿import { defineConfig } from 'drizzle-kit';
+import { defineConfig } from 'drizzle-kit';
 import { config } from 'dotenv';
 
 // This package has no app of its own, so it loads env vars directly.

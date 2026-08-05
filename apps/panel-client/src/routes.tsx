@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from '@/components/guards/RequireAuth';
 import { RequireGuildAccess } from '@/components/guards/RequireGuildAccess';
 import { AppShell } from '@/components/layout/AppShell';

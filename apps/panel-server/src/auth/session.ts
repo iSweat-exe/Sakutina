@@ -1,4 +1,4 @@
-﻿import { sign, verify } from 'hono/jwt';
+import { sign, verify } from 'hono/jwt';
 import { env } from '../config/env.js';
 
 export const SESSION_COOKIE = 'sakutina_session';

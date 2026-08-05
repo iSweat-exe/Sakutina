@@ -1,4 +1,4 @@
-﻿CREATE TABLE "warns" (
+CREATE TABLE "warns" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"guild_id" text NOT NULL,
 	"user_id" text NOT NULL,

@@ -1,4 +1,4 @@
-﻿import { createMiddleware } from 'hono/factory';
+import { createMiddleware } from 'hono/factory';
 import { getCookie } from 'hono/cookie';
 import { SESSION_COOKIE, verifySessionToken } from './session.js';
 import { getGuildId } from '../utils/params.js';

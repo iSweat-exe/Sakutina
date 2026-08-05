@@ -1,4 +1,4 @@
-﻿const SPAM_WINDOW_MS = 6000;
+const SPAM_WINDOW_MS = 6000;
 const SPAM_THRESHOLD = 5;
 const LINK_REGEX = /https?:\/\/\S+/i;
 

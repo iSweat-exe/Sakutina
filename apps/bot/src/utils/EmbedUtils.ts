@@ -1,4 +1,4 @@
-﻿import { EmbedBuilder, type ColorResolvable, type User } from 'discord.js';
+import { EmbedBuilder, type ColorResolvable, type User } from 'discord.js';
 
 export const EmbedColors = {
     Success: '#2ECC71' as ColorResolvable,

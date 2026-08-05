@@ -1,4 +1,4 @@
-﻿CREATE TABLE "marriages" (
+CREATE TABLE "marriages" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"guild_id" text NOT NULL,
 	"user1_id" text NOT NULL,

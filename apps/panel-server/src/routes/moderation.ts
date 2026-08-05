@@ -1,4 +1,4 @@
-﻿import { Hono, type Context } from 'hono';
+import { Hono, type Context } from 'hono';
 import { db, warns, modActions } from '@sakutina/db';
 import { and, desc, eq } from 'drizzle-orm';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';

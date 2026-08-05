@@ -1,4 +1,4 @@
-﻿CREATE TABLE "guild_event_channels" (
+CREATE TABLE "guild_event_channels" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"guild_id" text NOT NULL,
 	"channel_id" text NOT NULL

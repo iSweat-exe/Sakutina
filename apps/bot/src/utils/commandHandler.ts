@@ -1,4 +1,4 @@
-﻿import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
+import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import { GuildConfigService } from '../services/GuildConfigService.js';
 import { I18nService } from '../services/I18nService.js';
 import { EmbedUtils } from './EmbedUtils.js';

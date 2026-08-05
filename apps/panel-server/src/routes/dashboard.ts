@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { db, users, warns, modActions, interactionStats } from '@sakutina/db';
 import { count, desc, eq, sum } from 'drizzle-orm';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';

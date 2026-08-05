@@ -1,4 +1,4 @@
-﻿import { ActivityType, Client } from 'discord.js';
+import { ActivityType, Client } from 'discord.js';
 import { sql } from 'drizzle-orm';
 import { db, users } from '@sakutina/db';
 import { logger } from '../utils/logger.js';

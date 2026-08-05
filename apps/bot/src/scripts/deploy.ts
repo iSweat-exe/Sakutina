@@ -1,4 +1,4 @@
-﻿import { REST, Routes } from 'discord.js';
+import { REST, Routes } from 'discord.js';
 import { env } from '../config/env.js';
 import { CommandLoader } from '../core/CommandLoader.js';
 import { join } from 'node:path';

@@ -1,4 +1,4 @@
-﻿{
+{
     "INSUFFICIENT_FUNDS": "Vous n'avez pas assez de pièces pour faire ça.",
     "DAILY_SUCCESS": "Vous avez réclamé votre récompense journalière de **{{amount}} ** ! Votre nouveau solde est de **{{balance}} **.",
     "DAILY_COOLDOWN": "Vous devez attendre **{{hours}} heures** avant de pouvoir réclamer votre prochaine récompense.",

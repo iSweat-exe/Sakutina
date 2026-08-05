@@ -1,4 +1,4 @@
-﻿import type {
+import type {
     ChatInputCommandInteraction,
     AutocompleteInteraction,
 } from 'discord.js';

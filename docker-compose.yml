@@ -1,4 +1,4 @@
-﻿networks:
+networks:
     sakutina-network:
         driver: bridge
 
@@ -91,7 +91,28 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
-    # panel-client has no Dockerfile yet either (dev-only for now).
+
+    panel-client:
+        build:
+            context: .
+            dockerfile: apps/panel-client/Dockerfile
+        container_name: sakutina-panel-client
+        restart: unless-stopped
+        networks:
+            - sakutina-network
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'wget',
+                    '--quiet',
+                    '--tries=1',
+                    '--spider',
+                    'http://127.0.0.1/',
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     nginx:
         image: nginx:alpine
@@ -104,6 +125,8 @@ services:
             - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
         depends_on:
             panel-server:
+                condition: service_healthy
+            panel-client:
                 condition: service_healthy
         networks:
             - sakutina-network

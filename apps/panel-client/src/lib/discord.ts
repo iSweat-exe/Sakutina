@@ -1,4 +1,4 @@
-﻿export function getUserAvatarUrl(
+export function getUserAvatarUrl(
     userId: string,
     avatar: string | null,
     size = 64

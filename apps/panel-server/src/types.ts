@@ -1,4 +1,4 @@
-﻿import type { SessionPayload } from './auth/session.js';
+import type { SessionPayload } from './auth/session.js';
 
 export interface AppEnv {
     Variables: {

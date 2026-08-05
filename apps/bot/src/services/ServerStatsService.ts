@@ -1,4 +1,4 @@
-﻿import { eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db, users, warns, modActions, transactions } from '@sakutina/db';
 
 export class ServerStatsService {

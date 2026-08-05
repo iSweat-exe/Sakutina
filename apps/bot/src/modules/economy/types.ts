@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A single internal rank/promotion tier within a job. Ranks are unlocked by
  * seniority (shifts worked) in that specific job, not by global XP.
  */

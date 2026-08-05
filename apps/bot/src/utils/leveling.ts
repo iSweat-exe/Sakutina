@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Computes the level based on experience.
  * Formula: Math.floor(Math.sqrt(XP / 10))
  */

@@ -1,4 +1,4 @@
-﻿import cron from 'node-cron';
+import cron from 'node-cron';
 import { db, userQuests, users } from '@sakutina/db';
 import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';

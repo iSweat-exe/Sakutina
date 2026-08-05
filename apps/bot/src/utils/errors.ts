@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Base application error. All domain errors extend this.
  * Use `instanceof` checks instead of string matching on `error.message`.
  */

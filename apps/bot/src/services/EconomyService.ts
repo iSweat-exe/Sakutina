@@ -1,4 +1,4 @@
-﻿import { eq, sql, desc, and } from 'drizzle-orm';
+import { eq, sql, desc, and } from 'drizzle-orm';
 import { db, users, transactions } from '@sakutina/db';
 import {
     InsufficientFundsError,

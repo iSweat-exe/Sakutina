@@ -1,4 +1,4 @@
-﻿import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { db, users, userInventory } from '@sakutina/db';
 import { EconomyService } from './EconomyService.js';
 import { InsufficientFundsError, ShopError } from '../utils/errors.js';

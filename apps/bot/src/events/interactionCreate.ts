@@ -1,4 +1,4 @@
-﻿import type { Interaction } from 'discord.js';
+import type { Interaction } from 'discord.js';
 import type { BotClient } from '../bot.js';
 import type { Event } from '../types/Event.js';
 import { logger } from '../utils/logger.js';

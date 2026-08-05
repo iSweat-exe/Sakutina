@@ -1,4 +1,4 @@
-﻿import {
+import {
     pgTable,
     text,
     serial,

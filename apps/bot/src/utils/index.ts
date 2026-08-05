@@ -1,4 +1,4 @@
-﻿export { logger } from './logger.js';
+export { logger } from './logger.js';
 export { EmbedUtils } from './EmbedUtils.js';
 export { createCommandHandler } from './commandHandler.js';
 export {

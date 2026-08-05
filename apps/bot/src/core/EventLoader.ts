@@ -1,4 +1,4 @@
-﻿import type { Client, ClientEvents } from 'discord.js';
+import type { Client, ClientEvents } from 'discord.js';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Event } from '../types/Event.js';

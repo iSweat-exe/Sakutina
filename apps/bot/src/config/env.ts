@@ -1,4 +1,4 @@
-﻿import { config } from 'dotenv';
+import { config } from 'dotenv';
 
 // Load .env depending on the current environment variables set by cross-env (if any)
 const envFile =

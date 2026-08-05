@@ -1,4 +1,4 @@
-﻿import { db, userQuests } from '@sakutina/db';
+import { db, userQuests } from '@sakutina/db';
 import { eq, and } from 'drizzle-orm';
 import { EconomyService } from './EconomyService.js';
 import { botClient } from '../bot.js';

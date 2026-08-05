@@ -1,4 +1,4 @@
-﻿# Sakutina
+# Sakutina
 
 Bot Discord tout-en-un : économie, casino, modération, quêtes, interactions et plus, avec support multilingue (FR/EN) et multi-serveur natif.
 

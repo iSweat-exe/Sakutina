@@ -1,4 +1,4 @@
-﻿import { eq, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db, guildSettings, guildEventChannels } from '@sakutina/db';
 import { Cache, CacheKeys } from '@sakutina/cache';
 

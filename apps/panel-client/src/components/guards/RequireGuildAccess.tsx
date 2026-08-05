@@ -1,4 +1,4 @@
-﻿import { Navigate, Outlet, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth-context';
 
 export function RequireGuildAccess() {

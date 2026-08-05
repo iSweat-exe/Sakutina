@@ -1,4 +1,4 @@
-﻿import { createCommandHandler } from '../../../utils/index.js';
+import { createCommandHandler } from '../../../utils/index.js';
 import {
     ActionRowBuilder,
     ButtonBuilder,

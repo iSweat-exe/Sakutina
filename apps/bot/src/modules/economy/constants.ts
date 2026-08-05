@@ -1,4 +1,4 @@
-﻿import type { JobInfo, ShopItemInfo } from './types.js';
+import type { JobInfo, ShopItemInfo } from './types.js';
 
 /** Daily reward amount (coins) */
 export const DAILY_REWARD = 500;

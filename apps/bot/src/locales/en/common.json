@@ -1,4 +1,4 @@
-﻿{
+{
     "CONFIG_VIEW_TITLE": "Server Configuration",
     "CONFIG_VIEW_DESC": "Here are the current settings for this server:",
     "CONFIG_VIEW_LANG": "Language",
@@ -66,7 +66,7 @@
     "SERVERSTATS_MOD_ACTIONS": "Total Mod Actions",
     "EMBED_TITLE_PANEL": "Admin Panel",
     "PANEL_LINK": "Manage your server from the web panel: {{url}}",
-    "PANEL_COMING_SOON": "The web admin panel isn't available yet â€” stay tuned!",
+    "PANEL_COMING_SOON": "The web admin panel isn't available yet stay tuned!",
     "ACTIVITY_TITLE": "Activity Analytics for {{server}}",
     "ACTIVITY_NO_DATA": "Not enough data yet",
     "ACTIVITY_MOST_ACTIVE_CHANNEL": "Most Active Channel",

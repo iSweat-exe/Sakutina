@@ -1,4 +1,4 @@
-﻿import { REST, Routes } from 'discord.js';
+import { REST, Routes } from 'discord.js';
 import { env } from '../config/env.js';
 
 /**

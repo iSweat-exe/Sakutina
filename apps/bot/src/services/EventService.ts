@@ -1,4 +1,4 @@
-﻿import {
+import {
     Message,
     ActionRowBuilder,
     ButtonBuilder,

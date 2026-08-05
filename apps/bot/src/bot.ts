@@ -1,4 +1,4 @@
-﻿import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { join } from 'node:path';
 import { CommandLoader } from './core/CommandLoader.js';
 import { EventLoader } from './core/EventLoader.js';

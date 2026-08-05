@@ -1,4 +1,4 @@
-﻿/**
+/**
  * One-time cleanup to run BEFORE applying the migration that drops
  * marriages.guild_id. Marriages used to be scoped per guild, so the same
  * user could technically be "married" in several guilds at once â€” going

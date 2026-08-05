@@ -1,4 +1,4 @@
-﻿import cron from 'node-cron';
+import cron from 'node-cron';
 import { db, reminders } from '@sakutina/db';
 import { lte, eq } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';

@@ -1,4 +1,4 @@
-﻿{
+{
     "INSUFFICIENT_FUNDS": "You don't have enough coins for this.",
     "DAILY_SUCCESS": "You claimed your daily reward of **{{amount}} **! Your new balance is **{{balance}} **.",
     "DAILY_COOLDOWN": "You must wait **{{hours}} hours** before claiming your next daily reward.",

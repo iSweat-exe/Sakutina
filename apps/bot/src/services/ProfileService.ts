@@ -1,4 +1,4 @@
-﻿import { EconomyService } from './EconomyService.js';
+import { EconomyService } from './EconomyService.js';
 import { WorkService } from './WorkService.js';
 import { ShopService } from './ShopService.js';
 import { MarriageService } from './MarriageService.js';

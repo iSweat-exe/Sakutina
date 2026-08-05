@@ -1,4 +1,4 @@
-﻿import { Collection } from 'discord.js';
+import { Collection } from 'discord.js';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Command } from '../types/Command.js';

@@ -1,4 +1,4 @@
-﻿import i18next from 'i18next';
+import i18next from 'i18next';
 import enCommon from '../locales/en/common.json';
 import frCommon from '../locales/fr/common.json';
 import enEconomy from '../locales/en/economy.json';
