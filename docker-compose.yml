@@ -1,20 +1,12 @@
-version: '3.8'
+﻿networks:
+  sakutina-network:
+    driver: bridge
+
+volumes:
+    postgres_data:
+    redis_data:
 
 services:
-    sakutina:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: sakutina-bot
-        restart: unless-stopped
-        env_file:
-            - .env.production.local # Change this to the appropriate production env file
-        # Expose any ports if needed (for webhooks/APIs later)
-        # ports:
-        #   - "3000:3000"
-        # volumes:
-        #   - ./data:/usr/src/app/data # Mount volume if persistence is needed
-
     postgres:
         image: postgres:15-alpine
         container_name: sakutina-postgres
@@ -24,9 +16,94 @@ services:
             POSTGRES_PASSWORD: password
             POSTGRES_DB: sakutina
         ports:
-            - '5432:5432'
+            - '5432:5432' # Disable in production, only internal network use it
         volumes:
             - postgres_data:/var/lib/postgresql/data
+        networks:
+            - sakutina-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -d sakutina"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
-volumes:
-    postgres_data:
+    redis:
+        image: redis:7-alpine
+        container_name: sakutina-redis
+        restart: unless-stopped
+        command: redis-server --appendonly yes
+        volumes:
+            - redis_data:/data
+        networks:
+            - sakutina-network
+        ports:
+            - "6379:6379" # DISABLE IN PRODUCTION
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    sakutina:
+        build:
+            context: .
+            dockerfile: apps/bot/Dockerfile
+        container_name: sakutina-bot
+        restart: unless-stopped
+        env_file:
+            - apps/bot/.env.production.local
+        environment:
+            REDIS_URL: redis://redis:6379
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - sakutina-network
+
+    panel-server:
+        build:
+            context: .
+            dockerfile: apps/panel-server/Dockerfile
+        container_name: sakutina-panel-server
+        restart: unless-stopped
+        env_file:
+            - apps/panel-server/.env.production.local
+        environment:
+            PORT: 8080
+            REDIS_URL: redis://redis:6379
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - sakutina-network
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'bun',
+                    '-e',
+                    "fetch('http://localhost:8080/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+    # panel-client has no Dockerfile yet either (dev-only for now).
+
+    nginx:
+        image: nginx:alpine
+        container_name: sakutina-nginx
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+        depends_on:
+            panel-server:
+                condition: service_healthy
+        networks:
+            - sakutina-network

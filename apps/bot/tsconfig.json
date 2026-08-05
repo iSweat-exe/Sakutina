@@ -1,0 +1,20 @@
+﻿{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["bun"],
+
+        // Path aliases
+        "paths": {
+            "@services": ["./src/services/index.ts"],
+            "@services/*": ["./src/services/*"],
+            "@utils": ["./src/utils/index.ts"],
+            "@utils/*": ["./src/utils/*"],
+            "@types": ["./src/types/index.ts"],
+            "@types/*": ["./src/types/*"],
+            "@config/*": ["./src/config/*"]
+        }
+    },
+    "include": ["src"]
+}
+
+

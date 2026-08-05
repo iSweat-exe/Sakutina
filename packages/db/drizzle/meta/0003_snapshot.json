@@ -1,0 +1,254 @@
+{
+    "id": "96c5e06a-d32d-459e-999c-c84d62bdc7ce",
+    "prevId": "6e780a59-6d76-4322-8904-7afa17d597e0",
+    "version": "7",
+    "dialect": "postgresql",
+    "tables": {
+        "public.guild_settings": {
+            "name": "guild_settings",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "guild_id": {
+                    "name": "guild_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "language": {
+                    "name": "language",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "'en'"
+                },
+                "mod_log_channel": {
+                    "name": "mod_log_channel",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "max_warns": {
+                    "name": "max_warns",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 3
+                },
+                "mod_log_warning": {
+                    "name": "mod_log_warning",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "guild_settings_guild_id_unique": {
+                    "name": "guild_settings_guild_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["guild_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.users": {
+            "name": "users",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "discord_id": {
+                    "name": "discord_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "experience": {
+                    "name": "experience",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "balance": {
+                    "name": "balance",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "bank": {
+                    "name": "bank",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "daily_last_claim": {
+                    "name": "daily_last_claim",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "current_job": {
+                    "name": "current_job",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "work_shifts_done": {
+                    "name": "work_shifts_done",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "work_last_shift": {
+                    "name": "work_last_shift",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "casino_games_played": {
+                    "name": "casino_games_played",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "casino_wins": {
+                    "name": "casino_wins",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "casino_losses": {
+                    "name": "casino_losses",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "users_discord_id_unique": {
+                    "name": "users_discord_id_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["discord_id"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.warns": {
+            "name": "warns",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "guild_id": {
+                    "name": "guild_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "moderator_id": {
+                    "name": "moderator_id",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "reason": {
+                    "name": "reason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        }
+    },
+    "enums": {},
+    "schemas": {},
+    "sequences": {},
+    "roles": {},
+    "policies": {},
+    "views": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
+}
+

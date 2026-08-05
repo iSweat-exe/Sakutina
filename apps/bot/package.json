@@ -1,0 +1,29 @@
+{
+    "name": "@sakutina/bot",
+    "module": "src/index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "start": "cross-env NODE_ENV=production bun src/index.ts",
+        "dev": "cross-env NODE_ENV=development bun --watch src/index.ts",
+        "deploy": "cross-env NODE_ENV=production bun --env-file=.env.production.local src/scripts/deploy.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@sakutina/cache": "workspace:*",
+        "@sakutina/db": "workspace:*",
+        "discord.js": "^14.27.0",
+        "dotenv": "^17.4.2",
+        "drizzle-orm": "^0.45.2",
+        "i18next": "^26.3.6",
+        "node-cron": "^4.6.0",
+        "winston": "^3.19.0"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/node-cron": "^3.0.11",
+        "cross-env": "^10.1.0"
+    }
+}
+
+

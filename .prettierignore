@@ -1,4 +1,4 @@
-# Dépendances et builds
+﻿# Dependances et builds
 node_modules/
 .next/
 dist/
@@ -9,3 +9,4 @@ drizzle/meta/
 
 # Git
 .git/
+

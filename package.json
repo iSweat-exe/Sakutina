@@ -1,36 +1,32 @@
 {
     "name": "sakutina",
-    "module": "index.ts",
-    "type": "module",
     "private": true,
+    "type": "module",
+    "workspaces": ["apps/*", "packages/*"],
     "scripts": {
-        "start": "cross-env NODE_ENV=production bun src/index.ts",
-        "dev": "cross-env NODE_ENV=development bun --watch src/index.ts",
-        "deploy": "cross-env NODE_ENV=development bun src/scripts/deploy.ts",
-        "typecheck": "tsc --noEmit",
-        "db:generate": "drizzle-kit generate",
-        "db:push": "drizzle-kit push",
-        "db:studio": "drizzle-kit studio",
+        "dev:bot": "bun --filter '@sakutina/bot' dev",
+        "dev:panel-server": "bun --filter '@sakutina/panel-server' dev",
+        "dev:panel-client": "bun --filter '@sakutina/panel-client' dev",
+        "dev": "concurrently -n bot,api,web -c blue,green,magenta \"bun run dev:bot\" \"bun run dev:panel-server\" \"bun run dev:panel-client\"",
+        "start:bot": "bun --filter '@sakutina/bot' start",
+        "start:panel-server": "bun --filter '@sakutina/panel-server' start",
+        "deploy": "bun --filter '@sakutina/bot' deploy",
+        "db:generate": "bun --filter '@sakutina/db' generate",
+        "db:push": "bun --filter '@sakutina/db' push",
+        "db:studio": "bun --filter '@sakutina/db' studio",
+        "db:dedupe-marriages": "bun --filter '@sakutina/db' dedupe-marriages",
+        "typecheck": "bun --filter '*' typecheck",
         "lint": "prettier \"**/*.{ts,tsx}\" --check",
         "format": "prettier \"**/*.{ts,tsx}\" --write"
     },
     "devDependencies": {
         "@types/bun": "latest",
-        "@types/node-cron": "^3.0.11",
-        "drizzle-kit": "^0.31.10",
-        "prettier": "^3.9.6"
-    },
-    "peerDependencies": {
-        "typescript": "^5"
+        "concurrently": "^9.1.2",
+        "cross-env": "^10.1.0",
+        "prettier": "^3.9.6",
+        "typescript": "~6.0.3"
     },
     "dependencies": {
-        "cross-env": "^10.1.0",
-        "discord.js": "^14.27.0",
-        "dotenv": "^17.4.2",
-        "drizzle-orm": "^0.45.2",
-        "i18next": "^26.3.6",
-        "node-cron": "^4.6.0",
-        "postgres": "^3.4.9",
-        "winston": "^3.19.0"
+        "discord-api-types": "^0.38.52"
     }
 }

@@ -1,4 +1,4 @@
-name: CI Pipeline
+﻿name: CI Pipeline
 
 on:
     push:
@@ -28,7 +28,3 @@ jobs:
 
             - name: Formatting Check
               run: bun run lint
-
-            # Optionnel: Ajoute tes scripts de tests ici à l'avenir
-            # - name: Run Tests
-            #   run: bun test
