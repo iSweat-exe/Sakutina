@@ -72,5 +72,3 @@ export class MarriageError extends AppError {
         super(`MARRIAGE_ERR_${code}`, `Marriage error: ${code}`, meta);
     }
 }
-
-

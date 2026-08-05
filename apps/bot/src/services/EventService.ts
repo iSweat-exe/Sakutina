@@ -177,5 +177,3 @@ export class EventService {
         await eventMsg.edit({ embeds: [successEmbed], components: [] });
     }
 }
-
-

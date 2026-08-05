@@ -95,5 +95,3 @@ export class EmbedUtils {
         return this.base({ title, description, color: EmbedColors.Info, user });
     }
 }
-
-

@@ -12,5 +12,3 @@ import type { AppEnv } from '../types.js';
 export function getGuildId(c: Context<AppEnv>): string {
     return c.req.param('guildId') as string;
 }
-
-

@@ -33,5 +33,3 @@ export async function getGif(type: string): Promise<GifData> {
         ] as string,
     };
 }
-
-

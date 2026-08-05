@@ -18,5 +18,3 @@ export function getGuildIconUrl(
     if (!icon) return null;
     return `https://cdn.discordapp.com/icons/${guildId}/${icon}.png?size=${size}`;
 }
-
-

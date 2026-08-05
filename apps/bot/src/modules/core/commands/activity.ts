@@ -56,8 +56,7 @@ const command: Command = {
             const currentVoiceUsers = guild.channels.cache
                 .filter((c) => c.isVoiceBased())
                 .reduce(
-                    (sum, c) =>
-                        sum + c.members.filter((m) => !m.user.bot).size,
+                    (sum, c) => sum + c.members.filter((m) => !m.user.bot).size,
                     0
                 );
             const totalVoiceSeconds = voiceChannels.reduce(

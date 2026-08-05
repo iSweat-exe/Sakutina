@@ -38,7 +38,11 @@ export function AppShell() {
                     title="Changer de serveur"
                 >
                     {guildIconUrl ? (
-                        <DiscordAvatar src={guildIconUrl} alt={guild?.name ?? ''} size={36} />
+                        <DiscordAvatar
+                            src={guildIconUrl}
+                            alt={guild?.name ?? ''}
+                            size={36}
+                        />
                     ) : (
                         <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                             {guild?.name?.[0]?.toUpperCase() ?? 'S'}
@@ -114,5 +118,3 @@ export function AppShell() {
         </div>
     );
 }
-
-

@@ -308,5 +308,3 @@ export class GuildConfigService {
         return settings.language;
     }
 }
-
-

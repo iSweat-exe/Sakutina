@@ -82,5 +82,3 @@ const event: Event<'interactionCreate'> = {
 };
 
 export default event;
-
-

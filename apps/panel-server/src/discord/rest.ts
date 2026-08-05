@@ -62,7 +62,8 @@ export async function fetchGuildMember(
         data = {
             id: userId,
             username: member.user.username,
-            displayName: member.nick ?? member.user.global_name ?? member.user.username,
+            displayName:
+                member.nick ?? member.user.global_name ?? member.user.username,
             avatarUrl,
         };
     } catch {
@@ -76,7 +77,10 @@ export async function fetchGuildMember(
         };
     }
 
-    memberCache.set(cacheKey, { data, expiresAt: Date.now() + MEMBER_CACHE_TTL_MS });
+    memberCache.set(cacheKey, {
+        data,
+        expiresAt: Date.now() + MEMBER_CACHE_TTL_MS,
+    });
     return data;
 }
 
@@ -189,5 +193,3 @@ export async function timeoutGuildMember(
         body: { communication_disabled_until: communicationDisabledUntil },
     });
 }
-
-

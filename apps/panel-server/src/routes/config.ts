@@ -37,5 +37,3 @@ configRoutes.patch('/', async (c) => {
     const updated = await ConfigService.updateGuildSettings(guildId, update);
     return c.json(updated);
 });
-
-

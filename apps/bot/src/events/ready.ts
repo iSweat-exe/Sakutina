@@ -21,5 +21,3 @@ const event: Event<'clientReady'> = {
 };
 
 export default event;
-
-

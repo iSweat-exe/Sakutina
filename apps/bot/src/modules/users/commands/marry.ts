@@ -214,17 +214,21 @@ const command: Command = {
                 }
 
                 /** Keeps the proposer's ephemeral confirmation in sync in DM mode. */
-                const syncProposer = async (resultEmbed: ReturnType<typeof EmbedUtils.info>) => {
+                const syncProposer = async (
+                    resultEmbed: ReturnType<typeof EmbedUtils.info>
+                ) => {
                     if (!isDM) return;
                     await interaction
                         .editReply({ embeds: [resultEmbed], components: [] })
                         .catch(() => {});
                 };
 
-                const collector = targetMessage.createMessageComponentCollector({
-                    componentType: ComponentType.Button,
-                    time: 60000,
-                });
+                const collector = targetMessage.createMessageComponentCollector(
+                    {
+                        componentType: ComponentType.Button,
+                        time: 60000,
+                    }
+                );
 
                 collector.on('collect', async (i) => {
                     try {
@@ -402,5 +406,3 @@ const command: Command = {
 };
 
 export default command;
-
-

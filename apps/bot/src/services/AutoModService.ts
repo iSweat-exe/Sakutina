@@ -24,5 +24,3 @@ export class AutoModService {
         return LINK_REGEX.test(content);
     }
 }
-
-

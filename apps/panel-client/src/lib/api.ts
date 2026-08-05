@@ -41,5 +41,3 @@ export const api = {
             body: body ? JSON.stringify(body) : undefined,
         }),
 };
-
-

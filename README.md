@@ -35,14 +35,14 @@ cp .env.example .env.local
 
 Renseigne `.env.local` :
 
-| Variable          | Description                                                       |
-| ------------------ | ------------------------------------------------------------------ |
-| `DISCORD_TOKEN`    | Token du bot                                                       |
-| `CLIENT_ID`        | ID de l'application Discord                                        |
-| `DEVELOPER_ID`     | ID(s) Discord autorisés pour `/dev`, séparés par des virgules      |
-| `DATABASE_URL`     | Chaîne de connexion PostgreSQL                                     |
-| `NODE_ENV`         | `development` ou `production`                                      |
-| `OPENAI_API_KEY`   | Optionnel — active `/ask`                                          |
+| Variable         | Description                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| `DISCORD_TOKEN`  | Token du bot                                                  |
+| `CLIENT_ID`      | ID de l'application Discord                                   |
+| `DEVELOPER_ID`   | ID(s) Discord autorisés pour `/dev`, séparés par des virgules |
+| `DATABASE_URL`   | Chaîne de connexion PostgreSQL                                |
+| `NODE_ENV`       | `development` ou `production`                                 |
+| `OPENAI_API_KEY` | Optionnel — active `/ask`                                     |
 
 ## Base de données
 
@@ -69,17 +69,17 @@ bun run start    # mode production
 
 ## Scripts disponibles
 
-| Commande             | Description                                      |
-| --------------------- | ------------------------------------------------- |
-| `bun run dev`         | Démarre le bot avec rechargement à chaud          |
-| `bun run start`       | Démarre le bot en production                       |
-| `bun run deploy`      | Déploie les slash commands sur Discord             |
-| `bun run typecheck`   | Vérifie les types (`tsc --noEmit`, strict)         |
-| `bun run lint`        | Vérifie le formatage (Prettier)                    |
-| `bun run format`      | Reformate le code (Prettier)                       |
-| `bun run db:generate` | Génère une migration Drizzle                       |
-| `bun run db:push`     | Applique le schéma directement à la base           |
-| `bun run db:studio`   | Ouvre Drizzle Studio                               |
+| Commande              | Description                                |
+| --------------------- | ------------------------------------------ |
+| `bun run dev`         | Démarre le bot avec rechargement à chaud   |
+| `bun run start`       | Démarre le bot en production               |
+| `bun run deploy`      | Déploie les slash commands sur Discord     |
+| `bun run typecheck`   | Vérifie les types (`tsc --noEmit`, strict) |
+| `bun run lint`        | Vérifie le formatage (Prettier)            |
+| `bun run format`      | Reformate le code (Prettier)               |
+| `bun run db:generate` | Génère une migration Drizzle               |
+| `bun run db:push`     | Applique le schéma directement à la base   |
+| `bun run db:studio`   | Ouvre Drizzle Studio                       |
 
 ## Docker
 
@@ -114,12 +114,12 @@ La logique métier (transactions, cooldowns, calculs) vit exclusivement dans `se
 
 ## Tâches planifiées
 
-| Job                       | Fréquence         | Rôle                                                      |
-| -------------------------- | ------------------ | ----------------------------------------------------------- |
-| `BankInterestJob`          | Tous les jours      | +1% d'intérêts sur les comptes bancaires                    |
-| `ReminderJob`               | Toutes les minutes  | Envoie les rappels arrivés à échéance                        |
-| `QuestResetJob`             | Quotidien/hebdo      | Régénère les quêtes journalières et hebdomadaires            |
-| `TransactionCleanupJob`     | Tous les jours      | Purge l'historique des transactions de plus de 14 jours       |
+| Job                     | Fréquence          | Rôle                                                    |
+| ----------------------- | ------------------ | ------------------------------------------------------- |
+| `BankInterestJob`       | Tous les jours     | +1% d'intérêts sur les comptes bancaires                |
+| `ReminderJob`           | Toutes les minutes | Envoie les rappels arrivés à échéance                   |
+| `QuestResetJob`         | Quotidien/hebdo    | Régénère les quêtes journalières et hebdomadaires       |
+| `TransactionCleanupJob` | Tous les jours     | Purge l'historique des transactions de plus de 14 jours |
 
 ## Internationalisation
 

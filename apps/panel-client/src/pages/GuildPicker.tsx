@@ -15,9 +15,9 @@ export function GuildPickerPage() {
 
             {manageable.length === 0 ? (
                 <p className="text-muted-foreground">
-                    Aucun serveur gérable trouvé. Le bot doit être présent sur le
-                    serveur et tu dois y avoir la permission Administrateur ou
-                    Gérer le serveur.
+                    Aucun serveur gérable trouvé. Le bot doit être présent sur
+                    le serveur et tu dois y avoir la permission Administrateur
+                    ou Gérer le serveur.
                 </p>
             ) : (
                 <div className="grid gap-3">
@@ -52,5 +52,3 @@ export function GuildPickerPage() {
         </div>
     );
 }
-
-

@@ -40,5 +40,3 @@ manager
         logger.info('[ShardingManager] All shards launched successfully.')
     )
     .catch((error) => logger.error('[ShardingManager] Launch failed:', error));
-
-

@@ -71,8 +71,7 @@ export async function fetchUserGuilds(
     const res = await fetch(`${API_BASE}/users/@me/guilds`, {
         headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (!res.ok)
-        throw new Error(`Failed to fetch user guilds: ${res.status}`);
+    if (!res.ok) throw new Error(`Failed to fetch user guilds: ${res.status}`);
     return res.json() as Promise<DiscordUserGuild[]>;
 }
 
@@ -95,5 +94,3 @@ export async function fetchBotGuildIds(): Promise<Set<string>> {
     botGuildsCache = { ids, expiresAt: Date.now() + BOT_GUILDS_CACHE_TTL_MS };
     return ids;
 }
-
-

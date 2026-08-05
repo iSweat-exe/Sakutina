@@ -1,6 +1,6 @@
 ﻿networks:
-  sakutina-network:
-    driver: bridge
+    sakutina-network:
+        driver: bridge
 
 volumes:
     postgres_data:
@@ -22,7 +22,7 @@ services:
         networks:
             - sakutina-network
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U postgres -d sakutina"]
+            test: ['CMD-SHELL', 'pg_isready -U postgres -d sakutina']
             interval: 5s
             timeout: 5s
             retries: 5
@@ -37,9 +37,9 @@ services:
         networks:
             - sakutina-network
         ports:
-            - "6379:6379" # DISABLE IN PRODUCTION
+            - '6379:6379' # DISABLE IN PRODUCTION
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ['CMD', 'redis-cli', 'ping']
             interval: 5s
             timeout: 5s
             retries: 5

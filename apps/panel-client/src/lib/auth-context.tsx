@@ -32,9 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refresh = React.useCallback(async () => {
         setLoading(true);
         try {
-            const data = await api.get<{ user: PanelUser; guilds: PanelGuild[] }>(
-                '/auth/me'
-            );
+            const data = await api.get<{
+                user: PanelUser;
+                guilds: PanelGuild[];
+            }>('/auth/me');
             setUser(data.user);
             setGuilds(data.guilds);
         } catch (error) {
@@ -59,7 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [refresh]);
 
     return (
-        <AuthContext.Provider value={{ user, guilds, loading, refresh, logout }}>
+        <AuthContext.Provider
+            value={{ user, guilds, loading, refresh, logout }}
+        >
             {children}
         </AuthContext.Provider>
     );
@@ -70,5 +73,3 @@ export function useAuth(): AuthContextValue {
     if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
     return ctx;
 }
-
-

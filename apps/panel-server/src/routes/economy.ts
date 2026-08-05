@@ -1,5 +1,11 @@
 ﻿import { Hono } from 'hono';
-import { db, users, transactions, userInventory, marriages } from '@sakutina/db';
+import {
+    db,
+    users,
+    transactions,
+    userInventory,
+    marriages,
+} from '@sakutina/db';
 import { and, desc, eq, or } from 'drizzle-orm';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { fetchGuildMember, fetchGuildMembers } from '../discord/rest.js';
@@ -39,7 +45,10 @@ economyRoutes.get('/users', async (c) => {
     );
 
     return c.json(
-        rows.map((row) => ({ ...row, member: members.get(row.discordId) ?? null }))
+        rows.map((row) => ({
+            ...row,
+            member: members.get(row.discordId) ?? null,
+        }))
     );
 });
 
@@ -104,5 +113,3 @@ economyRoutes.get('/users/:userId/inventory', async (c) => {
 
     return c.json(rows);
 });
-
-

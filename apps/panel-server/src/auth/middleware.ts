@@ -33,5 +33,3 @@ export const requireGuildAccess = createMiddleware<AppEnv>(async (c, next) => {
 
     await next();
 });
-
-

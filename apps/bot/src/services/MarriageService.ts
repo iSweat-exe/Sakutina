@@ -72,5 +72,3 @@ export class MarriageService {
             : marriage.user1Id;
     }
 }
-
-

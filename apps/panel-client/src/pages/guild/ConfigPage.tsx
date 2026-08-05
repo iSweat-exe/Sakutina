@@ -1,6 +1,12 @@
 ﻿import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -54,8 +60,7 @@ export function ConfigPage() {
 
     React.useEffect(() => {
         if (!guildId) return;
-        api
-            .get<GuildConfig>(`/api/guilds/${guildId}/config`)
+        api.get<GuildConfig>(`/api/guilds/${guildId}/config`)
             .then(setConfig)
             .catch((err: unknown) => setError(toErrorMessage(err)));
     }, [guildId]);
@@ -85,7 +90,9 @@ export function ConfigPage() {
     if (!config) {
         return (
             <div className="max-w-xl space-y-4">
-                <h1 className="mb-6 text-2xl font-semibold">Configuration du serveur</h1>
+                <h1 className="mb-6 text-2xl font-semibold">
+                    Configuration du serveur
+                </h1>
                 <Skeleton className="h-48 w-full" />
                 <Skeleton className="h-32 w-full" />
             </div>
@@ -99,7 +106,9 @@ export function ConfigPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Général</CardTitle>
-                    <CardDescription>Langue et salons principaux</CardDescription>
+                    <CardDescription>
+                        Langue et salons principaux
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
@@ -108,13 +117,18 @@ export function ConfigPage() {
                             id="language"
                             value={config.language}
                             onChange={(e) =>
-                                setConfig({ ...config, language: e.target.value })
+                                setConfig({
+                                    ...config,
+                                    language: e.target.value,
+                                })
                             }
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="leaderboardChannel">Salon du classement (ID)</Label>
+                        <Label htmlFor="leaderboardChannel">
+                            Salon du classement (ID)
+                        </Label>
                         <Input
                             id="leaderboardChannel"
                             value={config.leaderboardChannel ?? ''}
@@ -132,11 +146,15 @@ export function ConfigPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Modération</CardTitle>
-                    <CardDescription>Avertissements et auto-modération</CardDescription>
+                    <CardDescription>
+                        Avertissements et auto-modération
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor="modLogChannel">Salon de logs de modération (ID)</Label>
+                        <Label htmlFor="modLogChannel">
+                            Salon de logs de modération (ID)
+                        </Label>
                         <Input
                             id="modLogChannel"
                             value={config.modLogChannel ?? ''}
@@ -150,7 +168,9 @@ export function ConfigPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="maxWarns">Nombre max. d'avertissements avant ban auto</Label>
+                        <Label htmlFor="maxWarns">
+                            Nombre max. d'avertissements avant ban auto
+                        </Label>
                         <Input
                             id="maxWarns"
                             type="number"
@@ -169,14 +189,18 @@ export function ConfigPage() {
                         label="Rappel dans les logs"
                         description="Rappelle le nombre d'avertissements dans le salon de logs"
                         checked={config.modLogWarning}
-                        onChange={(v) => setConfig({ ...config, modLogWarning: v })}
+                        onChange={(v) =>
+                            setConfig({ ...config, modLogWarning: v })
+                        }
                     />
 
                     <ToggleRow
                         label="Auto-modération"
                         description="Détection automatique du spam et des liens"
                         checked={config.autoModEnabled}
-                        onChange={(v) => setConfig({ ...config, autoModEnabled: v })}
+                        onChange={(v) =>
+                            setConfig({ ...config, autoModEnabled: v })
+                        }
                     />
                 </CardContent>
             </Card>
@@ -185,7 +209,8 @@ export function ConfigPage() {
                 <CardHeader>
                     <CardTitle>Rôle de niveau</CardTitle>
                     <CardDescription>
-                        Rôle attribué automatiquement à partir d'un certain niveau
+                        Rôle attribué automatiquement à partir d'un certain
+                        niveau
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -204,7 +229,9 @@ export function ConfigPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="levelRoleThreshold">Niveau requis</Label>
+                        <Label htmlFor="levelRoleThreshold">
+                            Niveau requis
+                        </Label>
                         <Input
                             id="levelRoleThreshold"
                             type="number"
@@ -238,5 +265,3 @@ export function ConfigPage() {
         </div>
     );
 }
-
-

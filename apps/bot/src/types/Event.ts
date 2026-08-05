@@ -5,5 +5,3 @@ export interface Event<K extends keyof ClientEvents> {
     once?: boolean;
     execute: (...args: ClientEvents[K]) => Promise<void> | void;
 }
-
-

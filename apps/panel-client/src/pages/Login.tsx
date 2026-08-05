@@ -1,5 +1,11 @@
 ﻿import { Navigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 
@@ -22,12 +28,12 @@ export function LoginPage() {
                 </CardHeader>
                 <CardContent>
                     <Button asChild className="w-full">
-                        <a href={`${API_BASE}/auth/login`}>Se connecter avec Discord</a>
+                        <a href={`${API_BASE}/auth/login`}>
+                            Se connecter avec Discord
+                        </a>
                     </Button>
                 </CardContent>
             </Card>
         </div>
     );
 }
-
-

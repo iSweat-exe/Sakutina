@@ -87,5 +87,3 @@ const command: Command = {
 };
 
 export default command;
-
-

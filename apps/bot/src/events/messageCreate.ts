@@ -12,15 +12,14 @@ export default {
     async execute(message: Message) {
         if (message.author.bot || !message.guildId) return;
 
-        ActivityService.recordMessage(
-            message.guildId,
-            message.channelId
-        ).catch((err) => {
-            logger.error(
-                `[MessageCreate] Failed to record channel activity for ${message.channelId}`,
-                err
-            );
-        });
+        ActivityService.recordMessage(message.guildId, message.channelId).catch(
+            (err) => {
+                logger.error(
+                    `[MessageCreate] Failed to record channel activity for ${message.channelId}`,
+                    err
+                );
+            }
+        );
 
         try {
             const config = await GuildConfigService.getGuildSettings(
@@ -90,5 +89,3 @@ export default {
         }
     },
 };
-
-

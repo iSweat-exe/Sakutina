@@ -80,4 +80,3 @@
     "ACTIVITY_QUIET_HOUR": "Quietest Tracked Hour (UTC)",
     "ACTIVITY_HOUR_VALUE": "{{hour}}:00 - {{count}} message(s)"
 }
-

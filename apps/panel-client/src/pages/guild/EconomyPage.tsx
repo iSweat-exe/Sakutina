@@ -42,10 +42,9 @@ export function EconomyPage() {
     React.useEffect(() => {
         if (!guildId) return;
         setUsers(null);
-        api
-            .get<EconomyUser[]>(
-                `/api/guilds/${guildId}/economy/users?sort=${sort}&limit=50`
-            )
+        api.get<EconomyUser[]>(
+            `/api/guilds/${guildId}/economy/users?sort=${sort}&limit=50`
+        )
             .then(setUsers)
             .catch((err: unknown) =>
                 setError(err instanceof Error ? err.message : String(err))
@@ -57,9 +56,11 @@ export function EconomyPage() {
         const query = search.trim().toLowerCase();
         if (!query) return users;
         return users.filter((u) => {
-            const name = u.member?.displayName ?? u.member?.username ?? u.discordId;
+            const name =
+                u.member?.displayName ?? u.member?.username ?? u.discordId;
             return (
-                name.toLowerCase().includes(query) || u.discordId.includes(query)
+                name.toLowerCase().includes(query) ||
+                u.discordId.includes(query)
             );
         });
     }, [users, search]);
@@ -105,14 +106,22 @@ export function EconomyPage() {
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="border-b text-left text-muted-foreground">
-                                        <th className="py-2 font-medium">Membre</th>
+                                        <th className="py-2 font-medium">
+                                            Membre
+                                        </th>
                                         {columns.map((col) => (
-                                            <th key={col.key} className="py-2 font-medium">
+                                            <th
+                                                key={col.key}
+                                                className="py-2 font-medium"
+                                            >
                                                 <button
-                                                    onClick={() => setSort(col.key)}
+                                                    onClick={() =>
+                                                        setSort(col.key)
+                                                    }
                                                     className={cn(
                                                         'flex items-center gap-1 hover:text-foreground transition-colors',
-                                                        sort === col.key && 'text-foreground'
+                                                        sort === col.key &&
+                                                            'text-foreground'
                                                     )}
                                                 >
                                                     {col.label}
@@ -134,27 +143,48 @@ export function EconomyPage() {
                                                 <div className="flex items-center gap-2">
                                                     <DiscordAvatar
                                                         src={
-                                                            user.member?.avatarUrl ??
-                                                            getUserAvatarUrl(user.discordId, null, 32)
+                                                            user.member
+                                                                ?.avatarUrl ??
+                                                            getUserAvatarUrl(
+                                                                user.discordId,
+                                                                null,
+                                                                32
+                                                            )
                                                         }
-                                                        alt={user.member?.displayName ?? user.discordId}
+                                                        alt={
+                                                            user.member
+                                                                ?.displayName ??
+                                                            user.discordId
+                                                        }
                                                         size={28}
                                                     />
                                                     <div className="min-w-0">
                                                         <p className="truncate font-medium">
-                                                            {user.member?.displayName ?? user.discordId}
+                                                            {user.member
+                                                                ?.displayName ??
+                                                                user.discordId}
                                                         </p>
                                                         {user.member && (
                                                             <p className="truncate text-xs text-muted-foreground">
-                                                                @{user.member.username}
+                                                                @
+                                                                {
+                                                                    user.member
+                                                                        .username
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-2">{user.balance}</td>
-                                            <td className="py-2">{user.bank}</td>
-                                            <td className="py-2">{user.experience}</td>
+                                            <td className="py-2">
+                                                {user.balance}
+                                            </td>
+                                            <td className="py-2">
+                                                {user.bank}
+                                            </td>
+                                            <td className="py-2">
+                                                {user.experience}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -166,5 +196,3 @@ export function EconomyPage() {
         </div>
     );
 }
-
-

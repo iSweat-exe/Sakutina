@@ -52,4 +52,3 @@ if (dropIds.length === 0) {
 }
 
 process.exit(0);
-

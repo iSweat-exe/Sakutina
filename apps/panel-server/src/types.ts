@@ -5,5 +5,3 @@ export interface AppEnv {
         session: SessionPayload;
     };
 }
-
-

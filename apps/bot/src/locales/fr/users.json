@@ -34,4 +34,3 @@
     "MARRY_PROPOSE_SENT": "💌 Ta demande a été envoyée à {{user}} en MP. En attente de sa réponse…",
     "MARRY_DM_FAILED": "Impossible d'envoyer un MP à **{{user}}** — ses MP sont peut-être fermés. Essaie plutôt depuis un serveur que vous partagez."
 }
-

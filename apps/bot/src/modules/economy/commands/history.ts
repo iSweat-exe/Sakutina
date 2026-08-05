@@ -117,5 +117,3 @@ function getEmojiForType(type: string): string {
 }
 
 export default command;
-
-

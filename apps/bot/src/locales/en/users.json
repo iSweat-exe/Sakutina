@@ -34,4 +34,3 @@
     "MARRY_PROPOSE_SENT": "ðŸ’Œ Your proposal has been sent to {{user}} in DM. Waiting for their responseâ€¦",
     "MARRY_DM_FAILED": "Couldn't send a DM to **{{user}}** â€” they may have DMs disabled. Try proposing from a server you share instead."
 }
-

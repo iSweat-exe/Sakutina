@@ -78,5 +78,3 @@ dashboardRoutes.get('/overview', async (c) => {
         })),
     });
 });
-
-

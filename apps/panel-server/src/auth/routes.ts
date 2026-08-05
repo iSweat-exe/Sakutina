@@ -107,5 +107,3 @@ authRoutes.post('/logout', (c) => {
     deleteCookie(c, SESSION_COOKIE, { path: '/' });
     return c.json({ ok: true });
 });
-
-

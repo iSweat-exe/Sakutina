@@ -116,5 +116,3 @@ export const SHOP_ITEMS: ShopItemInfo[] = [
     { key: 'title_legend', name: 'ðŸ† Legend', price: 5000 },
     { key: 'title_vip', name: 'ðŸ’Ž VIP', price: 10000 },
 ];
-
-

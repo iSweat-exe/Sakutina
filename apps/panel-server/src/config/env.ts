@@ -72,5 +72,3 @@ const parseEnv = (): EnvConfig => {
 };
 
 export const env = parseEnv();
-
-

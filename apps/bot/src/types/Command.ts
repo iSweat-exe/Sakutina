@@ -17,5 +17,3 @@ export interface Command {
     execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
     autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
 }
-
-

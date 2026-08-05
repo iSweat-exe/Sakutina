@@ -45,5 +45,3 @@ export async function verifySessionToken(
         return null;
     }
 }
-
-

@@ -33,4 +33,3 @@ export type Marriage = typeof marriages.$inferSelect;
 export type ChannelActivity = typeof channelActivity.$inferSelect;
 export type ActivityHourly = typeof activityHourly.$inferSelect;
 export type VoiceChannelStats = typeof voiceChannelStats.$inferSelect;
-

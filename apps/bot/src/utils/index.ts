@@ -10,5 +10,3 @@ export {
     ShopError,
     MarriageError,
 } from './errors.js';
-
-

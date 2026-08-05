@@ -51,8 +51,7 @@ export function ModerationPage() {
 
     const loadActions = React.useCallback(() => {
         if (!guildId) return;
-        api
-            .get<ModAction[]>(`/api/guilds/${guildId}/moderation/actions`)
+        api.get<ModAction[]>(`/api/guilds/${guildId}/moderation/actions`)
             .then(setActions)
             .catch((err: unknown) => setError(toErrorMessage(err)));
     }, [guildId]);
@@ -106,7 +105,9 @@ export function ModerationPage() {
                         </div>
                     </div>
 
-                    {error && <p className="text-sm text-destructive">{error}</p>}
+                    {error && (
+                        <p className="text-sm text-destructive">{error}</p>
+                    )}
 
                     <div className="flex gap-2">
                         <Button
@@ -171,14 +172,22 @@ export function ModerationPage() {
                                         <DiscordAvatar
                                             src={
                                                 action.member?.avatarUrl ??
-                                                getUserAvatarUrl(action.userId, null, 32)
+                                                getUserAvatarUrl(
+                                                    action.userId,
+                                                    null,
+                                                    32
+                                                )
                                             }
-                                            alt={action.member?.displayName ?? action.userId}
+                                            alt={
+                                                action.member?.displayName ??
+                                                action.userId
+                                            }
                                             size={28}
                                         />
                                         <div className="min-w-0">
                                             <p className="truncate font-medium">
-                                                {action.member?.displayName ?? action.userId}
+                                                {action.member?.displayName ??
+                                                    action.userId}
                                             </p>
                                             <p className="truncate text-xs text-muted-foreground">
                                                 {action.reason}
@@ -186,11 +195,19 @@ export function ModerationPage() {
                                         </div>
                                     </div>
                                     <div className="flex shrink-0 items-center gap-3">
-                                        <Badge variant={ACTION_BADGE_VARIANT[action.actionType] ?? 'outline'}>
+                                        <Badge
+                                            variant={
+                                                ACTION_BADGE_VARIANT[
+                                                    action.actionType
+                                                ] ?? 'outline'
+                                            }
+                                        >
                                             {action.actionType}
                                         </Badge>
                                         <span className="text-muted-foreground whitespace-nowrap">
-                                            {new Date(action.createdAt).toLocaleString()}
+                                            {new Date(
+                                                action.createdAt
+                                            ).toLocaleString()}
                                         </span>
                                     </div>
                                 </div>
@@ -202,5 +219,3 @@ export function ModerationPage() {
         </div>
     );
 }
-
-

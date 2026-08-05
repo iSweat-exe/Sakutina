@@ -9,5 +9,3 @@ export function RequireAuth() {
 
     return <Outlet />;
 }
-
-

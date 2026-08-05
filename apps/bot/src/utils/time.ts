@@ -14,5 +14,3 @@ export function formatLongDuration(totalSeconds: number): string {
     const minutes = Math.floor((s % 3600) / 60);
     return `${hours}h ${minutes}m`;
 }
-
-

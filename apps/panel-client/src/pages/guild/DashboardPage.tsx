@@ -1,6 +1,11 @@
 ﻿import * as React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
@@ -98,12 +103,10 @@ export function DashboardPage() {
 
     React.useEffect(() => {
         if (!guildId) return;
-        api
-            .get<Overview>(`/api/guilds/${guildId}/dashboard/overview`)
+        api.get<Overview>(`/api/guilds/${guildId}/dashboard/overview`)
             .then(setOverview)
             .catch((err: unknown) => setError(toErrorMessage(err)));
-        api
-            .get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`)
+        api.get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`)
             .then(setActivity)
             .catch((err: unknown) => setError(toErrorMessage(err)));
     }, [guildId]);
@@ -140,7 +143,9 @@ export function DashboardPage() {
                     <Card key={stat.label}>
                         <CardHeader>
                             <CardDescription>{stat.label}</CardDescription>
-                            <CardTitle className="text-3xl">{stat.value}</CardTitle>
+                            <CardTitle className="text-3xl">
+                                {stat.value}
+                            </CardTitle>
                         </CardHeader>
                     </Card>
                 ))}
@@ -150,7 +155,9 @@ export function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Activité récente</CardTitle>
-                        <CardDescription>Dernières actions de modération</CardDescription>
+                        <CardDescription>
+                            Dernières actions de modération
+                        </CardDescription>
                     </CardHeader>
                     <div className="px-6 pb-6">
                         {overview.recentActions.length === 0 ? (
@@ -167,19 +174,32 @@ export function DashboardPage() {
                                         <DiscordAvatar
                                             src={
                                                 action.member?.avatarUrl ??
-                                                getUserAvatarUrl(action.userId, null, 28)
+                                                getUserAvatarUrl(
+                                                    action.userId,
+                                                    null,
+                                                    28
+                                                )
                                             }
-                                            alt={action.member?.displayName ?? action.userId}
+                                            alt={
+                                                action.member?.displayName ??
+                                                action.userId
+                                            }
                                             size={24}
                                         />
                                         <span className="truncate font-medium">
-                                            {action.member?.displayName ?? action.userId}
+                                            {action.member?.displayName ??
+                                                action.userId}
                                         </span>
-                                        <Badge variant="outline" className="shrink-0">
+                                        <Badge
+                                            variant="outline"
+                                            className="shrink-0"
+                                        >
                                             {action.actionType}
                                         </Badge>
                                         <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-                                            {new Date(action.createdAt).toLocaleDateString()}
+                                            {new Date(
+                                                action.createdAt
+                                            ).toLocaleDateString()}
                                         </span>
                                     </div>
                                 ))}
@@ -197,7 +217,9 @@ export function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Top membres</CardTitle>
-                        <CardDescription>Les plus riches du serveur</CardDescription>
+                        <CardDescription>
+                            Les plus riches du serveur
+                        </CardDescription>
                     </CardHeader>
                     <div className="px-6 pb-6">
                         {overview.topUsers.length === 0 ? (
@@ -217,13 +239,21 @@ export function DashboardPage() {
                                         <DiscordAvatar
                                             src={
                                                 u.member?.avatarUrl ??
-                                                getUserAvatarUrl(u.discordId, null, 28)
+                                                getUserAvatarUrl(
+                                                    u.discordId,
+                                                    null,
+                                                    28
+                                                )
                                             }
-                                            alt={u.member?.displayName ?? u.discordId}
+                                            alt={
+                                                u.member?.displayName ??
+                                                u.discordId
+                                            }
                                             size={24}
                                         />
                                         <span className="truncate font-medium">
-                                            {u.member?.displayName ?? u.discordId}
+                                            {u.member?.displayName ??
+                                                u.discordId}
                                         </span>
                                         <span className="ml-auto shrink-0 font-mono text-xs text-muted-foreground">
                                             {u.balance}
@@ -256,7 +286,9 @@ export function DashboardPage() {
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader>
-                            <CardDescription>Salon le plus actif</CardDescription>
+                            <CardDescription>
+                                Salon le plus actif
+                            </CardDescription>
                             <CardTitle className="text-lg">
                                 {activity.mostActiveChannel
                                     ? `#${activity.mostActiveChannel.name}`
@@ -264,7 +296,8 @@ export function DashboardPage() {
                             </CardTitle>
                             {activity.mostActiveChannel && (
                                 <p className="text-xs text-muted-foreground">
-                                    {activity.mostActiveChannel.messageCount} messages
+                                    {activity.mostActiveChannel.messageCount}{' '}
+                                    messages
                                 </p>
                             )}
                         </CardHeader>
@@ -272,7 +305,9 @@ export function DashboardPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardDescription>Salon le moins actif</CardDescription>
+                            <CardDescription>
+                                Salon le moins actif
+                            </CardDescription>
                             <CardTitle className="text-lg">
                                 {activity.leastActiveChannel
                                     ? `#${activity.leastActiveChannel.name}`
@@ -280,7 +315,8 @@ export function DashboardPage() {
                             </CardTitle>
                             {activity.leastActiveChannel && (
                                 <p className="text-xs text-muted-foreground">
-                                    {activity.leastActiveChannel.messageCount} messages
+                                    {activity.leastActiveChannel.messageCount}{' '}
+                                    messages
                                 </p>
                             )}
                         </CardHeader>
@@ -288,7 +324,9 @@ export function DashboardPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardDescription>Actuellement en vocal</CardDescription>
+                            <CardDescription>
+                                Actuellement en vocal
+                            </CardDescription>
                             <CardTitle className="text-3xl">
                                 {activity.currentVoiceUsers}
                             </CardTitle>
@@ -297,16 +335,22 @@ export function DashboardPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardDescription>Temps vocal total enregistré</CardDescription>
+                            <CardDescription>
+                                Temps vocal total enregistré
+                            </CardDescription>
                             <CardTitle className="text-lg">
-                                {formatVoiceDuration(activity.totalVoiceSeconds)}
+                                {formatVoiceDuration(
+                                    activity.totalVoiceSeconds
+                                )}
                             </CardTitle>
                         </CardHeader>
                     </Card>
 
                     <Card>
                         <CardHeader>
-                            <CardDescription>Salon vocal le plus actif</CardDescription>
+                            <CardDescription>
+                                Salon vocal le plus actif
+                            </CardDescription>
                             <CardTitle className="text-lg">
                                 {activity.mostActiveVoiceChannel
                                     ? `#${activity.mostActiveVoiceChannel.name}`
@@ -315,7 +359,8 @@ export function DashboardPage() {
                             {activity.mostActiveVoiceChannel && (
                                 <p className="text-xs text-muted-foreground">
                                     {formatVoiceDuration(
-                                        activity.mostActiveVoiceChannel.totalSeconds
+                                        activity.mostActiveVoiceChannel
+                                            .totalSeconds
                                     )}
                                 </p>
                             )}
@@ -324,7 +369,9 @@ export function DashboardPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardDescription>Heure d'activité (pic / calme)</CardDescription>
+                            <CardDescription>
+                                Heure d'activité (pic / calme)
+                            </CardDescription>
                             <CardTitle className="text-lg">
                                 {activity.peakHour
                                     ? formatHour(activity.peakHour.hour)
@@ -342,5 +389,3 @@ export function DashboardPage() {
         </div>
     );
 }
-
-

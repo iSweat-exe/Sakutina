@@ -41,5 +41,3 @@ export class I18nService {
         return i18next.t(key, options) as string;
     }
 }
-
-

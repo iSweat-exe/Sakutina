@@ -24,4 +24,3 @@ export const checkDbConnection = async () => {
 export const closeDb = async () => {
     await queryClient.end();
 };
-

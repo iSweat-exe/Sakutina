@@ -27,5 +27,3 @@ export interface ShopItemInfo {
     name: string;
     price: number;
 }
-
-

@@ -2,7 +2,10 @@
     "name": "sakutina",
     "private": true,
     "type": "module",
-    "workspaces": ["apps/*", "packages/*"],
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
     "scripts": {
         "dev:bot": "bun --filter '@sakutina/bot' dev",
         "dev:panel-server": "bun --filter '@sakutina/panel-server' dev",

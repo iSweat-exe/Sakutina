@@ -30,7 +30,10 @@ moderationRoutes.get('/warns', async (c) => {
         .orderBy(desc(warns.createdAt))
         .limit(100);
 
-    const members = await fetchGuildMembers(guildId, rows.map((r) => r.userId));
+    const members = await fetchGuildMembers(
+        guildId,
+        rows.map((r) => r.userId)
+    );
 
     return c.json(
         rows.map((row) => ({ ...row, member: members.get(row.userId) ?? null }))
@@ -55,7 +58,10 @@ moderationRoutes.get('/actions', async (c) => {
         .orderBy(desc(modActions.createdAt))
         .limit(100);
 
-    const members = await fetchGuildMembers(guildId, rows.map((r) => r.userId));
+    const members = await fetchGuildMembers(
+        guildId,
+        rows.map((r) => r.userId)
+    );
 
     return c.json(
         rows.map((row) => ({ ...row, member: members.get(row.userId) ?? null }))
@@ -68,12 +74,14 @@ interface ActionBody {
     durationMinutes?: number;
 }
 
-async function readActionBody(
-    c: Context<AppEnv>
-): Promise<ActionBody | null> {
+async function readActionBody(c: Context<AppEnv>): Promise<ActionBody | null> {
     const body = await c.req.json<Partial<ActionBody>>().catch(() => null);
     if (!body || typeof body.userId !== 'string' || !body.userId) return null;
-    return { userId: body.userId, reason: body.reason || 'No reason provided', durationMinutes: body.durationMinutes };
+    return {
+        userId: body.userId,
+        reason: body.reason || 'No reason provided',
+        durationMinutes: body.durationMinutes,
+    };
 }
 
 moderationRoutes.post('/warn', async (c) => {
@@ -107,7 +115,12 @@ moderationRoutes.post('/mute', async (c) => {
     const durationMinutes = body.durationMinutes ?? 60;
 
     try {
-        await timeoutGuildMember(guildId, body.userId, body.reason, durationMinutes);
+        await timeoutGuildMember(
+            guildId,
+            body.userId,
+            body.reason,
+            durationMinutes
+        );
     } catch {
         return c.json({ error: 'Failed to mute member on Discord' }, 502);
     }
@@ -169,5 +182,3 @@ moderationRoutes.post('/ban', async (c) => {
 
     return c.json({ ok: true });
 });
-
-

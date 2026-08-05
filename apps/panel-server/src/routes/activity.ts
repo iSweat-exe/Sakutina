@@ -64,10 +64,14 @@ activityRoutes.get('/overview', async (c) => {
     }));
     const hoursWithData = hourly.filter((h) => h.messageCount > 0);
     const peakHour = hoursWithData.length
-        ? hoursWithData.reduce((a, b) => (b.messageCount > a.messageCount ? b : a))
+        ? hoursWithData.reduce((a, b) =>
+              b.messageCount > a.messageCount ? b : a
+          )
         : null;
     const quietHour = hoursWithData.length
-        ? hoursWithData.reduce((a, b) => (b.messageCount < a.messageCount ? b : a))
+        ? hoursWithData.reduce((a, b) =>
+              b.messageCount < a.messageCount ? b : a
+          )
         : null;
 
     return c.json({
@@ -79,8 +83,14 @@ activityRoutes.get('/overview', async (c) => {
                 : null,
         voiceChannels: voiceWithNames,
         mostActiveVoiceChannel: voiceWithNames[0] ?? null,
-        totalVoiceSeconds: voiceRows.reduce((sum, r) => sum + r.totalSeconds, 0),
-        currentVoiceUsers: voiceRows.reduce((sum, r) => sum + r.currentCount, 0),
+        totalVoiceSeconds: voiceRows.reduce(
+            (sum, r) => sum + r.totalSeconds,
+            0
+        ),
+        currentVoiceUsers: voiceRows.reduce(
+            (sum, r) => sum + r.currentCount,
+            0
+        ),
         hourly,
         peakHour,
         quietHour,
