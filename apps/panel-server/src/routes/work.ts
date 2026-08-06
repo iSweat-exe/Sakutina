@@ -14,6 +14,7 @@ import {
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { getGuildId } from '../utils/params.js';
 import { ensureUser, logTransaction } from '../lib/economy.js';
+import { incrementQuestProgress } from '../lib/quests.js';
 import type { AppEnv } from '../types.js';
 
 export const workRoutes = new Hono<AppEnv>();
@@ -192,6 +193,7 @@ workRoutes.post('/shift', async (c) => {
         .filter(Boolean)
         .join(' — ');
     await logTransaction(discordId, guildId, 'work', salary, details);
+    await incrementQuestProgress(discordId, guildId, 'work').catch(() => {});
 
     return c.json({
         salary,

@@ -7,10 +7,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
-import { api } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 import { getUserAvatarUrl } from '@/lib/discord';
+import { useToast } from '@/lib/toast-context';
 
 interface OverviewMember {
     id: string;
@@ -82,6 +85,29 @@ interface TransactionTypeVolume {
     volume: number;
 }
 
+interface SimulationCalibration {
+    windowDays: number;
+    sampleSize: number;
+    activeDaysObserved: number;
+    activeFraction: number;
+    dailyClaimRate: number;
+    avgWorkShiftsPerActiveDay: number;
+    casinoParticipationRate: number;
+    avgCasinoBetsPerActivePlayer: number;
+    avgBetFraction: number;
+    depositRate: number;
+    robAttemptRate: number;
+}
+
+interface SimulationRun {
+    params: { playerCount: number; days: number };
+    reportHtml: string;
+}
+
+const SIMULATE_MIN_DAYS = 1;
+const SIMULATE_MAX_DAYS = 180;
+const SIMULATE_DEFAULT_DAYS = 30;
+
 interface EconomyOverview {
     totalWallet: number;
     totalBank: number;
@@ -132,14 +158,90 @@ function formatHour(hour: number): string {
     return `${String(hour).padStart(2, '0')}:00 UTC`;
 }
 
+function formatPercent(value: number): string {
+    return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatDecimal(value: number): string {
+    return value.toFixed(2);
+}
+
+/**
+ * Each entry maps a card to the matching field in
+ * packages/economy/src/simulation/params.ts's SimulationParams, so the
+ * measured value can be dropped straight into a --json override for
+ * `bun run economy:simulate`.
+ */
+const SIMULATION_STAT_FIELDS: {
+    key: keyof SimulationCalibration;
+    paramKey: string;
+    label: string;
+    format: (value: number) => string;
+}[] = [
+    {
+        key: 'activeFraction',
+        paramKey: 'activeFraction',
+        label: 'Fraction active',
+        format: formatPercent,
+    },
+    {
+        key: 'dailyClaimRate',
+        paramKey: 'dailyClaimRate',
+        label: 'Taux de récompense quotidienne',
+        format: formatPercent,
+    },
+    {
+        key: 'avgWorkShiftsPerActiveDay',
+        paramKey: 'avgWorkShiftsPerActiveDay',
+        label: 'Postes de travail / jour actif',
+        format: formatDecimal,
+    },
+    {
+        key: 'casinoParticipationRate',
+        paramKey: 'casinoParticipationRate',
+        label: 'Participation au casino',
+        format: formatPercent,
+    },
+    {
+        key: 'avgCasinoBetsPerActivePlayer',
+        paramKey: 'avgCasinoBetsPerActivePlayer',
+        label: 'Paris casino / joueur actif',
+        format: formatDecimal,
+    },
+    {
+        key: 'avgBetFraction',
+        paramKey: 'avgBetFraction',
+        label: 'Fraction moyenne misée',
+        format: formatPercent,
+    },
+    {
+        key: 'depositRate',
+        paramKey: 'depositRate',
+        label: 'Taux de dépôt en banque',
+        format: formatPercent,
+    },
+    {
+        key: 'robAttemptRate',
+        paramKey: 'robAttemptRate',
+        label: 'Taux de tentative de vol',
+        format: formatPercent,
+    },
+];
+
 export function DashboardPage() {
     const { guildId } = useParams();
+    const toast = useToast();
     const [overview, setOverview] = React.useState<Overview | null>(null);
     const [activity, setActivity] = React.useState<ActivityOverview | null>(
         null
     );
     const [economy, setEconomy] = React.useState<EconomyOverview | null>(null);
+    const [simParams, setSimParams] =
+        React.useState<SimulationCalibration | null>(null);
     const [error, setError] = React.useState<string | null>(null);
+    const [simDays, setSimDays] = React.useState(SIMULATE_DEFAULT_DAYS);
+    const [simRun, setSimRun] = React.useState<SimulationRun | null>(null);
+    const [simRunning, setSimRunning] = React.useState(false);
 
     React.useEffect(() => {
         if (!guildId) return;
@@ -152,7 +254,43 @@ export function DashboardPage() {
         api.get<EconomyOverview>(`/api/guilds/${guildId}/dashboard/economy`)
             .then(setEconomy)
             .catch((err: unknown) => setError(toErrorMessage(err)));
+        api.get<SimulationCalibration>(
+            `/api/guilds/${guildId}/dashboard/simulation-params`
+        )
+            .then(setSimParams)
+            .catch((err: unknown) => setError(toErrorMessage(err)));
     }, [guildId]);
+
+    async function copySimParamsJson() {
+        if (!simParams) return;
+        const overrides = Object.fromEntries(
+            SIMULATION_STAT_FIELDS.map((field) => [
+                field.paramKey,
+                Math.round(simParams[field.key] * 1000) / 1000,
+            ])
+        );
+        await navigator.clipboard.writeText(JSON.stringify(overrides, null, 4));
+        toast.success(
+            'JSON copié — utilisable avec economy:simulate -- --json=<fichier>'
+        );
+    }
+
+    async function runSimulation() {
+        if (!guildId) return;
+        setSimRunning(true);
+        try {
+            const result = await api.post<SimulationRun>(
+                `/api/guilds/${guildId}/dashboard/simulate`,
+                { days: simDays }
+            );
+            setSimRun(result);
+        } catch (err) {
+            const message = err instanceof ApiError ? err.message : String(err);
+            toast.error(message);
+        } finally {
+            setSimRunning(false);
+        }
+    }
 
     if (error) return <p className="text-destructive">{error}</p>;
 
@@ -548,6 +686,104 @@ export function DashboardPage() {
                         </CardHeader>
                     </Card>
                 </div>
+            )}
+
+            <div className="mt-8 mb-4 flex items-center justify-between">
+                <div>
+                    <h2 className="text-xl font-semibold">
+                        Calibration du modèle de simulation
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Comportement réel des joueurs, à comparer aux paramètres
+                        par défaut du simulateur d'économie.
+                    </p>
+                </div>
+                {simParams && (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void copySimParamsJson()}
+                    >
+                        Copier le JSON
+                    </Button>
+                )}
+            </div>
+
+            {!simParams ? (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <Skeleton key={i} className="h-24 w-full" />
+                    ))}
+                </div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                        {SIMULATION_STAT_FIELDS.map((field) => (
+                            <Card key={field.key}>
+                                <CardHeader>
+                                    <CardDescription>
+                                        {field.label}
+                                    </CardDescription>
+                                    <CardTitle className="text-2xl">
+                                        {field.format(simParams[field.key])}
+                                    </CardTitle>
+                                </CardHeader>
+                            </Card>
+                        ))}
+                    </div>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                        Calculé sur {simParams.windowDays} jours (
+                        {simParams.sampleSize} transactions,{' '}
+                        {simParams.activeDaysObserved} jour(s) avec activité).
+                    </p>
+
+                    <div className="mt-6 flex flex-wrap items-end gap-3">
+                        <div>
+                            <label
+                                htmlFor="sim-days"
+                                className="mb-1 block text-xs text-muted-foreground"
+                            >
+                                Jours à simuler
+                            </label>
+                            <Input
+                                id="sim-days"
+                                type="number"
+                                min={SIMULATE_MIN_DAYS}
+                                max={SIMULATE_MAX_DAYS}
+                                value={simDays}
+                                onChange={(e) =>
+                                    setSimDays(Number(e.target.value))
+                                }
+                                className="w-28"
+                            />
+                        </div>
+                        <Button
+                            onClick={() => void runSimulation()}
+                            disabled={simRunning}
+                        >
+                            {simRunning
+                                ? 'Simulation en cours…'
+                                : 'Lancer une simulation'}
+                        </Button>
+                    </div>
+
+                    {simRun && (
+                        <div className="mt-4">
+                            <p className="mb-3 text-xs text-muted-foreground">
+                                {simRun.params.days} jour(s) simulé(s) sur{' '}
+                                {simRun.params.playerCount} joueurs, calibré sur
+                                les statistiques réelles ci-dessus (valeurs par
+                                défaut pour le reste).
+                            </p>
+                            <div
+                                className="rounded-lg bg-[#1E1F22] p-4"
+                                dangerouslySetInnerHTML={{
+                                    __html: simRun.reportHtml,
+                                }}
+                            />
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

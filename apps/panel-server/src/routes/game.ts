@@ -2,6 +2,7 @@ import { Hono, type Context } from 'hono';
 import { db, users, transactions } from '@sakutina/db';
 import { and, eq, sql } from 'drizzle-orm';
 import {
+    MAX_BET,
     resolveCoinflip,
     resolveDoubleOrNothing,
     resolveRps,
@@ -12,6 +13,7 @@ import {
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { getGuildId } from '../utils/params.js';
 import { ensureUser } from '../lib/economy.js';
+import { incrementQuestProgress } from '../lib/quests.js';
 import type { AppEnv } from '../types.js';
 
 export const gameRoutes = new Hono<AppEnv>();
@@ -87,7 +89,8 @@ async function readBetBody(c: Context<AppEnv>) {
         .json<{ bet?: number; choice?: unknown }>()
         .catch(() => null);
     if (!body || typeof body.bet !== 'number') return null;
-    if (!Number.isInteger(body.bet) || body.bet <= 0) return null;
+    if (!Number.isInteger(body.bet) || body.bet <= 0 || body.bet > MAX_BET)
+        return null;
     return { bet: body.bet, choice: body.choice };
 }
 
@@ -102,7 +105,13 @@ gameRoutes.post('/casino/:game', async (c) => {
     }
 
     const body = await readBetBody(c);
-    if (!body) return c.json({ error: 'bet must be a positive integer' }, 400);
+    if (!body)
+        return c.json(
+            {
+                error: `bet must be a positive integer no greater than ${MAX_BET}`,
+            },
+            400
+        );
 
     await ensureUser(discordId, guildId);
 
@@ -156,6 +165,8 @@ gameRoutes.post('/casino/:game', async (c) => {
     if (!result) {
         return c.json({ error: 'Insufficient funds or invalid choice' }, 400);
     }
+
+    await incrementQuestProgress(discordId, guildId, 'casino').catch(() => {});
 
     return c.json({
         outcome: result.outcome.outcome,

@@ -1,13 +1,14 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db, users } from '@sakutina/db';
 import {
+    MAX_BET,
     resolveCoinflip,
     resolveDoubleOrNothing,
     resolveRps,
     resolveSlots,
 } from '@sakutina/games';
 import { EconomyService } from './EconomyService.js';
-import { InsufficientFundsError } from '../utils/errors.js';
+import { BetTooLargeError, InsufficientFundsError } from '../utils/errors.js';
 
 type GameOutcome = 'win' | 'lose' | 'tie';
 
@@ -33,6 +34,7 @@ export class CasinoService {
         resolve: () => GameResult<T>
     ): Promise<GameResult<T>> {
         if (bet <= 0) throw new Error('Bet must be positive');
+        if (bet > MAX_BET) throw new BetTooLargeError(MAX_BET);
         await EconomyService.ensureUser(discordId, guildId);
 
         return db.transaction(async (tx) => {

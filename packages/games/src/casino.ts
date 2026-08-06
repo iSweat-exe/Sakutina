@@ -1,5 +1,15 @@
 export type GameOutcome = 'win' | 'lose' | 'tie';
 
+/**
+ * Hard ceiling on a single casino bet, shared by the bot command, the
+ * CasinoService transaction, and the panel's casino route. Without it, a
+ * player sitting on a huge balance can shove it all into one spin and walk
+ * away with a multi-million payout in a single interaction, injecting an
+ * economy-breaking amount of currency at once. Normal bets never come close
+ * to this value, so it doesn't change anything for typical play.
+ */
+export const MAX_BET = 50_000;
+
 export const SLOT_SYMBOLS = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎'] as const;
 export type SlotSymbol = (typeof SLOT_SYMBOLS)[number];
 

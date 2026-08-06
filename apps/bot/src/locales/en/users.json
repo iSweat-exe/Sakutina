@@ -24,13 +24,13 @@
     "MARRY_PROPOSE_TITLE": "💍 Marriage Proposal",
     "MARRY_PROPOSE_DESC": "{{proposer}} proposes marriage to {{target}}! Do you accept?",
     "MARRY_BTN_NOT_TARGET": "You cannot use this button, this proposal isn't addressed to you!",
-    "MARRY_SUCCESS": "ðŸŽ‰ {{user1}} and {{user2}} are now married! May your wallets prosper together.",
+    "MARRY_SUCCESS": "🎉 {{user1}} and {{user2}} are now married! May your wallets prosper together.",
     "MARRY_DECLINED": "{{user}} declined the proposal.",
     "MARRY_TIMEOUT": "The proposal timed out.",
     "MARRY_NOT_MARRIED": "You are not currently married.",
     "MARRY_DIVORCE_SUCCESS": "You have divorced {{partner}}.",
     "MARRY_STATUS_SINGLE": "{{user}} is currently single.",
     "MARRY_STATUS_MARRIED": "{{user}} is married to {{partner}} since {{date}}.",
-    "MARRY_PROPOSE_SENT": "ðŸ’Œ Your proposal has been sent to {{user}} in DM. Waiting for their responseâ€¦",
+    "MARRY_PROPOSE_SENT": "💌 Your proposal has been sent to {{user}} in DM. Waiting for their response...",
     "MARRY_DM_FAILED": "Couldn't send a DM to **{{user}}** â€” they may have DMs disabled. Try proposing from a server you share instead."
 }

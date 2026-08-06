@@ -112,6 +112,9 @@
     "packages/economy": {
       "name": "@sakutina/economy",
       "version": "0.0.1",
+      "dependencies": {
+        "@sakutina/games": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "latest",
       },

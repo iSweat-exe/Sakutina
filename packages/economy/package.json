@@ -6,11 +6,16 @@
     "main": "./src/index.ts",
     "types": "./src/index.ts",
     "exports": {
-        ".": "./src/index.ts"
+        ".": "./src/index.ts",
+        "./simulation": "./src/simulation/index.ts"
     },
     "scripts": {
         "typecheck": "tsc --noEmit",
-        "test": "bun test"
+        "test": "bun test",
+        "simulate": "bun src/scripts/simulate.ts"
+    },
+    "dependencies": {
+        "@sakutina/games": "workspace:*"
     },
     "devDependencies": {
         "@types/bun": "latest"

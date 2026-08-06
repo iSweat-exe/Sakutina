@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { db, userQuests, users } from '@sakutina/db';
 import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
-import { QUESTS_CONFIG } from '../services/QuestService.js';
+import { QuestService } from '../services/QuestService.js';
 
 export class QuestResetJob {
     public static start() {
@@ -22,11 +22,7 @@ export class QuestResetJob {
 
                 const inserts: any[] = [];
                 for (const user of allUsers) {
-                    // Pick 2 random daily quests
-                    const shuffled = [...QUESTS_CONFIG.daily].sort(
-                        () => 0.5 - Math.random()
-                    );
-                    const selected = shuffled.slice(0, 2);
+                    const selected = QuestService.pickQuests('daily');
                     for (const q of selected) {
                         inserts.push({
                             userId: user.id,
@@ -75,10 +71,7 @@ export class QuestResetJob {
 
                 const inserts: any[] = [];
                 for (const user of allUsers) {
-                    const shuffled = [...QUESTS_CONFIG.weekly].sort(
-                        () => 0.5 - Math.random()
-                    );
-                    const selected = shuffled.slice(0, 2);
+                    const selected = QuestService.pickQuests('weekly');
                     for (const q of selected) {
                         inserts.push({
                             userId: user.id,

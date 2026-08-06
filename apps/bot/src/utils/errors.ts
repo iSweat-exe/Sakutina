@@ -19,6 +19,12 @@ export class InsufficientFundsError extends AppError {
     }
 }
 
+export class BetTooLargeError extends AppError {
+    constructor(public readonly maxBet: number) {
+        super('BET_TOO_LARGE', 'Bet exceeds the maximum allowed', { maxBet });
+    }
+}
+
 export class EmptyWalletError extends AppError {
     constructor() {
         super('EMPTY_WALLET', 'User has no money to steal');

@@ -1,27 +1,53 @@
 import { db, userQuests } from '@sakutina/db';
 import { eq, and } from 'drizzle-orm';
+import { QUESTS_CONFIG } from '@sakutina/economy';
 import { EconomyService } from './EconomyService.js';
 import { botClient } from '../bot.js';
 import { I18nService } from './I18nService.js';
 import { GuildConfigService } from './GuildConfigService.js';
 
-export const QUESTS_CONFIG = {
-    daily: [
-        { id: 'work_3', target: 3, reward: 500, desc: 'Work 3 times' },
-        { id: 'casino_5', target: 5, reward: 300, desc: 'Play casino 5 times' },
-    ],
-    weekly: [
-        { id: 'work_15', target: 15, reward: 2000, desc: 'Work 15 times' },
-        {
-            id: 'casino_25',
-            target: 25,
-            reward: 1500,
-            desc: 'Play casino 25 times',
-        },
-    ],
-};
+export { QUESTS_CONFIG };
 
 export class QuestService {
+    /**
+     * Randomly select 2 quests from the given pool ('daily' or 'weekly').
+     */
+    public static pickQuests(type: 'daily' | 'weekly') {
+        const pool = QUESTS_CONFIG[type];
+        const shuffled = [...pool].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 2);
+    }
+
+    /**
+     * Assign 2 random quests of the given type to a user immediately
+     * (used for brand-new users, who would otherwise wait for the next
+     * scheduled reset in QuestResetJob).
+     */
+    public static async assignQuests(
+        userId: string,
+        guildId: string,
+        type: 'daily' | 'weekly'
+    ) {
+        const selected = this.pickQuests(type);
+
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + (type === 'daily' ? 1 : 7));
+
+        const inserts = selected.map((q) => ({
+            userId,
+            guildId,
+            questId: q.id,
+            target: q.target,
+            type,
+            expiresAt,
+        }));
+
+        if (inserts.length > 0) {
+            await db.insert(userQuests).values(inserts);
+        }
+        return inserts;
+    }
+
     /**
      * Increment progress for a specific quest type (e.g., 'work', 'casino').
      */

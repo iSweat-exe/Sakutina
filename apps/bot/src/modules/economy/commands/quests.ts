@@ -15,10 +15,31 @@ const command: Command = {
     execute: createCommandHandler(
         async (interaction: ChatInputCommandInteraction, lang: string) => {
             const guildId = interaction.guildId ?? 'dm';
-            const userQuests = await QuestService.getUserQuests(
+            let userQuests = await QuestService.getUserQuests(
                 interaction.user.id,
                 guildId
             );
+
+            const hasDaily = userQuests.some((q) => q.type === 'daily');
+            const hasWeekly = userQuests.some((q) => q.type === 'weekly');
+            if (!hasDaily || !hasWeekly) {
+                if (!hasDaily)
+                    await QuestService.assignQuests(
+                        interaction.user.id,
+                        guildId,
+                        'daily'
+                    ).catch(() => {});
+                if (!hasWeekly)
+                    await QuestService.assignQuests(
+                        interaction.user.id,
+                        guildId,
+                        'weekly'
+                    ).catch(() => {});
+                userQuests = await QuestService.getUserQuests(
+                    interaction.user.id,
+                    guildId
+                );
+            }
 
             const embed = EmbedUtils.base({
                 title: I18nService.translate('economy:QUESTS_TITLE', {

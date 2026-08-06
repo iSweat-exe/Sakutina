@@ -36,11 +36,11 @@ const command: Command = {
                 user: interaction.user,
             }).addFields(
                 {
-                    name: `ðŸŽ± ${I18nService.translate('fun:8BALL_QUESTION', { lng: lang })}`,
+                    name: `🎱 ${I18nService.translate('fun:8BALL_QUESTION', { lng: lang })}`,
                     value: question,
                 },
                 {
-                    name: `ðŸŽ± ${I18nService.translate('fun:8BALL_RESPONSE', { lng: lang })}`,
+                    name: `🎱 ${I18nService.translate('fun:8BALL_RESPONSE', { lng: lang })}`,
                     value: answer || '...',
                 }
             );

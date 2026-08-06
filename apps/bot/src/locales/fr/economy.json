@@ -1,5 +1,6 @@
 {
     "INSUFFICIENT_FUNDS": "Vous n'avez pas assez de pièces pour faire ça.",
+    "CASINO_BET_TOO_LARGE": "Vous ne pouvez pas miser plus de **{{max}} ** d'un coup.",
     "DAILY_SUCCESS": "Vous avez réclamé votre récompense journalière de **{{amount}} ** ! Votre nouveau solde est de **{{balance}} **.",
     "DAILY_COOLDOWN": "Vous devez attendre **{{hours}} heures** avant de pouvoir réclamer votre prochaine récompense.",
     "BALANCE_TITLE": "Solde de {{user}}",

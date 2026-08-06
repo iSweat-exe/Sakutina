@@ -8,12 +8,13 @@ import {
     ButtonStyle,
     ComponentType,
 } from 'discord.js';
+import { MAX_BET } from '@sakutina/games';
 import type { Command } from '@/types/Command.js';
 import { I18nService } from '@/services/I18nService.js';
 import { CasinoService } from '@/services/CasinoService.js';
 import { EconomyService } from '@/services/EconomyService.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
-import { InsufficientFundsError } from '@/utils/errors.js';
+import { BetTooLargeError, InsufficientFundsError } from '@/utils/errors.js';
 import { QuestService } from '@/services/QuestService.js';
 
 const command: Command = {
@@ -35,6 +36,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à miser' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setMaxValue(MAX_BET)
                 )
         )
         .addSubcommand((subcommand) =>
@@ -49,6 +51,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à miser' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setMaxValue(MAX_BET)
                 )
         )
         .addSubcommand((subcommand) =>
@@ -65,6 +68,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à miser' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setMaxValue(MAX_BET)
                 )
         )
         .addSubcommand((subcommand) =>
@@ -81,6 +85,7 @@ const command: Command = {
                         .setDescriptionLocalizations({ fr: 'Montant à miser' })
                         .setRequired(true)
                         .setMinValue(1)
+                        .setMaxValue(MAX_BET)
                 )
         ),
     execute: createCommandHandler(
@@ -486,6 +491,20 @@ ${
                     const embed = EmbedUtils.error(
                         msg,
                         'Insufficient Funds',
+                        interaction.user
+                    );
+                    await interaction.reply({
+                        embeds: [embed],
+                        flags: MessageFlags.Ephemeral,
+                    });
+                } else if (error instanceof BetTooLargeError) {
+                    const msg = I18nService.translate(
+                        'economy:CASINO_BET_TOO_LARGE',
+                        { lng: lang, max: error.maxBet }
+                    );
+                    const embed = EmbedUtils.error(
+                        msg,
+                        'Bet Too Large',
                         interaction.user
                     );
                     await interaction.reply({

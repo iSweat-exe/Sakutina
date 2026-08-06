@@ -44,6 +44,7 @@ COPY --from=prerelease /usr/src/app/packages/cache ./packages/cache
 COPY --from=install /temp/prod/packages/cache/node_modules ./packages/cache/node_modules
 COPY --from=prerelease /usr/src/app/packages/games ./packages/games
 COPY --from=prerelease /usr/src/app/packages/economy ./packages/economy
+COPY --from=install /temp/prod/packages/economy/node_modules ./packages/economy/node_modules
 COPY --from=prerelease /usr/src/app/package.json .
 
 # Set production environment

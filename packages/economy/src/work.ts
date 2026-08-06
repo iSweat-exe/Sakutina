@@ -14,8 +14,8 @@ export interface JobInfo {
 
 /** Shift count thresholds shared by every job's 3 internal ranks. */
 const RANK_THRESHOLDS = [0, 15, 40] as const;
-/** Cooldown (seconds) per rank tier — higher ranks work a bit faster. */
-const RANK_COOLDOWNS = [300, 240, 195] as const;
+/** Cooldown (seconds) per rank tier — dropped to 1 minute across the board (2026-08-06). */
+const RANK_COOLDOWNS = [60, 60, 60] as const;
 
 /** Salary bonus granted per consecutive day worked, capped at STREAK_BONUS_CAP. */
 export const STREAK_BONUS_PER_DAY = 0.02;
@@ -23,14 +23,15 @@ export const STREAK_BONUS_PER_DAY = 0.02;
 export const STREAK_BONUS_CAP = 0.3;
 
 /** All available jobs, each with 3 internal ranks unlocked by seniority. */
+// Salary bands buffed ~15% (2026-08-06 early-game pass); barista/cashier bumped again (2026-08-06).
 export const AVAILABLE_JOBS: JobInfo[] = [
     {
         id: 'barista',
         minExperience: 0,
         ranks: [
-            { title: 'Barista', salaryMin: 10, salaryMax: 30 },
-            { title: 'Senior Barista', salaryMin: 18, salaryMax: 38 },
-            { title: 'Shift Manager', salaryMin: 28, salaryMax: 50 },
+            { title: 'Barista', salaryMin: 14, salaryMax: 40 },
+            { title: 'Senior Barista', salaryMin: 24, salaryMax: 51 },
+            { title: 'Shift Manager', salaryMin: 37, salaryMax: 67 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -41,9 +42,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'cashier',
         minExperience: 0,
         ranks: [
-            { title: 'Cashier', salaryMin: 12, salaryMax: 28 },
-            { title: 'Head Cashier', salaryMin: 20, salaryMax: 36 },
-            { title: 'Store Supervisor', salaryMin: 30, salaryMax: 48 },
+            { title: 'Cashier', salaryMin: 16, salaryMax: 37 },
+            { title: 'Head Cashier', salaryMin: 26, salaryMax: 47 },
+            { title: 'Store Supervisor', salaryMin: 40, salaryMax: 63 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -54,9 +55,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'delivery',
         minExperience: 20,
         ranks: [
-            { title: 'Delivery Driver', salaryMin: 25, salaryMax: 50 },
-            { title: 'Senior Driver', salaryMin: 38, salaryMax: 65 },
-            { title: 'Dispatch Lead', salaryMin: 55, salaryMax: 90 },
+            { title: 'Delivery Driver', salaryMin: 29, salaryMax: 58 },
+            { title: 'Senior Driver', salaryMin: 44, salaryMax: 75 },
+            { title: 'Dispatch Lead', salaryMin: 63, salaryMax: 104 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -67,9 +68,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'chef',
         minExperience: 50,
         ranks: [
-            { title: 'Line Cook', salaryMin: 35, salaryMax: 65 },
-            { title: 'Sous Chef', salaryMin: 52, salaryMax: 90 },
-            { title: 'Head Chef', salaryMin: 75, salaryMax: 125 },
+            { title: 'Line Cook', salaryMin: 40, salaryMax: 75 },
+            { title: 'Sous Chef', salaryMin: 60, salaryMax: 104 },
+            { title: 'Head Chef', salaryMin: 86, salaryMax: 144 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -80,9 +81,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'developer',
         minExperience: 100,
         ranks: [
-            { title: 'Developer', salaryMin: 60, salaryMax: 120 },
-            { title: 'Senior Developer', salaryMin: 90, salaryMax: 165 },
-            { title: 'Lead Developer', salaryMin: 130, salaryMax: 220 },
+            { title: 'Developer', salaryMin: 69, salaryMax: 138 },
+            { title: 'Senior Developer', salaryMin: 104, salaryMax: 190 },
+            { title: 'Lead Developer', salaryMin: 150, salaryMax: 253 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -93,9 +94,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'doctor',
         minExperience: 250,
         ranks: [
-            { title: 'Resident Doctor', salaryMin: 150, salaryMax: 260 },
-            { title: 'Doctor', salaryMin: 210, salaryMax: 340 },
-            { title: 'Chief Physician', salaryMin: 290, salaryMax: 440 },
+            { title: 'Resident Doctor', salaryMin: 173, salaryMax: 299 },
+            { title: 'Doctor', salaryMin: 242, salaryMax: 391 },
+            { title: 'Chief Physician', salaryMin: 334, salaryMax: 506 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,
@@ -106,9 +107,9 @@ export const AVAILABLE_JOBS: JobInfo[] = [
         id: 'ceo',
         minExperience: 500,
         ranks: [
-            { title: 'CEO', salaryMin: 200, salaryMax: 500 },
-            { title: 'Executive CEO', salaryMin: 300, salaryMax: 620 },
-            { title: 'Founder & Chairman', salaryMin: 420, salaryMax: 800 },
+            { title: 'CEO', salaryMin: 230, salaryMax: 575 },
+            { title: 'Executive CEO', salaryMin: 345, salaryMax: 713 },
+            { title: 'Founder & Chairman', salaryMin: 483, salaryMax: 920 },
         ].map((r, i) => ({
             ...r,
             minShifts: RANK_THRESHOLDS[i]!,

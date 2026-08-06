@@ -6,7 +6,7 @@ import {
     CannotPaySelfError,
     EmptyWalletError,
 } from '../utils/errors.js';
-import { DAILY_REWARD } from '../modules/economy/constants.js';
+import { DAILY_REWARD, WELCOME_BONUS } from '../modules/economy/constants.js';
 
 export class EconomyService {
     /**
@@ -83,6 +83,23 @@ export class EconomyService {
                 .then((res) => res[0]);
             if (!inserted) throw new Error('Failed to insert user');
             user = inserted;
+
+            await this.addBalance(
+                discordId,
+                guildId,
+                WELCOME_BONUS,
+                'Welcome bonus for new player',
+                'welcome_bonus'
+            );
+            user.balance += WELCOME_BONUS;
+
+            const { QuestService } = await import('./QuestService.js');
+            await QuestService.assignQuests(discordId, guildId, 'daily').catch(
+                () => {}
+            );
+            await QuestService.assignQuests(discordId, guildId, 'weekly').catch(
+                () => {}
+            );
         }
         return user;
     }

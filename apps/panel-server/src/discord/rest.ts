@@ -260,6 +260,14 @@ export async function banGuildMember(
     });
 }
 
+export async function unbanGuildMember(
+    guildId: string,
+    userId: string,
+    reason: string
+): Promise<void> {
+    await botRest.delete(Routes.guildBan(guildId, userId), { reason });
+}
+
 export async function kickGuildMember(
     guildId: string,
     userId: string,
