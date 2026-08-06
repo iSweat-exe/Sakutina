@@ -1,5 +1,11 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db, users } from '@sakutina/db';
+import {
+    resolveCoinflip,
+    resolveDoubleOrNothing,
+    resolveRps,
+    resolveSlots,
+} from '@sakutina/games';
 import { EconomyService } from './EconomyService.js';
 import { InsufficientFundsError } from '../utils/errors.js';
 
@@ -95,12 +101,8 @@ export class CasinoService {
             bet,
             'Double or nothing',
             () => {
-                const isWin = Math.random() >= 0.5;
-                return {
-                    outcome: isWin ? 'win' : 'lose',
-                    payout: isWin ? bet * 2 : 0,
-                    extra: null,
-                };
+                const { outcome, multiplier } = resolveDoubleOrNothing();
+                return { outcome, payout: bet * multiplier, extra: null };
             }
         );
         return { win: result.outcome === 'win', amount: result.payout };
@@ -122,11 +124,14 @@ export class CasinoService {
             bet,
             'Coinflip',
             () => {
-                const flip = Math.random() >= 0.5 ? 'heads' : 'tails';
-                const isWin = choice === flip;
+                const {
+                    result: flip,
+                    outcome,
+                    multiplier,
+                } = resolveCoinflip(choice);
                 return {
-                    outcome: isWin ? 'win' : 'lose',
-                    payout: isWin ? bet * 2 : 0,
+                    outcome,
+                    payout: bet * multiplier,
                     extra: { result: flip },
                 };
             }
@@ -154,24 +159,12 @@ export class CasinoService {
             bet,
             'RPS',
             () => {
-                const choices = ['rock', 'paper', 'scissors'] as const;
-                const botChoice =
-                    choices[Math.floor(Math.random() * choices.length)]!;
-
-                let outcome: GameOutcome = 'lose';
-                if (choice === botChoice) {
-                    outcome = 'tie';
-                } else if (
-                    (choice === 'rock' && botChoice === 'scissors') ||
-                    (choice === 'paper' && botChoice === 'rock') ||
-                    (choice === 'scissors' && botChoice === 'paper')
-                ) {
-                    outcome = 'win';
-                }
-
-                const payout =
-                    outcome === 'win' ? bet * 2 : outcome === 'tie' ? bet : 0;
-                return { outcome, payout, extra: { botChoice } };
+                const { botChoice, outcome, multiplier } = resolveRps(choice);
+                return {
+                    outcome,
+                    payout: bet * multiplier,
+                    extra: { botChoice },
+                };
             }
         );
         return {
@@ -192,32 +185,12 @@ export class CasinoService {
             bet,
             'Slots',
             () => {
-                const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎'];
-                const reel1 =
-                    symbols[Math.floor(Math.random() * symbols.length)]!;
-                const reel2 =
-                    symbols[Math.floor(Math.random() * symbols.length)]!;
-                const reel3 =
-                    symbols[Math.floor(Math.random() * symbols.length)]!;
-
-                let multiplier = 0;
-                if (reel1 === reel2 && reel2 === reel3) {
-                    if (reel1 === 'ðŸ’Ž') multiplier = 10;
-                    else if (reel1 === 'â­') multiplier = 5;
-                    else multiplier = 3;
-                } else if (
-                    reel1 === reel2 ||
-                    reel2 === reel3 ||
-                    reel1 === reel3
-                ) {
-                    multiplier = 1.5;
-                }
-
+                const { reels, outcome, multiplier } = resolveSlots();
                 const winAmount = Math.floor(bet * multiplier);
                 return {
-                    outcome: winAmount > 0 ? 'win' : 'lose',
+                    outcome: winAmount > 0 ? outcome : 'lose',
                     payout: winAmount,
-                    extra: { reels: [reel1, reel2, reel3] },
+                    extra: { reels },
                 };
             }
         );

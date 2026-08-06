@@ -12,6 +12,8 @@
     "dependencies": {
         "@sakutina/cache": "workspace:*",
         "@sakutina/db": "workspace:*",
+        "@sakutina/economy": "workspace:*",
+        "@sakutina/games": "workspace:*",
         "discord.js": "^14.27.0",
         "dotenv": "^17.4.2",
         "drizzle-orm": "^0.45.2",
@@ -20,7 +22,7 @@
         "winston": "^3.19.0"
     },
     "devDependencies": {
-        "@types/bun": "latest",
+        "@types/bun": "^1.3.14",
         "@types/node-cron": "^3.0.11",
         "cross-env": "^10.1.0"
     }

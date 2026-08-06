@@ -4,21 +4,18 @@ import { EconomyService } from './EconomyService.js';
 import { JobError, CooldownError } from '../utils/errors.js';
 import { calculateLevel } from '../utils/leveling.js';
 import {
-    AVAILABLE_JOBS,
-    STREAK_BONUS_PER_DAY,
-    STREAK_BONUS_CAP,
-} from '../modules/economy/constants.js';
+    getJob,
+    getRank,
+    rollSalary,
+    rollExpGain,
+    computeStreak,
+    streakBonusFor,
+} from '@sakutina/economy';
 import type { JobInfo, JobRank } from '../modules/economy/types.js';
-
-function toUtcDate(date: Date): Date {
-    return new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
-    );
-}
 
 export class WorkService {
     public static getJob(id: string): JobInfo | undefined {
-        return AVAILABLE_JOBS.find((j) => j.id === id);
+        return getJob(id);
     }
 
     /**
@@ -26,11 +23,7 @@ export class WorkService {
      * how many shifts they've worked in that specific job.
      */
     public static getRank(job: JobInfo, currentJobShifts: number): JobRank {
-        let rank = job.ranks[0]!;
-        for (const r of job.ranks) {
-            if (currentJobShifts >= r.minShifts) rank = r;
-        }
-        return rank;
+        return getRank(job, currentJobShifts);
     }
 
     public static async joinJob(
@@ -109,42 +102,19 @@ export class WorkService {
 
         // Daily streak: one credit per calendar day (UTC), regardless of
         // how many shifts are worked that day.
-        const today = toUtcDate(now);
-        let newStreak = user.workStreak;
-        let streakDateToSave = user.workStreakDate;
-        if (!user.workStreakDate) {
-            newStreak = 1;
-            streakDateToSave = today;
-        } else {
-            const savedDate = toUtcDate(user.workStreakDate);
-            const diffDays = Math.round(
-                (today.getTime() - savedDate.getTime()) / 86400000
-            );
-            if (diffDays === 1) {
-                newStreak = user.workStreak + 1;
-                streakDateToSave = today;
-            } else if (diffDays > 1) {
-                newStreak = 1;
-                streakDateToSave = today;
-            }
-            // diffDays === 0: already credited today, streak unchanged.
-        }
-        const streakBonus = Math.min(
-            newStreak * STREAK_BONUS_PER_DAY,
-            STREAK_BONUS_CAP
-        );
+        const { streak: newStreak, streakDate: streakDateToSave } =
+            computeStreak(now, user.workStreakDate, user.workStreak);
+        const streakBonus = streakBonusFor(newStreak);
 
         const bonusMoneyActive =
             !!user.bonusMoneyUntil && now < user.bonusMoneyUntil;
         const bonusXpActive = !!user.bonusXpUntil && now < user.bonusXpUntil;
 
-        const baseSalary =
-            Math.floor(Math.random() * (rank.salaryMax - rank.salaryMin + 1)) +
-            rank.salaryMin;
+        const baseSalary = rollSalary(rank);
         let salary = Math.round(baseSalary * (1 + streakBonus));
         if (bonusMoneyActive) salary *= 2;
 
-        let expGain = Math.floor(Math.random() * 5) + 1; // 1 to 5 exp per shift
+        let expGain = rollExpGain();
         if (bonusXpActive) expGain *= 2;
 
         const newCurrentJobShifts = user.currentJobShifts + 1;

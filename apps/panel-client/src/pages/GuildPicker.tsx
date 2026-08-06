@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
@@ -7,24 +7,25 @@ import { getGuildIconUrl } from '@/lib/discord';
 
 export function GuildPickerPage() {
     const { guilds } = useAuth();
-    const manageable = guilds.filter((g) => g.hasAccess);
 
     return (
         <div className="mx-auto max-w-2xl p-8">
             <h1 className="mb-6 text-2xl font-semibold">Choisis un serveur</h1>
 
-            {manageable.length === 0 ? (
+            {guilds.length === 0 ? (
                 <p className="text-muted-foreground">
-                    Aucun serveur gérable trouvé. Le bot doit être présent sur
-                    le serveur et tu dois y avoir la permission Administrateur
-                    ou Gérer le serveur.
+                    Aucun serveur commun trouvé. Le bot doit être présent sur le
+                    serveur pour que tu puisses accéder au panel.
                 </p>
             ) : (
                 <div className="grid gap-3">
-                    {manageable.map((guild) => {
+                    {guilds.map((guild) => {
                         const iconUrl = getGuildIconUrl(guild.id, guild.icon);
+                        const target = guild.hasAccess
+                            ? `/g/${guild.id}`
+                            : `/g/${guild.id}/profile`;
                         return (
-                            <Link key={guild.id} to={`/g/${guild.id}`}>
+                            <Link key={guild.id} to={target}>
                                 <Card className="transition-colors hover:bg-accent">
                                     <CardHeader className="flex-row items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -41,7 +42,11 @@ export function GuildPickerPage() {
                                             )}
                                             <CardTitle>{guild.name}</CardTitle>
                                         </div>
-                                        <Badge variant="secondary">Admin</Badge>
+                                        <Badge variant="secondary">
+                                            {guild.hasAccess
+                                                ? 'Admin'
+                                                : 'Membre'}
+                                        </Badge>
                                     </CardHeader>
                                 </Card>
                             </Link>

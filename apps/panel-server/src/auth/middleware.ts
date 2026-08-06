@@ -33,3 +33,21 @@ export const requireGuildAccess = createMiddleware<AppEnv>(async (c, next) => {
 
     await next();
 });
+
+/**
+ * Requires the authenticated user to merely share the `:guildId` guild with
+ * the bot (any membership, not just Admin/Manage Guild) — used for
+ * player-facing routes like the Game section, as opposed to the admin-only
+ * Configuration routes gated by `requireGuildAccess`.
+ */
+export const requireGuildMember = createMiddleware<AppEnv>(async (c, next) => {
+    const guildId = getGuildId(c);
+    const session = c.get('session');
+
+    const guild = session.guilds.find((g) => g.id === guildId);
+    if (!guild) {
+        return c.json({ error: 'Forbidden: not a member of this guild' }, 403);
+    }
+
+    await next();
+});

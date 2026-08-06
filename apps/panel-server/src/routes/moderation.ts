@@ -6,6 +6,7 @@ import {
     banGuildMember,
     fetchGuildMembers,
     kickGuildMember,
+    searchGuildMembers,
     timeoutGuildMember,
 } from '../discord/rest.js';
 import { getGuildId } from '../utils/params.js';
@@ -38,6 +39,14 @@ moderationRoutes.get('/warns', async (c) => {
     return c.json(
         rows.map((row) => ({ ...row, member: members.get(row.userId) ?? null }))
     );
+});
+
+moderationRoutes.get('/search-members', async (c) => {
+    const guildId = getGuildId(c);
+    const query = c.req.query('query') ?? '';
+
+    const results = await searchGuildMembers(guildId, query);
+    return c.json(results);
 });
 
 moderationRoutes.get('/actions', async (c) => {

@@ -23,6 +23,9 @@ jobs:
             - name: Install dependencies
               run: bun install --frozen-lockfile
 
+            - name: Dependency Vulnerability Audit
+              run: bun audit
+
             - name: TypeScript Type Checking
               run: bun run typecheck
 

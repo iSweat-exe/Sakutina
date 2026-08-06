@@ -1,0 +1,166 @@
+import { Hono, type Context } from 'hono';
+import { db, users, transactions } from '@sakutina/db';
+import { and, eq, sql } from 'drizzle-orm';
+import {
+    resolveCoinflip,
+    resolveDoubleOrNothing,
+    resolveRps,
+    resolveSlots,
+    type CoinSide,
+    type RpsChoice,
+} from '@sakutina/games';
+import { requireAuth, requireGuildMember } from '../auth/middleware.js';
+import { getGuildId } from '../utils/params.js';
+import { ensureUser } from '../lib/economy.js';
+import type { AppEnv } from '../types.js';
+
+export const gameRoutes = new Hono<AppEnv>();
+
+gameRoutes.use('*', requireAuth, requireGuildMember);
+
+gameRoutes.get('/me', async (c) => {
+    const guildId = getGuildId(c);
+    const session = c.get('session');
+    const user = await ensureUser(session.discordUserId, guildId);
+    return c.json({ balance: user.balance });
+});
+
+type CasinoGame = 'coinflip' | 'rps' | 'slots' | 'donothing';
+
+interface CasinoOutcome {
+    outcome: 'win' | 'lose' | 'tie';
+    payout: number;
+    extra: Record<string, unknown>;
+}
+
+function resolveCasinoGame(
+    game: CasinoGame,
+    bet: number,
+    choice: unknown
+): CasinoOutcome | null {
+    switch (game) {
+        case 'donothing': {
+            const { outcome, multiplier } = resolveDoubleOrNothing();
+            return { outcome, payout: bet * multiplier, extra: {} };
+        }
+        case 'coinflip': {
+            if (choice !== 'heads' && choice !== 'tails') return null;
+            const {
+                result: flip,
+                outcome,
+                multiplier,
+            } = resolveCoinflip(choice as CoinSide);
+            return {
+                outcome,
+                payout: bet * multiplier,
+                extra: { result: flip },
+            };
+        }
+        case 'rps': {
+            if (
+                choice !== 'rock' &&
+                choice !== 'paper' &&
+                choice !== 'scissors'
+            )
+                return null;
+            const { botChoice, outcome, multiplier } = resolveRps(
+                choice as RpsChoice
+            );
+            return { outcome, payout: bet * multiplier, extra: { botChoice } };
+        }
+        case 'slots': {
+            const { reels, outcome, multiplier } = resolveSlots();
+            const winAmount = Math.floor(bet * multiplier);
+            return {
+                outcome: winAmount > 0 ? outcome : 'lose',
+                payout: winAmount,
+                extra: { reels },
+            };
+        }
+        default:
+            return null;
+    }
+}
+
+async function readBetBody(c: Context<AppEnv>) {
+    const body = await c.req
+        .json<{ bet?: number; choice?: unknown }>()
+        .catch(() => null);
+    if (!body || typeof body.bet !== 'number') return null;
+    if (!Number.isInteger(body.bet) || body.bet <= 0) return null;
+    return { bet: body.bet, choice: body.choice };
+}
+
+gameRoutes.post('/casino/:game', async (c) => {
+    const guildId = getGuildId(c);
+    const session = c.get('session');
+    const discordId = session.discordUserId;
+    const game = c.req.param('game') as CasinoGame;
+
+    if (!['coinflip', 'rps', 'slots', 'donothing'].includes(game)) {
+        return c.json({ error: 'Unknown game' }, 404);
+    }
+
+    const body = await readBetBody(c);
+    if (!body) return c.json({ error: 'bet must be a positive integer' }, 400);
+
+    await ensureUser(discordId, guildId);
+
+    const result = await db.transaction(async (tx) => {
+        const user = await tx
+            .select()
+            .from(users)
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            )
+            .then((res) => res[0]);
+        if (!user || user.balance < body.bet) return null;
+
+        const outcome = resolveCasinoGame(game, body.bet, body.choice);
+        if (!outcome) return null;
+
+        const netChange = outcome.payout - body.bet;
+
+        const updated = await tx
+            .update(users)
+            .set({
+                balance: sql`${users.balance} + ${netChange}`,
+                casinoGamesPlayed: sql`${users.casinoGamesPlayed} + 1`,
+                casinoWins:
+                    outcome.outcome === 'win'
+                        ? sql`${users.casinoWins} + 1`
+                        : sql`${users.casinoWins}`,
+                casinoLosses:
+                    outcome.outcome === 'lose'
+                        ? sql`${users.casinoLosses} + 1`
+                        : sql`${users.casinoLosses}`,
+                updatedAt: new Date(),
+            })
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            )
+            .returning()
+            .then((res) => res[0]!);
+
+        await tx.insert(transactions).values({
+            userId: discordId,
+            guildId,
+            type: 'casino',
+            amount: netChange,
+            details: `Panel ${game}`,
+        });
+
+        return { outcome, balance: updated.balance };
+    });
+
+    if (!result) {
+        return c.json({ error: 'Insufficient funds or invalid choice' }, 400);
+    }
+
+    return c.json({
+        outcome: result.outcome.outcome,
+        payout: result.outcome.payout,
+        extra: result.outcome.extra,
+        balance: result.balance,
+    });
+});

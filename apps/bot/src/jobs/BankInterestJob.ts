@@ -17,7 +17,7 @@ export class BankInterestJob {
                     .where(gt(users.bank, 0));
 
                 logger.info(
-                    '[BankInterestJob] Applied 1% interest to all bank accounts.'
+                    '[BankInterestJob] Applied bank interest successfully.'
                 );
             } catch (error) {
                 logger.error(

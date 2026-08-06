@@ -1,13 +1,17 @@
-import { Link, NavLink, Outlet, useParams } from 'react-router-dom';
+import { Link, NavLink, Outlet, useParams } from 'react-router';
 import {
     LayoutDashboard,
     Settings,
     ShieldAlert,
     Coins,
+    Gamepad2,
     LogOut,
     ChevronsUpDown,
     Moon,
     Sun,
+    User,
+    Briefcase,
+    LineChart,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useTheme } from '@/lib/theme-context';
@@ -15,11 +19,18 @@ import { cn } from '@/lib/utils';
 import { getGuildIconUrl, getUserAvatarUrl } from '@/lib/discord';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
 
-const navItems = [
+const configNavItems = [
     { to: '', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: 'config', label: 'Config', icon: Settings },
     { to: 'moderation', label: 'Modération', icon: ShieldAlert },
     { to: 'economy', label: 'Économie', icon: Coins },
+];
+
+const accountNavItems = [
+    { to: 'profile', label: 'Profil', icon: User },
+    { to: 'work', label: 'Travail', icon: Briefcase },
+    { to: 'invest', label: 'Bourse', icon: LineChart },
+    { to: 'game', label: 'Jeux', icon: Gamepad2 },
 ];
 
 export function AppShell() {
@@ -30,8 +41,8 @@ export function AppShell() {
     const guildIconUrl = guild ? getGuildIconUrl(guild.id, guild.icon) : null;
 
     return (
-        <div className="flex min-h-svh">
-            <aside className="w-64 shrink-0 border-r bg-card px-4 py-6 flex flex-col gap-6">
+        <div className="flex h-svh">
+            <aside className="w-64 shrink-0 overflow-y-auto border-r bg-card px-4 py-6 flex flex-col gap-6">
                 <Link
                     to="/guilds"
                     className="flex items-center gap-3 rounded-md p-2 -mx-2 transition-colors hover:bg-accent group"
@@ -59,25 +70,57 @@ export function AppShell() {
                     <ChevronsUpDown className="size-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
 
-                <nav className="flex flex-col gap-1">
-                    {navItems.map(({ to, label, icon: Icon, end }) => (
-                        <NavLink
-                            key={to}
-                            to={`/g/${guildId}/${to}`}
-                            end={end}
-                            className={({ isActive }) =>
-                                cn(
-                                    'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                                    isActive
-                                        ? 'bg-accent text-accent-foreground'
-                                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                <nav className="flex flex-col gap-4">
+                    {guild?.hasAccess && (
+                        <div className="flex flex-col gap-1">
+                            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Configuration
+                            </p>
+                            {configNavItems.map(
+                                ({ to, label, icon: Icon, end }) => (
+                                    <NavLink
+                                        key={to}
+                                        to={`/g/${guildId}/${to}`}
+                                        end={end}
+                                        className={({ isActive }) =>
+                                            cn(
+                                                'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                                                isActive
+                                                    ? 'bg-accent text-accent-foreground'
+                                                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                            )
+                                        }
+                                    >
+                                        <Icon className="size-4" />
+                                        {label}
+                                    </NavLink>
                                 )
-                            }
-                        >
-                            <Icon className="size-4" />
-                            {label}
-                        </NavLink>
-                    ))}
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex flex-col gap-1">
+                        <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Mon Compte
+                        </p>
+                        {accountNavItems.map(({ to, label, icon: Icon }) => (
+                            <NavLink
+                                key={to}
+                                to={`/g/${guildId}/${to}`}
+                                className={({ isActive }) =>
+                                    cn(
+                                        'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                                        isActive
+                                            ? 'bg-accent text-accent-foreground'
+                                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                    )
+                                }
+                            >
+                                <Icon className="size-4" />
+                                {label}
+                            </NavLink>
+                        ))}
+                    </div>
                 </nav>
 
                 <div className="mt-auto flex items-center gap-2">

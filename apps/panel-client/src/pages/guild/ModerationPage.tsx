@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
+import { X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
 import { api } from '@/lib/api';
 import { getUserAvatarUrl } from '@/lib/discord';
+import { useToast } from '@/lib/toast-context';
+
+const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_MIN_LENGTH = 2;
 
 interface ActionMember {
     id: string;
@@ -41,10 +46,21 @@ function toErrorMessage(err: unknown): string {
     return err instanceof Error ? err.message : String(err);
 }
 
+const ACTION_TOAST_LABEL: Record<string, string> = {
+    warn: 'Avertissement envoyé',
+    mute: 'Membre muet',
+    kick: 'Membre expulsé',
+    ban: 'Membre banni',
+};
+
 export function ModerationPage() {
     const { guildId } = useParams();
+    const toast = useToast();
     const [actions, setActions] = React.useState<ModAction[] | null>(null);
-    const [userId, setUserId] = React.useState('');
+    const [query, setQuery] = React.useState('');
+    const [results, setResults] = React.useState<ActionMember[]>([]);
+    const [searching, setSearching] = React.useState(false);
+    const [target, setTarget] = React.useState<ActionMember | null>(null);
     const [reason, setReason] = React.useState('');
     const [busy, setBusy] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
@@ -58,20 +74,52 @@ export function ModerationPage() {
 
     React.useEffect(loadActions, [loadActions]);
 
+    React.useEffect(() => {
+        if (!guildId || target || query.trim().length < SEARCH_MIN_LENGTH) {
+            setResults([]);
+            setSearching(false);
+            return;
+        }
+        setSearching(true);
+        const id = setTimeout(() => {
+            api.get<ActionMember[]>(
+                `/api/guilds/${guildId}/moderation/search-members?query=${encodeURIComponent(query)}`
+            )
+                .then(setResults)
+                .catch(() => setResults([]))
+                .finally(() => setSearching(false));
+        }, SEARCH_DEBOUNCE_MS);
+        return () => clearTimeout(id);
+    }, [guildId, query, target]);
+
+    function selectTarget(member: ActionMember) {
+        setTarget(member);
+        setQuery('');
+        setResults([]);
+    }
+
+    function clearTarget() {
+        setTarget(null);
+        setQuery('');
+    }
+
     async function runAction(type: 'warn' | 'mute' | 'kick' | 'ban') {
-        if (!guildId || !userId) return;
+        if (!guildId || !target) return;
         setBusy(type);
         setError(null);
         try {
             await api.post(`/api/guilds/${guildId}/moderation/${type}`, {
-                userId,
+                userId: target.id,
                 reason: reason || 'No reason provided',
             });
-            setUserId('');
+            clearTarget();
             setReason('');
+            toast.success(ACTION_TOAST_LABEL[type] ?? 'Action appliquée');
             loadActions();
         } catch (err) {
-            setError(toErrorMessage(err));
+            const message = toErrorMessage(err);
+            setError(message);
+            toast.error(message);
         } finally {
             setBusy(null);
         }
@@ -87,13 +135,75 @@ export function ModerationPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="userId">ID utilisateur</Label>
-                            <Input
-                                id="userId"
-                                value={userId}
-                                onChange={(e) => setUserId(e.target.value)}
-                            />
+                        <div className="relative space-y-1.5">
+                            <Label htmlFor="memberSearch">Joueur</Label>
+                            {target ? (
+                                <div className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+                                    <DiscordAvatar
+                                        src={target.avatarUrl}
+                                        alt={target.displayName}
+                                        size={24}
+                                    />
+                                    <span className="flex-1 truncate text-sm font-medium">
+                                        {target.displayName}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={clearTarget}
+                                        className="text-muted-foreground hover:text-foreground shrink-0"
+                                    >
+                                        <X className="size-3.5" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <Input
+                                    id="memberSearch"
+                                    placeholder="Rechercher un pseudo..."
+                                    autoComplete="off"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+                            )}
+
+                            {!target && query.trim().length >= SEARCH_MIN_LENGTH && (
+                                <div className="bg-popover absolute z-10 mt-1 w-full rounded-md border shadow-md">
+                                    {searching ? (
+                                        <p className="text-muted-foreground p-2 text-xs">
+                                            Recherche...
+                                        </p>
+                                    ) : results.length === 0 ? (
+                                        <p className="text-muted-foreground p-2 text-xs">
+                                            Aucun résultat
+                                        </p>
+                                    ) : (
+                                        results.map((member) => (
+                                            <button
+                                                key={member.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    selectTarget(member)
+                                                }
+                                                className="hover:bg-accent flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm"
+                                            >
+                                                <DiscordAvatar
+                                                    src={member.avatarUrl}
+                                                    alt={member.displayName}
+                                                    size={24}
+                                                />
+                                                <span className="truncate">
+                                                    {member.displayName}
+                                                </span>
+                                                {member.displayName !==
+                                                    member.username && (
+                                                    <span className="text-muted-foreground truncate text-xs">
+                                                        @{member.username}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="reason">Raison</Label>
@@ -112,28 +222,28 @@ export function ModerationPage() {
                     <div className="flex gap-2">
                         <Button
                             variant="secondary"
-                            disabled={!userId || busy !== null}
+                            disabled={!target || busy !== null}
                             onClick={() => runAction('warn')}
                         >
                             Avertir
                         </Button>
                         <Button
                             variant="secondary"
-                            disabled={!userId || busy !== null}
+                            disabled={!target || busy !== null}
                             onClick={() => runAction('mute')}
                         >
                             Muet (60 min)
                         </Button>
                         <Button
                             variant="secondary"
-                            disabled={!userId || busy !== null}
+                            disabled={!target || busy !== null}
                             onClick={() => runAction('kick')}
                         >
                             Expulser
                         </Button>
                         <Button
                             variant="destructive"
-                            disabled={!userId || busy !== null}
+                            disabled={!target || busy !== null}
                             onClick={() => runAction('ban')}
                         >
                             Bannir

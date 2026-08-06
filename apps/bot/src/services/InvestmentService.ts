@@ -9,6 +9,7 @@ import {
 import { EconomyService } from './EconomyService.js';
 import { InsufficientFundsError, InvestError } from '@/utils/errors.js';
 import { STOCK_LIST } from '@/modules/economy/stocks.js';
+import { tickStockPrice, computeAvgBuyPrice } from '@sakutina/economy';
 
 export class InvestmentService {
     /** Idempotent seed run at startup; existing tickers are left untouched. */
@@ -99,9 +100,11 @@ export class InvestmentService {
 
             if (existing) {
                 resultQuantity = existing.quantity + quantity;
-                resultAvgPrice = Math.round(
-                    (existing.avgBuyPrice * existing.quantity + cost) /
-                        resultQuantity
+                resultAvgPrice = computeAvgBuyPrice(
+                    existing.avgBuyPrice,
+                    existing.quantity,
+                    cost,
+                    resultQuantity
                 );
                 await tx
                     .update(userHoldings)
@@ -276,12 +279,7 @@ export class InvestmentService {
             const base = info?.basePrice ?? stock.price;
             const volatility = info?.volatility ?? 0.05;
 
-            const reversion = (base - stock.price) * 0.05;
-            const noise = stock.price * (Math.random() * 2 - 1) * volatility;
-            const nextPrice = Math.max(
-                1,
-                Math.round(stock.price + reversion + noise)
-            );
+            const nextPrice = tickStockPrice(stock.price, base, volatility);
 
             await db
                 .update(stocks)

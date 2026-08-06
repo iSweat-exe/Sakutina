@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
     Card,
     CardDescription,
@@ -77,8 +77,47 @@ interface ActivityOverview {
     quietHour: HourlyEntry | null;
 }
 
+interface TransactionTypeVolume {
+    type: string;
+    volume: number;
+}
+
+interface EconomyOverview {
+    totalWallet: number;
+    totalBank: number;
+    totalPortfolioValue: number;
+    totalWealth: number;
+    avgWealth: number;
+    transactionCount7d: number;
+    totalEarned7d: number;
+    totalSpent7d: number;
+    transactionsByType: TransactionTypeVolume[];
+}
+
+const TRANSACTION_TYPE_LABEL: Record<string, string> = {
+    daily: 'Récompense quotidienne',
+    work: 'Travail',
+    rob: 'Vol',
+    robbed: 'Victime de vol',
+    pay: 'Virement',
+    casino: 'Casino',
+    bank_deposit: 'Dépôt banque',
+    bank_withdraw: 'Retrait banque',
+    shop_purchase: 'Boutique',
+    invest_buy: 'Achat actions',
+    invest_sell: 'Vente actions',
+};
+
+function transactionTypeLabel(type: string): string {
+    return TRANSACTION_TYPE_LABEL[type] ?? type;
+}
+
 function toErrorMessage(err: unknown): string {
     return err instanceof Error ? err.message : String(err);
+}
+
+function formatCoins(value: number): string {
+    return `${new Intl.NumberFormat('fr-FR').format(value)} 🪙`;
 }
 
 function formatVoiceDuration(totalSeconds: number): string {
@@ -99,6 +138,9 @@ export function DashboardPage() {
     const [activity, setActivity] = React.useState<ActivityOverview | null>(
         null
     );
+    const [economy, setEconomy] = React.useState<EconomyOverview | null>(
+        null
+    );
     const [error, setError] = React.useState<string | null>(null);
 
     React.useEffect(() => {
@@ -108,6 +150,9 @@ export function DashboardPage() {
             .catch((err: unknown) => setError(toErrorMessage(err)));
         api.get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`)
             .then(setActivity)
+            .catch((err: unknown) => setError(toErrorMessage(err)));
+        api.get<EconomyOverview>(`/api/guilds/${guildId}/dashboard/economy`)
+            .then(setEconomy)
             .catch((err: unknown) => setError(toErrorMessage(err)));
     }, [guildId]);
 
@@ -271,6 +316,128 @@ export function DashboardPage() {
                     </div>
                 </Card>
             </div>
+
+            <h2 className="mt-8 mb-4 text-xl font-semibold">
+                Économie du serveur
+            </h2>
+
+            {!economy ? (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-24 w-full" />
+                    ))}
+                </div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                        <Card>
+                            <CardHeader>
+                                <CardDescription>
+                                    Masse monétaire totale
+                                </CardDescription>
+                                <CardTitle className="text-2xl">
+                                    {formatCoins(
+                                        economy.totalWallet + economy.totalBank
+                                    )}
+                                </CardTitle>
+                                <p className="text-muted-foreground text-xs">
+                                    dont {formatCoins(economy.totalBank)} en
+                                    banque
+                                </p>
+                            </CardHeader>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardDescription>
+                                    Valeur du portefeuille boursier
+                                </CardDescription>
+                                <CardTitle className="text-2xl">
+                                    {formatCoins(economy.totalPortfolioValue)}
+                                </CardTitle>
+                            </CardHeader>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardDescription>
+                                    Richesse moyenne / membre
+                                </CardDescription>
+                                <CardTitle className="text-2xl">
+                                    {formatCoins(economy.avgWealth)}
+                                </CardTitle>
+                            </CardHeader>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardDescription>
+                                    Transactions (7 derniers jours)
+                                </CardDescription>
+                                <CardTitle className="text-2xl">
+                                    {economy.transactionCount7d}
+                                </CardTitle>
+                                <p className="text-xs">
+                                    <span className="text-emerald-500">
+                                        +{formatCoins(economy.totalEarned7d)}
+                                    </span>{' '}
+                                    <span className="text-destructive">
+                                        −{formatCoins(economy.totalSpent7d)}
+                                    </span>
+                                </p>
+                            </CardHeader>
+                        </Card>
+                    </div>
+
+                    {economy.transactionsByType.length > 0 && (
+                        <Card className="mt-4">
+                            <CardHeader>
+                                <CardTitle>
+                                    Volume par type de transaction
+                                </CardTitle>
+                                <CardDescription>
+                                    Sur les 7 derniers jours
+                                </CardDescription>
+                            </CardHeader>
+                            <div className="space-y-3 px-6 pb-6">
+                                {economy.transactionsByType.map((entry) => {
+                                    const max =
+                                        economy.transactionsByType[0]
+                                            ?.volume || 1;
+                                    const pct = Math.max(
+                                        4,
+                                        Math.round(
+                                            (entry.volume / max) * 100
+                                        )
+                                    );
+                                    return (
+                                        <div key={entry.type}>
+                                            <div className="mb-1 flex items-center justify-between text-sm">
+                                                <span>
+                                                    {transactionTypeLabel(
+                                                        entry.type
+                                                    )}
+                                                </span>
+                                                <span className="text-muted-foreground font-mono text-xs">
+                                                    {formatCoins(entry.volume)}
+                                                </span>
+                                            </div>
+                                            <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                                                <div
+                                                    className="bg-primary h-full rounded-full"
+                                                    style={{
+                                                        width: `${pct}%`,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </Card>
+                    )}
+                </>
+            )}
 
             <h2 className="mt-8 mb-4 text-xl font-semibold">
                 Analyse d'activité

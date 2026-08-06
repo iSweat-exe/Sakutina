@@ -84,6 +84,51 @@ export async function fetchGuildMember(
     return data;
 }
 
+interface RawGuildMemberSearchResult {
+    nick: string | null;
+    user: {
+        id: string;
+        username: string;
+        global_name: string | null;
+        avatar: string | null;
+    };
+}
+
+/**
+ * Looks up members by name prefix via Discord's "Search Guild Members"
+ * endpoint, so moderation can target a player by typing their name instead
+ * of pasting a raw ID. Like fetchGuildMember, this does NOT require the
+ * privileged GUILD_MEMBERS intent (unlike listing all members).
+ */
+export async function searchGuildMembers(
+    guildId: string,
+    query: string,
+    limit = 8
+): Promise<GuildMemberInfo[]> {
+    if (!query.trim()) return [];
+
+    try {
+        const results = (await botRest.get(Routes.guildMembersSearch(guildId), {
+            query: new URLSearchParams({ query, limit: String(limit) }),
+        })) as RawGuildMemberSearchResult[];
+
+        return results.map((member) => {
+            const avatarUrl = member.user.avatar
+                ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png?size=64`
+                : defaultAvatarUrl(member.user.id);
+            return {
+                id: member.user.id,
+                username: member.user.username,
+                displayName:
+                    member.nick ?? member.user.global_name ?? member.user.username,
+                avatarUrl,
+            };
+        });
+    } catch {
+        return [];
+    }
+}
+
 /** Resolves multiple members in parallel, deduping repeated IDs. */
 export async function fetchGuildMembers(
     guildId: string,
@@ -154,6 +199,46 @@ export async function fetchGuildChannels(
     channelsCache.set(guildId, {
         data,
         expiresAt: Date.now() + CHANNELS_CACHE_TTL_MS,
+    });
+    return data;
+}
+
+export interface GuildRoleInfo {
+    id: string;
+    name: string;
+    color: number;
+}
+
+const rolesCache = new Map<
+    string,
+    { data: GuildRoleInfo[]; expiresAt: number }
+>();
+const ROLES_CACHE_TTL_MS = 60 * 1000;
+
+/** Resolves a guild's roles (excluding @everyone) for use in config pickers. */
+export async function fetchGuildRoles(
+    guildId: string
+): Promise<GuildRoleInfo[]> {
+    const cached = rolesCache.get(guildId);
+    if (cached && cached.expiresAt > Date.now()) return cached.data;
+
+    let data: GuildRoleInfo[];
+    try {
+        const roles = (await botRest.get(Routes.guildRoles(guildId))) as Array<{
+            id: string;
+            name: string;
+            color: number;
+        }>;
+        data = roles
+            .filter((role) => role.id !== guildId)
+            .map((role) => ({ id: role.id, name: role.name, color: role.color }));
+    } catch {
+        data = [];
+    }
+
+    rolesCache.set(guildId, {
+        data,
+        expiresAt: Date.now() + ROLES_CACHE_TTL_MS,
     });
     return data;
 }
