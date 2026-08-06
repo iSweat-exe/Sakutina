@@ -19,6 +19,7 @@
         "db:studio": "bun --filter '@sakutina/db' studio",
         "db:dedupe-marriages": "bun --filter '@sakutina/db' dedupe-marriages",
         "typecheck": "bun --filter '*' typecheck",
+        "test": "bun test",
         "lint": "prettier \"**/*.{ts,tsx}\" --check",
         "format": "prettier \"**/*.{ts,tsx}\" --write",
         "audit": "bun audit",

@@ -29,5 +29,8 @@ jobs:
             - name: TypeScript Type Checking
               run: bun run typecheck
 
+            - name: Unit Tests
+              run: bun run test
+
             - name: Formatting Check
               run: bun run lint
