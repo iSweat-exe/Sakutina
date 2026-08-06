@@ -138,9 +138,7 @@ export function DashboardPage() {
     const [activity, setActivity] = React.useState<ActivityOverview | null>(
         null
     );
-    const [economy, setEconomy] = React.useState<EconomyOverview | null>(
-        null
-    );
+    const [economy, setEconomy] = React.useState<EconomyOverview | null>(null);
     const [error, setError] = React.useState<string | null>(null);
 
     React.useEffect(() => {
@@ -402,13 +400,11 @@ export function DashboardPage() {
                             <div className="space-y-3 px-6 pb-6">
                                 {economy.transactionsByType.map((entry) => {
                                     const max =
-                                        economy.transactionsByType[0]
-                                            ?.volume || 1;
+                                        economy.transactionsByType[0]?.volume ||
+                                        1;
                                     const pct = Math.max(
                                         4,
-                                        Math.round(
-                                            (entry.volume / max) * 100
-                                        )
+                                        Math.round((entry.volume / max) * 100)
                                     );
                                     return (
                                         <div key={entry.type}>

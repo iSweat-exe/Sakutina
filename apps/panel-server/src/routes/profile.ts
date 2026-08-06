@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 import { db, marriages } from '@sakutina/db';
 import { eq, or } from 'drizzle-orm';
-import { getJob, getRank, getShopItem, calculateLevel } from '@sakutina/economy';
+import {
+    getJob,
+    getRank,
+    getShopItem,
+    calculateLevel,
+} from '@sakutina/economy';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { fetchGuildMember } from '../discord/rest.js';
 import { getGuildId } from '../utils/params.js';
@@ -45,7 +50,10 @@ profileRoutes.get('/', async (c) => {
         winRate = Math.round((user.casinoWins / user.casinoGamesPlayed) * 100);
     }
 
-    const portfolioValue = portfolio.reduce((sum, h) => sum + h.currentValue, 0);
+    const portfolioValue = portfolio.reduce(
+        (sum, h) => sum + h.currentValue,
+        0
+    );
 
     const spouseId = marriage
         ? marriage.user1Id === discordId

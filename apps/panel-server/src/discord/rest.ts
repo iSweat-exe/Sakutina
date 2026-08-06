@@ -120,7 +120,9 @@ export async function searchGuildMembers(
                 id: member.user.id,
                 username: member.user.username,
                 displayName:
-                    member.nick ?? member.user.global_name ?? member.user.username,
+                    member.nick ??
+                    member.user.global_name ??
+                    member.user.username,
                 avatarUrl,
             };
         });
@@ -231,7 +233,11 @@ export async function fetchGuildRoles(
         }>;
         data = roles
             .filter((role) => role.id !== guildId)
-            .map((role) => ({ id: role.id, name: role.name, color: role.color }));
+            .map((role) => ({
+                id: role.id,
+                name: role.name,
+                color: role.color,
+            }));
     } catch {
         data = [];
     }

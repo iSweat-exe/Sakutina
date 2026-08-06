@@ -156,9 +156,7 @@ export function WorkPage() {
         <div className="mx-auto max-w-3xl">
             <h1 className="mb-6 text-2xl font-semibold">Travail</h1>
 
-            {error && (
-                <p className="mb-4 text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
             <Card className="mb-6">
                 <CardHeader className="flex-row items-center gap-3">
@@ -190,8 +188,7 @@ export function WorkPage() {
                     ) : lastShift ? (
                         <div className="rounded-md bg-accent p-3 text-sm">
                             <p className="font-medium text-emerald-500">
-                                +{lastShift.salary} 🪙 · +{lastShift.expGain}{' '}
-                                XP
+                                +{lastShift.salary} 🪙 · +{lastShift.expGain} XP
                             </p>
                             {lastShift.promoted && (
                                 <p className="text-muted-foreground">
@@ -273,9 +270,7 @@ export function WorkPage() {
                                               size="sm"
                                               variant="outline"
                                               disabled={busy || !canJoin}
-                                              onClick={() =>
-                                                  handleJoin(job.id)
-                                              }
+                                              onClick={() => handleJoin(job.id)}
                                           >
                                               <TrendingUp className="size-4" />
                                               {canJoin

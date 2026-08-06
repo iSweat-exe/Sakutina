@@ -1,1 +1,6 @@
-export type { JobRank, JobInfo, ShopItemInfo, StockInfo } from '@sakutina/economy';
+export type {
+    JobRank,
+    JobInfo,
+    ShopItemInfo,
+    StockInfo,
+} from '@sakutina/economy';

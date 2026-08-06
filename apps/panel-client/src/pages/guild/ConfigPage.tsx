@@ -308,8 +308,8 @@ export function ConfigPage() {
                     <div>
                         <CardTitle>Rôle de niveau</CardTitle>
                         <CardDescription>
-                            Rôle attribué automatiquement à partir d'un
-                            certain niveau
+                            Rôle attribué automatiquement à partir d'un certain
+                            niveau
                         </CardDescription>
                     </div>
                 </CardHeader>

@@ -12,7 +12,11 @@ import { and, asc, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { computeAvgBuyPrice } from '@sakutina/economy';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { getGuildId } from '../utils/params.js';
-import { ensureUser, logTransaction, getPortfolioSummary } from '../lib/economy.js';
+import {
+    ensureUser,
+    logTransaction,
+    getPortfolioSummary,
+} from '../lib/economy.js';
 import type { AppEnv } from '../types.js';
 
 export const investRoutes = new Hono<AppEnv>();
@@ -106,7 +110,10 @@ investRoutes.get('/market/:ticker/trades', async (c) => {
         if (!match || match[3] !== ticker) return [];
         return [
             {
-                side: match[1] === 'Bought' ? ('buy' as const) : ('sell' as const),
+                side:
+                    match[1] === 'Bought'
+                        ? ('buy' as const)
+                        : ('sell' as const),
                 quantity: Number(match[2]),
                 price: Number(match[4]),
                 createdAt: row.createdAt,
@@ -125,9 +132,10 @@ investRoutes.get('/portfolio', async (c) => {
 });
 
 async function readQuantityBody(c: { req: { json: () => Promise<unknown> } }) {
-    const body = await c.req
-        .json()
-        .catch(() => null) as { ticker?: string; quantity?: number } | null;
+    const body = (await c.req.json().catch(() => null)) as {
+        ticker?: string;
+        quantity?: number;
+    } | null;
     if (!body || typeof body.ticker !== 'string') return null;
     if (!Number.isInteger(body.quantity) || (body.quantity as number) <= 0)
         return null;
@@ -140,7 +148,8 @@ investRoutes.post('/buy', async (c) => {
     const discordId = session.discordUserId;
 
     const body = await readQuantityBody(c);
-    if (!body) return c.json({ error: 'ticker and positive quantity required' }, 400);
+    if (!body)
+        return c.json({ error: 'ticker and positive quantity required' }, 400);
 
     const stock = await getStock(body.ticker);
     if (!stock) return c.json({ error: 'NOT_FOUND' }, 404);
@@ -155,7 +164,10 @@ investRoutes.post('/buy', async (c) => {
     await db.transaction(async (tx) => {
         const updated = await tx
             .update(users)
-            .set({ balance: sql`${users.balance} - ${cost}`, updatedAt: new Date() })
+            .set({
+                balance: sql`${users.balance} - ${cost}`,
+                updatedAt: new Date(),
+            })
             .where(
                 and(
                     eq(users.discordId, discordId),
@@ -254,7 +266,9 @@ async function sellShares(
 
         const remaining = holding.quantity - quantity;
         if (remaining === 0) {
-            await tx.delete(userHoldings).where(eq(userHoldings.id, holding.id));
+            await tx
+                .delete(userHoldings)
+                .where(eq(userHoldings.id, holding.id));
         } else {
             await tx
                 .update(userHoldings)
@@ -268,7 +282,9 @@ async function sellShares(
                 balance: sql`${users.balance} + ${proceeds}`,
                 updatedAt: new Date(),
             })
-            .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)));
+            .where(
+                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+            );
 
         await logTransaction(
             discordId,
@@ -290,11 +306,20 @@ investRoutes.post('/sell', async (c) => {
     const discordId = session.discordUserId;
 
     const body = await readQuantityBody(c);
-    if (!body) return c.json({ error: 'ticker and positive quantity required' }, 400);
+    if (!body)
+        return c.json({ error: 'ticker and positive quantity required' }, 400);
 
-    const result = await sellShares(discordId, guildId, body.ticker, body.quantity);
+    const result = await sellShares(
+        discordId,
+        guildId,
+        body.ticker,
+        body.quantity
+    );
     if ('error' in result) {
-        return c.json({ error: result.error }, result.error === 'NOT_FOUND' ? 404 : 400);
+        return c.json(
+            { error: result.error },
+            result.error === 'NOT_FOUND' ? 404 : 400
+        );
     }
     return c.json(result);
 });
@@ -322,9 +347,17 @@ investRoutes.post('/sell-all', async (c) => {
         return c.json({ error: 'INSUFFICIENT_SHARES' }, 400);
     }
 
-    const result = await sellShares(discordId, guildId, body.ticker, holding.quantity);
+    const result = await sellShares(
+        discordId,
+        guildId,
+        body.ticker,
+        holding.quantity
+    );
     if ('error' in result) {
-        return c.json({ error: result.error }, result.error === 'NOT_FOUND' ? 404 : 400);
+        return c.json(
+            { error: result.error },
+            result.error === 'NOT_FOUND' ? 404 : 400
+        );
     }
     return c.json({ ...result, quantity: holding.quantity });
 });

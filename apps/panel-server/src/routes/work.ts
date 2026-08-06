@@ -33,8 +33,7 @@ workRoutes.get('/', async (c) => {
 
     let cooldownRemainingSeconds = 0;
     if (rank && user.workLastShift) {
-        const diffSeconds =
-            (Date.now() - user.workLastShift.getTime()) / 1000;
+        const diffSeconds = (Date.now() - user.workLastShift.getTime()) / 1000;
         cooldownRemainingSeconds = Math.max(
             0,
             Math.ceil(rank.cooldownSeconds - diffSeconds)
@@ -139,7 +138,10 @@ workRoutes.post('/shift', async (c) => {
             (now.getTime() - user.workLastShift.getTime()) / 1000;
         if (diffSeconds < rank.cooldownSeconds) {
             const remaining = Math.ceil(rank.cooldownSeconds - diffSeconds);
-            return c.json({ error: 'COOLDOWN', remaining, unit: 'seconds' }, 429);
+            return c.json(
+                { error: 'COOLDOWN', remaining, unit: 'seconds' },
+                429
+            );
         }
     }
 

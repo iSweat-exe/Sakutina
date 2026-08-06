@@ -159,7 +159,8 @@ dashboardRoutes.get('/economy', async (c) => {
         totalBank,
         totalPortfolioValue,
         totalWealth,
-        avgWealth: trackedUsers > 0 ? Math.round(totalWealth / trackedUsers) : 0,
+        avgWealth:
+            trackedUsers > 0 ? Math.round(totalWealth / trackedUsers) : 0,
         transactionCount7d: recentTransactions.length,
         totalEarned7d: totalEarned,
         totalSpent7d: totalSpent,

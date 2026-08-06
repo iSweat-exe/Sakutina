@@ -127,8 +127,7 @@ function PriceChart({
     const plotW = CHART_W - PAD_L - PAD_R;
     const plotH = CHART_H - PAD_T - PAD_B;
 
-    const xForTime = (t: number) =>
-        PAD_L + ((t - minTime) / timeRange) * plotW;
+    const xForTime = (t: number) => PAD_L + ((t - minTime) / timeRange) * plotW;
     const yForPrice = (p: number) =>
         PAD_T + plotH - ((p - min) / range) * plotH;
 
@@ -141,7 +140,9 @@ function PriceChart({
     const first = points[0]!.price;
     const last = points[points.length - 1]!.price;
     const up = last >= first;
-    const color = up ? 'var(--color-emerald-500, #10b981)' : 'var(--color-destructive, #ef4444)';
+    const color = up
+        ? 'var(--color-emerald-500, #10b981)'
+        : 'var(--color-destructive, #ef4444)';
     const lastCoord = coords[coords.length - 1]!;
     const areaPath = `${linePath} L${lastCoord[0]},${PAD_T + plotH} L${coords[0]![0]},${PAD_T + plotH} Z`;
     const gradientId = `priceFill-${up ? 'up' : 'down'}`;
@@ -188,15 +189,17 @@ function PriceChart({
                 onMouseLeave={() => setHoverIndex(null)}
             >
                 <defs>
-                    <linearGradient
-                        id={gradientId}
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                    >
-                        <stop offset="0%" stopColor={color} stopOpacity={0.26} />
-                        <stop offset="55%" stopColor={color} stopOpacity={0.08} />
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                            offset="0%"
+                            stopColor={color}
+                            stopOpacity={0.26}
+                        />
+                        <stop
+                            offset="55%"
+                            stopColor={color}
+                            stopOpacity={0.08}
+                        />
                         <stop offset="100%" stopColor={color} stopOpacity={0} />
                     </linearGradient>
                 </defs>
@@ -313,7 +316,12 @@ function PriceChart({
                                 strokeOpacity={0.5}
                             />
                             {/* larger transparent hit area than the painted triangle */}
-                            <circle cx={m.x} cy={ty} r={10} fill="transparent" />
+                            <circle
+                                cx={m.x}
+                                cy={ty}
+                                r={10}
+                                fill="transparent"
+                            />
                             <polygon
                                 points={points3}
                                 fill={markerColor}
@@ -404,8 +412,7 @@ function ChangeBadge({
     if (diff === 0) {
         return (
             <span className="inline-flex items-center gap-1 text-muted-foreground">
-                <Minus className="size-3" />
-                0
+                <Minus className="size-3" />0
             </span>
         );
     }
@@ -432,21 +439,17 @@ export function InvestPage() {
     const toast = useToast();
     const [tab, setTab] = React.useState<'market' | 'portfolio'>('market');
     const [stocks, setStocks] = React.useState<StockRow[] | null>(null);
-    const [portfolio, setPortfolio] = React.useState<HoldingRow[] | null>(
-        null
+    const [portfolio, setPortfolio] = React.useState<HoldingRow[] | null>(null);
+    const [quantities, setQuantities] = React.useState<Record<string, number>>(
+        {}
     );
-    const [quantities, setQuantities] = React.useState<
-        Record<string, number>
-    >({});
     const [selected, setSelected] = React.useState<string | null>(null);
     const [history, setHistory] = React.useState<PricePoint[] | null>(null);
     const [trades, setTrades] = React.useState<TradeMarker[]>([]);
     const [busy, setBusy] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const [connected, setConnected] = React.useState(false);
-    const [flash, setFlash] = React.useState<Record<string, 'up' | 'down'>>(
-        {}
-    );
+    const [flash, setFlash] = React.useState<Record<string, 'up' | 'down'>>({});
 
     const selectedRef = React.useRef<string | null>(null);
     React.useEffect(() => {
@@ -717,9 +720,7 @@ export function InvestPage() {
                 </Button>
             </div>
 
-            {error && (
-                <p className="mb-4 text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
             {tab === 'market' && selected && (
                 <Card className="mb-4">
@@ -775,9 +776,7 @@ export function InvestPage() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b text-left text-muted-foreground">
-                                    <th className="py-2 font-medium">
-                                        Action
-                                    </th>
+                                    <th className="py-2 font-medium">Action</th>
                                     <th className="py-2 font-medium">Prix</th>
                                     <th className="py-2 font-medium">
                                         Variation
@@ -816,9 +815,7 @@ export function InvestPage() {
                                             <button
                                                 className="text-left hover:underline"
                                                 onClick={() =>
-                                                    toggleHistory(
-                                                        stock.ticker
-                                                    )
+                                                    toggleHistory(stock.ticker)
                                                 }
                                             >
                                                 <span className="font-semibold">
@@ -846,17 +843,15 @@ export function InvestPage() {
                                                 min={1}
                                                 className="h-8 w-20"
                                                 value={
-                                                    quantities[
-                                                        stock.ticker
-                                                    ] ?? ''
+                                                    quantities[stock.ticker] ??
+                                                    ''
                                                 }
                                                 onChange={(e) =>
                                                     setQuantities((q) => ({
                                                         ...q,
                                                         [stock.ticker]:
                                                             Number(
-                                                                e.target
-                                                                    .value
+                                                                e.target.value
                                                             ) || 0,
                                                     }))
                                                 }
@@ -887,9 +882,7 @@ export function InvestPage() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b text-left text-muted-foreground">
-                                    <th className="py-2 font-medium">
-                                        Action
-                                    </th>
+                                    <th className="py-2 font-medium">Action</th>
                                     <th className="py-2 font-medium">
                                         Quantité
                                     </th>
@@ -938,9 +931,7 @@ export function InvestPage() {
                                         <td className="py-2 font-semibold">
                                             {h.ticker}
                                         </td>
-                                        <td className="py-2">
-                                            {h.quantity}
-                                        </td>
+                                        <td className="py-2">{h.quantity}</td>
                                         <td className="py-2">
                                             {h.avgBuyPrice} 🪙
                                         </td>

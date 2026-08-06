@@ -101,8 +101,7 @@
         opacity: 1;
     }
     100% {
-        transform: translateY(220px)
-            translateX(var(--confetti-drift))
+        transform: translateY(220px) translateX(var(--confetti-drift))
             rotate(var(--confetti-rotate));
         opacity: 0;
     }

@@ -165,45 +165,46 @@ export function ModerationPage() {
                                 />
                             )}
 
-                            {!target && query.trim().length >= SEARCH_MIN_LENGTH && (
-                                <div className="bg-popover absolute z-10 mt-1 w-full rounded-md border shadow-md">
-                                    {searching ? (
-                                        <p className="text-muted-foreground p-2 text-xs">
-                                            Recherche...
-                                        </p>
-                                    ) : results.length === 0 ? (
-                                        <p className="text-muted-foreground p-2 text-xs">
-                                            Aucun résultat
-                                        </p>
-                                    ) : (
-                                        results.map((member) => (
-                                            <button
-                                                key={member.id}
-                                                type="button"
-                                                onClick={() =>
-                                                    selectTarget(member)
-                                                }
-                                                className="hover:bg-accent flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm"
-                                            >
-                                                <DiscordAvatar
-                                                    src={member.avatarUrl}
-                                                    alt={member.displayName}
-                                                    size={24}
-                                                />
-                                                <span className="truncate">
-                                                    {member.displayName}
-                                                </span>
-                                                {member.displayName !==
-                                                    member.username && (
-                                                    <span className="text-muted-foreground truncate text-xs">
-                                                        @{member.username}
+                            {!target &&
+                                query.trim().length >= SEARCH_MIN_LENGTH && (
+                                    <div className="bg-popover absolute z-10 mt-1 w-full rounded-md border shadow-md">
+                                        {searching ? (
+                                            <p className="text-muted-foreground p-2 text-xs">
+                                                Recherche...
+                                            </p>
+                                        ) : results.length === 0 ? (
+                                            <p className="text-muted-foreground p-2 text-xs">
+                                                Aucun résultat
+                                            </p>
+                                        ) : (
+                                            results.map((member) => (
+                                                <button
+                                                    key={member.id}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        selectTarget(member)
+                                                    }
+                                                    className="hover:bg-accent flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm"
+                                                >
+                                                    <DiscordAvatar
+                                                        src={member.avatarUrl}
+                                                        alt={member.displayName}
+                                                        size={24}
+                                                    />
+                                                    <span className="truncate">
+                                                        {member.displayName}
                                                     </span>
-                                                )}
-                                            </button>
-                                        ))
-                                    )}
-                                </div>
-                            )}
+                                                    {member.displayName !==
+                                                        member.username && (
+                                                        <span className="text-muted-foreground truncate text-xs">
+                                                            @{member.username}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="reason">Raison</Label>

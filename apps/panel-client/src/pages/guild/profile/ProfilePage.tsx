@@ -202,9 +202,7 @@ export function ProfilePage() {
                     <CardContent>
                         {profile ? (
                             <dl className="grid grid-cols-2 gap-y-2 text-sm">
-                                <dt className="text-muted-foreground">
-                                    Poste
-                                </dt>
+                                <dt className="text-muted-foreground">Poste</dt>
                                 <dd className="text-right font-medium">
                                     {profile.work.jobTitle}
                                 </dd>
