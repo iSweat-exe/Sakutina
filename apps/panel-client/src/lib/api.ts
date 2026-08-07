@@ -36,7 +36,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-    get: <T>(path: string) => request<T>(path),
+    get: <T>(path: string, init?: RequestInit) => request<T>(path, init),
     patch: <T>(path: string, body: unknown) =>
         request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
     post: <T>(path: string, body?: unknown) =>
@@ -45,3 +45,7 @@ export const api = {
             body: body ? JSON.stringify(body) : undefined,
         }),
 };
+
+export function isAbortError(err: unknown): boolean {
+    return err instanceof DOMException && err.name === 'AbortError';
+}
