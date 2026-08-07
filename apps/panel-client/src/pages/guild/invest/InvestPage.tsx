@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { api, apiUrl, ApiError } from '@/lib/api';
+import { api, apiUrl, ApiError, isAbortError } from '@/lib/api';
 import { useToast } from '@/lib/toast-context';
 
 interface StockRow {
@@ -473,27 +473,41 @@ export function InvestPage() {
         return Math.min(60, Math.max(0, remaining));
     }, [stocks, now]);
 
-    const loadMarket = React.useCallback(() => {
-        if (!guildId) return;
-        api.get<StockRow[]>(`/api/guilds/${guildId}/invest/market`)
-            .then(setStocks)
-            .catch((err: unknown) =>
-                setError(err instanceof Error ? err.message : String(err))
-            );
-    }, [guildId]);
+    const loadMarket = React.useCallback(
+        (signal?: AbortSignal) => {
+            if (!guildId) return;
+            api.get<StockRow[]>(`/api/guilds/${guildId}/invest/market`, {
+                signal,
+            })
+                .then(setStocks)
+                .catch((err: unknown) => {
+                    if (isAbortError(err)) return;
+                    setError(err instanceof Error ? err.message : String(err));
+                });
+        },
+        [guildId]
+    );
 
-    const loadPortfolio = React.useCallback(() => {
-        if (!guildId) return;
-        api.get<HoldingRow[]>(`/api/guilds/${guildId}/invest/portfolio`)
-            .then(setPortfolio)
-            .catch((err: unknown) =>
-                setError(err instanceof Error ? err.message : String(err))
-            );
-    }, [guildId]);
+    const loadPortfolio = React.useCallback(
+        (signal?: AbortSignal) => {
+            if (!guildId) return;
+            api.get<HoldingRow[]>(`/api/guilds/${guildId}/invest/portfolio`, {
+                signal,
+            })
+                .then(setPortfolio)
+                .catch((err: unknown) => {
+                    if (isAbortError(err)) return;
+                    setError(err instanceof Error ? err.message : String(err));
+                });
+        },
+        [guildId]
+    );
 
     React.useEffect(() => {
-        loadMarket();
-        loadPortfolio();
+        const controller = new AbortController();
+        loadMarket(controller.signal);
+        loadPortfolio(controller.signal);
+        return () => controller.abort();
     }, [loadMarket, loadPortfolio]);
 
     // Live price feed: the bot's StockPriceJob ticks prices once a minute,
@@ -860,7 +874,11 @@ export function InvestPage() {
                                         <td className="py-2">
                                             <Button
                                                 size="sm"
-                                                disabled={busy}
+                                                disabled={
+                                                    busy ||
+                                                    (quantities[stock.ticker] ??
+                                                        0) <= 0
+                                                }
                                                 onClick={() =>
                                                     handleBuy(stock.ticker)
                                                 }

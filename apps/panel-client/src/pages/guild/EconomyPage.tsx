@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
-import { api } from '@/lib/api';
+import { api, isAbortError } from '@/lib/api';
 import { getUserAvatarUrl } from '@/lib/discord';
 import { cn } from '@/lib/utils';
 
@@ -42,13 +42,17 @@ export function EconomyPage() {
     React.useEffect(() => {
         if (!guildId) return;
         setUsers(null);
+        const controller = new AbortController();
         api.get<EconomyUser[]>(
-            `/api/guilds/${guildId}/economy/users?sort=${sort}&limit=50`
+            `/api/guilds/${guildId}/economy/users?sort=${sort}&limit=50`,
+            { signal: controller.signal }
         )
             .then(setUsers)
-            .catch((err: unknown) =>
-                setError(err instanceof Error ? err.message : String(err))
-            );
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setError(err instanceof Error ? err.message : String(err));
+            });
+        return () => controller.abort();
     }, [guildId, sort]);
 
     const filtered = React.useMemo(() => {
@@ -113,10 +117,18 @@ export function EconomyPage() {
                                             <th
                                                 key={col.key}
                                                 className="py-2 font-medium"
+                                                aria-sort={
+                                                    sort === col.key
+                                                        ? 'descending'
+                                                        : 'none'
+                                                }
                                             >
                                                 <button
                                                     onClick={() =>
                                                         setSort(col.key)
+                                                    }
+                                                    aria-pressed={
+                                                        sort === col.key
                                                     }
                                                     className={cn(
                                                         'flex items-center gap-1 hover:text-foreground transition-colors',

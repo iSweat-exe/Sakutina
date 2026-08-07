@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
-import { api } from '@/lib/api';
+import { api, isAbortError } from '@/lib/api';
 import { getUserAvatarUrl } from '@/lib/discord';
 import { useToast } from '@/lib/toast-context';
 
@@ -67,9 +67,16 @@ export function ModerationPage() {
 
     const loadActions = React.useCallback(() => {
         if (!guildId) return;
-        api.get<ModAction[]>(`/api/guilds/${guildId}/moderation/actions`)
+        const controller = new AbortController();
+        api.get<ModAction[]>(`/api/guilds/${guildId}/moderation/actions`, {
+            signal: controller.signal,
+        })
             .then(setActions)
-            .catch((err: unknown) => setError(toErrorMessage(err)));
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setError(toErrorMessage(err));
+            });
+        return () => controller.abort();
     }, [guildId]);
 
     React.useEffect(loadActions, [loadActions]);
@@ -81,15 +88,25 @@ export function ModerationPage() {
             return;
         }
         setSearching(true);
+        const controller = new AbortController();
         const id = setTimeout(() => {
             api.get<ActionMember[]>(
-                `/api/guilds/${guildId}/moderation/search-members?query=${encodeURIComponent(query)}`
+                `/api/guilds/${guildId}/moderation/search-members?query=${encodeURIComponent(query)}`,
+                { signal: controller.signal }
             )
                 .then(setResults)
-                .catch(() => setResults([]))
-                .finally(() => setSearching(false));
+                .catch((err: unknown) => {
+                    if (isAbortError(err)) return;
+                    setResults([]);
+                })
+                .finally(() => {
+                    if (!controller.signal.aborted) setSearching(false);
+                });
         }, SEARCH_DEBOUNCE_MS);
-        return () => clearTimeout(id);
+        return () => {
+            clearTimeout(id);
+            controller.abort();
+        };
     }, [guildId, query, target]);
 
     function selectTarget(member: ActionMember) {

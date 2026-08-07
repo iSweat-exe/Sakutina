@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
-import { api, ApiError } from '@/lib/api';
+import { api, ApiError, isAbortError } from '@/lib/api';
 import { getUserAvatarUrl } from '@/lib/discord';
 import { useToast } from '@/lib/toast-context';
 
@@ -254,21 +254,51 @@ export function DashboardPage() {
 
     React.useEffect(() => {
         if (!guildId) return;
-        api.get<Overview>(`/api/guilds/${guildId}/dashboard/overview`)
+        const controller = new AbortController();
+        const { signal } = controller;
+        api.get<Overview>(`/api/guilds/${guildId}/dashboard/overview`, {
+            signal,
+        })
             .then(setOverview)
-            .catch((err: unknown) => setOverviewError(toErrorMessage(err)));
-        api.get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`)
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setOverviewError(toErrorMessage(err));
+            });
+        api.get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`, {
+            signal,
+        })
             .then(setActivity)
-            .catch((err: unknown) => setActivityError(toErrorMessage(err)));
-        api.get<EconomyOverview>(`/api/guilds/${guildId}/dashboard/economy`)
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setActivityError(toErrorMessage(err));
+            });
+        api.get<EconomyOverview>(`/api/guilds/${guildId}/dashboard/economy`, {
+            signal,
+        })
             .then(setEconomy)
-            .catch((err: unknown) => setEconomyError(toErrorMessage(err)));
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setEconomyError(toErrorMessage(err));
+            });
         api.get<SimulationCalibration>(
-            `/api/guilds/${guildId}/dashboard/simulation-params`
+            `/api/guilds/${guildId}/dashboard/simulation-params`,
+            { signal }
         )
             .then(setSimParams)
-            .catch((err: unknown) => setSimParamsError(toErrorMessage(err)));
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setSimParamsError(toErrorMessage(err));
+            });
+        return () => controller.abort();
     }, [guildId]);
+
+    function clampSimDays(value: number): number {
+        if (!Number.isFinite(value)) return SIMULATE_MIN_DAYS;
+        return Math.min(
+            Math.max(Math.round(value), SIMULATE_MIN_DAYS),
+            SIMULATE_MAX_DAYS
+        );
+    }
 
     async function copySimParamsJson() {
         if (!simParams) return;
@@ -774,7 +804,9 @@ export function DashboardPage() {
                                 max={SIMULATE_MAX_DAYS}
                                 value={simDays}
                                 onChange={(e) =>
-                                    setSimDays(Number(e.target.value))
+                                    setSimDays(
+                                        clampSimDays(Number(e.target.value))
+                                    )
                                 }
                                 className="w-28"
                             />
@@ -798,7 +830,7 @@ export function DashboardPage() {
                                 défaut pour le reste).
                             </p>
                             <div
-                                className="rounded-lg bg-[#1E1F22] p-4"
+                                className="rounded-lg bg-muted p-4"
                                 dangerouslySetInnerHTML={{
                                     __html: simRun.reportHtml,
                                 }}

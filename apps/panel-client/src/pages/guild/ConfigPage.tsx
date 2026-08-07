@@ -20,8 +20,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import { api } from '@/lib/api';
+import { api, isAbortError } from '@/lib/api';
 import { useToast } from '@/lib/toast-context';
+import { setUnsavedChangesGuard } from '@/lib/unsaved-changes';
 
 interface GuildConfig {
     language: string;
@@ -126,26 +127,59 @@ export function ConfigPage() {
         null
     );
     const [meta, setMeta] = React.useState<ConfigMeta | null>(null);
+    const [metaError, setMetaError] = React.useState<string | null>(null);
     const [saving, setSaving] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         if (!guildId) return;
-        api.get<GuildConfig>(`/api/guilds/${guildId}/config`)
+        const controller = new AbortController();
+        api.get<GuildConfig>(`/api/guilds/${guildId}/config`, {
+            signal: controller.signal,
+        })
             .then((data) => {
                 setConfig(data);
                 setSavedConfig(data);
             })
-            .catch((err: unknown) => setError(toErrorMessage(err)));
-        api.get<ConfigMeta>(`/api/guilds/${guildId}/config/meta`)
-            .then(setMeta)
-            .catch(() => setMeta({ channels: [], roles: [] }));
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setError(toErrorMessage(err));
+            });
+        api.get<ConfigMeta>(`/api/guilds/${guildId}/config/meta`, {
+            signal: controller.signal,
+        })
+            .then((data) => {
+                setMeta(data);
+                setMetaError(null);
+            })
+            .catch((err: unknown) => {
+                if (isAbortError(err)) return;
+                setMeta({ channels: [], roles: [] });
+                setMetaError(toErrorMessage(err));
+            });
+        return () => controller.abort();
     }, [guildId]);
 
     const dirty =
         config && savedConfig
             ? JSON.stringify(config) !== JSON.stringify(savedConfig)
             : false;
+
+    React.useEffect(() => {
+        setUnsavedChangesGuard(() => dirty);
+        return () => setUnsavedChangesGuard(null);
+    }, [dirty]);
+
+    React.useEffect(() => {
+        function handleBeforeUnload(e: BeforeUnloadEvent) {
+            if (!dirty) return;
+            e.preventDefault();
+            e.returnValue = '';
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () =>
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [dirty]);
 
     async function save() {
         if (!guildId || !config) return;
@@ -184,6 +218,14 @@ export function ConfigPage() {
     return (
         <div className="max-w-xl space-y-6 pb-20">
             <h1 className="text-2xl font-semibold">Configuration du serveur</h1>
+
+            {metaError && (
+                <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    Impossible de charger la liste des salons et rôles (
+                    {metaError}). Les listes ci-dessous peuvent être
+                    incomplètes.
+                </p>
+            )}
 
             <Card>
                 <CardHeader className="flex-row items-center gap-3">

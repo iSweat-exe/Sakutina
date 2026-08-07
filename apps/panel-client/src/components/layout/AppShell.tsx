@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useTheme } from '@/lib/theme-context';
+import { confirmNavigation } from '@/lib/unsaved-changes';
 import { cn } from '@/lib/utils';
 import { getGuildIconUrl, getUserAvatarUrl } from '@/lib/discord';
 import { DiscordAvatar } from '@/components/DiscordAvatar';
@@ -45,6 +46,9 @@ export function AppShell() {
             <aside className="w-64 shrink-0 overflow-y-auto border-r bg-card px-4 py-6 flex flex-col gap-6">
                 <Link
                     to="/guilds"
+                    onClick={(e) => {
+                        if (!confirmNavigation()) e.preventDefault();
+                    }}
                     className="flex items-center gap-3 rounded-md p-2 -mx-2 transition-colors hover:bg-accent group"
                     title="Changer de serveur"
                 >
@@ -82,6 +86,10 @@ export function AppShell() {
                                         key={to}
                                         to={`/g/${guildId}/${to}`}
                                         end={end}
+                                        onClick={(e) => {
+                                            if (!confirmNavigation())
+                                                e.preventDefault();
+                                        }}
                                         className={({ isActive }) =>
                                             cn(
                                                 'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -107,6 +115,10 @@ export function AppShell() {
                             <NavLink
                                 key={to}
                                 to={`/g/${guildId}/${to}`}
+                                onClick={(e) => {
+                                    if (!confirmNavigation())
+                                        e.preventDefault();
+                                }}
                                 className={({ isActive }) =>
                                     cn(
                                         'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
