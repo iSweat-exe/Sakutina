@@ -2,7 +2,7 @@
     "INSUFFICIENT_FUNDS": "You don't have enough coins for this.",
     "CASINO_BET_TOO_LARGE": "You can't bet more than **{{max}} ** at once.",
     "DAILY_SUCCESS": "You claimed your daily reward of **{{amount}} **! Your new balance is **{{balance}} **.",
-    "DAILY_COOLDOWN": "You must wait **{{hours}} hours** before claiming your next daily reward.",
+    "DAILY_COOLDOWN": "You must wait **{{remaining}} {{unit}}** before claiming your next daily reward.",
     "BALANCE_TITLE": "{{user}}'s Balance",
     "BALANCE_WALLET": "Wallet",
     "BALANCE_BANK": "Bank",
