@@ -27,7 +27,7 @@
     "WORK_ERR_COOLDOWN": "Vous êtes trop fatigué. Veuillez attendre **{{duration}}** avant de travailler à nouveau.",
     "WORK_PROMOTED": "🎉 Vous avez été promu(e) **{{rank}}** !",
     "WORK_STREAK_LABEL": "🔥 Série : **{{streak}} jour(s)** (+bonus de salaire)",
-    "WORK_BONUS_MONEY_ACTIVE": "💰 Bonus x2 Argent actif !",
+    "WORK_BONUS_MONEY_ACTIVE": "{{coinsIcon}} Bonus x2 Argent actif !",
     "WORK_BONUS_XP_ACTIVE": "✨ Bonus x2 XP actif !",
     "CASINO_DON_WIN": "Quitte ou Double ! Vous avez gagné et doublé votre mise ! (+{{won}} )",
     "CASINO_DON_LOSE": "Quitte ou Double ! Vous avez perdu votre mise de **{{bet}} **.",

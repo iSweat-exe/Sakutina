@@ -8,6 +8,7 @@ import type { Command } from '@/types/Command.js';
 import { I18nService } from '@/services/I18nService.js';
 import { ProfileService } from '@/services/ProfileService.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { Emojis } from '@/utils/Emojis.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -125,7 +126,7 @@ const command: Command = {
                     },
                     {
                         name: `${wealthHeader}`,
-                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} 💖¸`,
+                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} ${Emojis.Coins}`,
                         inline: true,
                     },
                     {
@@ -133,7 +134,7 @@ const command: Command = {
                         value:
                             `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}` +
                             (profile.work.streak > 0
-                                ? `\n**${streakLabel}:** ðŸ”¥ ${profile.work.streak}`
+                                ? `\n**${streakLabel}:** 🔥 ${profile.work.streak}`
                                 : ''),
                         inline: true,
                     },

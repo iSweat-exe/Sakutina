@@ -20,7 +20,7 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
  * Requires the authenticated user to have Admin/Manage Guild access on the
  * `:guildId` route param, based on the permission snapshot taken at login.
  * This snapshot can be up to the session TTL stale if a role is revoked
- * mid-session â€” acceptable for an internal admin tool at MVP scope.
+ * mid-session — acceptable for an internal admin tool at MVP scope.
  */
 export const requireGuildAccess = createMiddleware<AppEnv>(async (c, next) => {
     const guildId = getGuildId(c);

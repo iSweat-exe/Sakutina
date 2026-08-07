@@ -13,6 +13,7 @@ import { I18nService } from '@/services/I18nService.js';
 import { WorkService } from '@/services/WorkService.js';
 import { AVAILABLE_JOBS } from '../constants.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { Emojis } from '@/utils/Emojis.js';
 import { JobError, CooldownError } from '@/utils/errors.js';
 import { QuestService } from '@/services/QuestService.js';
 import { LevelRoleService } from '@/services/LevelRoleService.js';
@@ -83,7 +84,7 @@ const command: Command = {
                         const base = job.ranks[0]!;
                         const top = job.ranks[job.ranks.length - 1]!;
                         desc += `**${base.title}** (ID: \`${job.id}\`)\n`;
-                        desc += `└ Exp required: ${job.minExperience} | Salary: ${base.salaryMin}-${base.salaryMax} 💰 → up to ${top.salaryMin}-${top.salaryMax} 💰 across ${job.ranks.length} ranks\n\n`;
+                        desc += `└ Exp required: ${job.minExperience} | Salary: ${base.salaryMin}-${base.salaryMax} ${Emojis.Coins} → up to ${top.salaryMin}-${top.salaryMax} ${Emojis.Coins} across ${job.ranks.length} ranks\n\n`;
                     }
                     embed.setDescription(desc);
                     await interaction.reply({ embeds: [embed] });
@@ -285,7 +286,7 @@ const command: Command = {
                             '\n' +
                             I18nService.translate(
                                 'economy:WORK_BONUS_MONEY_ACTIVE',
-                                { lng: lang }
+                                { lng: lang, coinsIcon: Emojis.Coins }
                             );
                     }
                     if (result.bonusXpActive) {

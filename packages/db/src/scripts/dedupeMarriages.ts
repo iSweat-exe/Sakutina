@@ -1,7 +1,7 @@
 /**
  * One-time cleanup to run BEFORE applying the migration that drops
  * marriages.guild_id. Marriages used to be scoped per guild, so the same
- * user could technically be "married" in several guilds at once â€” going
+ * user could technically be "married" in several guilds at once — going
  * global means each user can only keep one marriage. This keeps each
  * user's oldest marriage and deletes any others they're a party to.
  *
@@ -42,7 +42,7 @@ for (const row of rows) {
 
 if (dropIds.length === 0) {
     console.log(
-        `[dedupeMarriages] No conflicts found across ${rows.length} marriage row(s) â€” nothing to clean up.`
+        `[dedupeMarriages] No conflicts found across ${rows.length} marriage row(s) — nothing to clean up.`
     );
 } else {
     await db.delete(marriages).where(inArray(marriages.id, dropIds));

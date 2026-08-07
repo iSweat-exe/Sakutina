@@ -47,7 +47,7 @@ export class WeeklyLeaderboardJob {
                                 );
                             }
                             lines.push(
-                                `**#${i + 1}** <@${entry.discordId}> â€” ${entry.total} (+${reward})`
+                                `**#${i + 1}** <@${entry.discordId}> — ${entry.total} (+${reward})`
                             );
                         }
 

@@ -18,7 +18,7 @@ await i18next.init({
     ns: ['common', 'economy', 'fun', 'mod', 'users', 'social'],
     defaultNS: 'common',
     // Interpolated values (e.g. Discord mentions like <@id>) must not be
-    // HTML-escaped â€” this isn't rendered as HTML, it's sent to Discord.
+    // HTML-escaped — this isn't rendered as HTML, it's sent to Discord.
     interpolation: { escapeValue: false },
     resources: {
         en: {

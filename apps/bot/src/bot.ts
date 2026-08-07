@@ -38,7 +38,7 @@ export const botClient = new BotClient();
 // discord.js emits 'error' on the client whenever the underlying WebSocket
 // connection has an issue. EventEmitter throws synchronously if 'error' has
 // no listener, which would otherwise crash the process on every gateway
-// hiccup â€” so this listener alone is critical, not just for visibility.
+// hiccup — so this listener alone is critical, not just for visibility.
 botClient.on('error', (error) => {
     logger.error('[Client] WebSocket error:', error);
 });
@@ -111,7 +111,7 @@ process.on('unhandledRejection', (reason) => {
 process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception:', error);
     // Per Node's own guidance, it's not safe to keep running after a truly
-    // uncaught exception â€” the process (and any Discord.js internal state)
+    // uncaught exception — the process (and any Discord.js internal state)
     // may be corrupted. ShardingManager (respawn: true) and the Docker
     // restart policy both bring a fresh, clean process back up within
     // seconds, which is safer than silently limping along indefinitely.
