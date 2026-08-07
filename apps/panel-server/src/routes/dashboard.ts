@@ -18,12 +18,12 @@ import {
 } from '@sakutina/economy/simulation';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { fetchGuildMemberCount, fetchGuildMembers } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import type { AppEnv } from '../types.js';
 
 export const dashboardRoutes = new Hono<AppEnv>();
 
-dashboardRoutes.use('*', requireAuth, requireGuildAccess);
+dashboardRoutes.use('*', bindGuildId, requireAuth, requireGuildAccess);
 
 dashboardRoutes.get('/overview', async (c) => {
     const guildId = getGuildId(c);

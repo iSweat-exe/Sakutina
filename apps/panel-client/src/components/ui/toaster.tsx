@@ -26,6 +26,10 @@ export function Toaster() {
                 return (
                     <div
                         key={t.id}
+                        role={t.variant === 'error' ? 'alert' : 'status'}
+                        aria-live={
+                            t.variant === 'error' ? 'assertive' : 'polite'
+                        }
                         className={cn(
                             'toast-enter pointer-events-auto flex items-start gap-2 rounded-lg border bg-card p-3 pr-2 text-sm shadow-lg',
                             STYLES[t.variant]

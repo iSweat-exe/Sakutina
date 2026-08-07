@@ -9,12 +9,12 @@ import {
 import { and, desc, eq, or } from 'drizzle-orm';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { fetchGuildMember, fetchGuildMembers } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import type { AppEnv } from '../types.js';
 
 export const economyRoutes = new Hono<AppEnv>();
 
-economyRoutes.use('*', requireAuth, requireGuildAccess);
+economyRoutes.use('*', bindGuildId, requireAuth, requireGuildAccess);
 
 const SORTABLE_COLUMNS = {
     balance: users.balance,

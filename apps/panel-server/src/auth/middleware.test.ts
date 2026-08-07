@@ -14,11 +14,13 @@ let requireGuildAccess: typeof import('./middleware.js').requireGuildAccess;
 let requireGuildMember: typeof import('./middleware.js').requireGuildMember;
 let createSessionToken: typeof import('./session.js').createSessionToken;
 let SESSION_COOKIE: typeof import('./session.js').SESSION_COOKIE;
+let bindGuildId: typeof import('../utils/params.js').bindGuildId;
 
 beforeAll(async () => {
     ({ requireAuth, requireGuildAccess, requireGuildMember } =
         await import('./middleware.js'));
     ({ createSessionToken, SESSION_COOKIE } = await import('./session.js'));
+    ({ bindGuildId } = await import('../utils/params.js'));
 });
 
 function buildApp() {
@@ -26,11 +28,19 @@ function buildApp() {
     app.get('/protected', requireAuth, (c) =>
         c.json({ session: c.get('session').discordUserId })
     );
-    app.get('/guilds/:guildId/admin', requireAuth, requireGuildAccess, (c) =>
-        c.json({ ok: true })
+    app.get(
+        '/guilds/:guildId/admin',
+        bindGuildId,
+        requireAuth,
+        requireGuildAccess,
+        (c) => c.json({ ok: true })
     );
-    app.get('/guilds/:guildId/member', requireAuth, requireGuildMember, (c) =>
-        c.json({ ok: true })
+    app.get(
+        '/guilds/:guildId/member',
+        bindGuildId,
+        requireAuth,
+        requireGuildMember,
+        (c) => c.json({ ok: true })
     );
     return app;
 }

@@ -2,12 +2,12 @@ import { Hono } from 'hono';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { ConfigService, type ConfigUpdate } from '../services/ConfigService.js';
 import { fetchGuildChannels, fetchGuildRoles } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import type { AppEnv } from '../types.js';
 
 export const configRoutes = new Hono<AppEnv>();
 
-configRoutes.use('*', requireAuth, requireGuildAccess);
+configRoutes.use('*', bindGuildId, requireAuth, requireGuildAccess);
 
 configRoutes.get('/', async (c) => {
     const guildId = getGuildId(c);
