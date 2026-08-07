@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 
 /**
  * Bot-authenticated REST client. Used for moderation quick actions and guild
- * metadata lookups â€” panel-server has no gateway connection, so it acts
+ * metadata lookups — panel-server has no gateway connection, so it acts
  * purely over REST with the same bot token as apps/bot.
  */
 export const botRest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
@@ -67,7 +67,7 @@ export async function fetchGuildMember(
             avatarUrl,
         };
     } catch {
-        // Member left the guild, or the ID is invalid â€” fall back to a
+        // Member left the guild, or the ID is invalid — fall back to a
         // minimal shell so the UI can still render something for them.
         data = {
             id: userId,

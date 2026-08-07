@@ -37,7 +37,7 @@ export class EventService {
                     })
                 )
                 .setStyle(ButtonStyle.Success)
-                .setEmoji('ðŸŽ')
+                .setEmoji('🎁')
         );
 
         let desc = I18nService.translate('common:EVENT_SPAWN_DESC', {

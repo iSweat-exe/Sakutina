@@ -2,7 +2,7 @@ import { sign, verify } from 'hono/jwt';
 import { env } from '../config/env.js';
 
 export const SESSION_COOKIE = 'sakutina_session';
-const SESSION_TTL_SECONDS = 60 * 60; // 1h â€” re-login required after expiry (no refresh token stored)
+const SESSION_TTL_SECONDS = 60 * 60; // 1h — re-login required after expiry (no refresh token stored)
 
 export interface SessionGuild {
     id: string;

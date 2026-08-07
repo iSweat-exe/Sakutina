@@ -56,7 +56,7 @@ const command: Command = {
                 const config = configList.find((c) => c.id === q.questId);
                 if (!config) return 'Unknown quest';
                 const status = q.completed
-                    ? 'âœ…'
+                    ? '✅'
                     : `(${q.progress}/${q.target})`;
                 const rewardText = I18nService.translate(
                     'common:QUEST_REWARD',

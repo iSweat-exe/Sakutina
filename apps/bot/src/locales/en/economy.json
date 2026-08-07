@@ -27,7 +27,7 @@
     "WORK_ERR_COOLDOWN": "You are too tired. Please wait **{{duration}}** before working again.",
     "WORK_PROMOTED": "🎉 You've been promoted to **{{rank}}**!",
     "WORK_STREAK_LABEL": "🔥 Streak: **{{streak}} day(s)** (+salary bonus)",
-    "WORK_BONUS_MONEY_ACTIVE": "💰 x2 Money bonus active!",
+    "WORK_BONUS_MONEY_ACTIVE": "{{coinsIcon}} x2 Money bonus active!",
     "WORK_BONUS_XP_ACTIVE": "✨ x2 XP bonus active!",
     "CASINO_DON_WIN": "Double or Nothing! You won and doubled your bet! (+{{won}} )",
     "CASINO_DON_LOSE": "Double or Nothing! You lost your bet of **{{bet}} **.",

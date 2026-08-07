@@ -59,7 +59,7 @@ export class PresenceService {
                 .from(users);
             trackedUsers = Number(row?.count ?? 0);
         } catch {
-            // DB hiccup shouldn't break presence rotation â€” skip this tick's count.
+            // DB hiccup shouldn't break presence rotation — skip this tick's count.
         }
 
         return [
