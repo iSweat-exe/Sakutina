@@ -1,4 +1,4 @@
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db, users, userInventory } from '@sakutina/db';
 import { EconomyService } from './EconomyService.js';
 import { InsufficientFundsError, ShopError } from '../utils/errors.js';
@@ -67,32 +67,13 @@ export class ShopService {
         }
 
         await db.transaction(async (tx) => {
-            const user = await tx
-                .select()
-                .from(users)
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId)
-                    )
-                )
-                .then((res) => res[0]);
-            if (!user || user.balance < item.price) {
-                throw new InsufficientFundsError();
-            }
-
-            await tx
-                .update(users)
-                .set({
-                    balance: sql`${users.balance} - ${item.price}`,
-                    updatedAt: new Date(),
-                })
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId)
-                    )
-                );
+            const debited = await EconomyService.tryDebit(
+                discordId,
+                guildId,
+                item.price,
+                tx
+            );
+            if (!debited) throw new InsufficientFundsError();
 
             await tx.insert(userInventory).values({
                 discordId,

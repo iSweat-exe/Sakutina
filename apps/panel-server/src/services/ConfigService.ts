@@ -38,11 +38,24 @@ export class ConfigService {
             .then((res) => res[0]);
 
         if (!settings) {
+            // `onConflictDoNothing` + re-select fallback: two concurrent
+            // first-touch requests for the same guild can't both miss the
+            // SELECT above and both hit the unique `guildId` insert — one
+            // wins, the other falls back to re-selecting the row it created.
             settings = await db
                 .insert(guildSettings)
                 .values({ guildId })
+                .onConflictDoNothing()
                 .returning()
                 .then((res) => res[0]);
+
+            if (!settings) {
+                settings = await db
+                    .select()
+                    .from(guildSettings)
+                    .where(eq(guildSettings.guildId, guildId))
+                    .then((res) => res[0]);
+            }
             if (!settings) throw new Error('Failed to insert guild settings');
         }
 

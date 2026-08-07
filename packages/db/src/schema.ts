@@ -242,6 +242,28 @@ export const marriages = pgTable(
     }
 );
 
+// One row per married user, with a unique constraint on user_id. `marry`
+// inserts both spouses here in the same transaction as the `marriages` row;
+// a unique violation on either insert means that user is already married,
+// which Postgres enforces atomically even under concurrent transactions
+// (unlike a plain re-check select, which two concurrent transactions can
+// both pass under READ COMMITTED).
+export const marriedUsers = pgTable(
+    'married_users',
+    {
+        id: serial('id').primaryKey(),
+        userId: text('user_id').notNull(),
+        marriageId: integer('marriage_id').notNull(),
+    },
+    (table) => {
+        return {
+            userIdUnique: uniqueIndex('married_users_user_id_unique').on(
+                table.userId
+            ),
+        };
+    }
+);
+
 // Cumulative per-channel message counters, used to surface the most/least
 // active text channels in a server (bot command + admin panel).
 export const channelActivity = pgTable(

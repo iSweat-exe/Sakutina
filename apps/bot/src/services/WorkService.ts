@@ -1,4 +1,4 @@
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and, isNull } from 'drizzle-orm';
 import { db, users } from '@sakutina/db';
 import { EconomyService } from './EconomyService.js';
 import { JobError, CooldownError } from '../utils/errors.js';
@@ -121,6 +121,9 @@ export class WorkService {
         const newRank = this.getRank(job, newCurrentJobShifts);
         const promoted = newRank.title !== rank.title;
 
+        // Optimistic lock: only apply if workLastShift still matches what we
+        // read above. A concurrent shift that wins the race changes it first,
+        // so this UPDATE affects 0 rows and we reject instead of double-paying.
         const updated = await db
             .update(users)
             .set({
@@ -134,12 +137,23 @@ export class WorkService {
                 updatedAt: now,
             })
             .where(
-                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+                and(
+                    eq(users.discordId, discordId),
+                    eq(users.guildId, guildId),
+                    user.workLastShift
+                        ? eq(users.workLastShift, user.workLastShift)
+                        : isNull(users.workLastShift)
+                )
             )
             .returning()
             .then((res) => res[0]);
-        if (!updated)
-            throw new Error('User unexpectedly disappeared during update');
+        if (!updated) {
+            throw new CooldownError(
+                'WORK_ERR_COOLDOWN',
+                rank.cooldownSeconds,
+                'seconds'
+            );
+        }
 
         const details = [
             `Worked as ${rank.title}`,

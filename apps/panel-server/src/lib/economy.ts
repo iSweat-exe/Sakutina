@@ -1,7 +1,14 @@
 import { db, users, transactions, stocks, userHoldings } from '@sakutina/db';
 import { and, eq } from 'drizzle-orm';
 
-/** Same upsert-on-first-touch shape as EconomyService.ensureUser in apps/bot. */
+/**
+ * Same upsert-on-first-touch shape as EconomyService.ensureUser in apps/bot.
+ * Uses `onConflictDoNothing` on the insert (guarded by the
+ * `(discordId, guildId)` unique index) instead of select-then-insert, so two
+ * concurrent first-touch requests for the same user can't both miss the
+ * SELECT and both attempt the INSERT — one wins the insert, the other falls
+ * back to re-selecting the row it just created.
+ */
 export async function ensureUser(discordId: string, guildId: string) {
     const existing = await db
         .select()
@@ -10,10 +17,18 @@ export async function ensureUser(discordId: string, guildId: string) {
         .then((res) => res[0]);
     if (existing) return existing;
 
-    return db
+    const inserted = await db
         .insert(users)
         .values({ discordId, guildId })
+        .onConflictDoNothing()
         .returning()
+        .then((res) => res[0]);
+    if (inserted) return inserted;
+
+    return db
+        .select()
+        .from(users)
+        .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
         .then((res) => res[0]!);
 }
 

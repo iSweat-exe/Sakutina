@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import {
     db,
     stocks,
@@ -70,21 +70,13 @@ export class InvestmentService {
         let resultAvgPrice = stock.price;
 
         await db.transaction(async (tx) => {
-            const updated = await tx
-                .update(users)
-                .set({
-                    balance: sql`${users.balance} - ${cost}`,
-                    updatedAt: new Date(),
-                })
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId),
-                        gte(users.balance, cost)
-                    )
-                )
-                .returning();
-            if (updated.length === 0) throw new InsufficientFundsError();
+            const debited = await EconomyService.tryDebit(
+                discordId,
+                guildId,
+                cost,
+                tx
+            );
+            if (!debited) throw new InsufficientFundsError();
 
             const existing = await tx
                 .select()

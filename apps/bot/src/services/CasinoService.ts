@@ -38,17 +38,13 @@ export class CasinoService {
         await EconomyService.ensureUser(discordId, guildId);
 
         return db.transaction(async (tx) => {
-            const user = await tx
-                .select()
-                .from(users)
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId)
-                    )
-                )
-                .then((res) => res[0]);
-            if (!user || user.balance < bet) throw new InsufficientFundsError();
+            const debited = await EconomyService.tryDebit(
+                discordId,
+                guildId,
+                bet,
+                tx
+            );
+            if (!debited) throw new InsufficientFundsError();
 
             const result = resolve();
             const netChange = result.payout - bet;
@@ -56,7 +52,10 @@ export class CasinoService {
             await tx
                 .update(users)
                 .set({
-                    balance: sql`${users.balance} + ${netChange}`,
+                    balance:
+                        result.payout > 0
+                            ? sql`${users.balance} + ${result.payout}`
+                            : sql`${users.balance}`,
                     casinoGamesPlayed: sql`${users.casinoGamesPlayed} + 1`,
                     casinoWins:
                         result.outcome === 'win'
