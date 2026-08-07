@@ -29,7 +29,7 @@ const CATEGORIES = {
         'shop',
         'work',
     ],
-    fun: ['ping', '8ball', 'interact', 'ask'],
+    fun: ['ping', '8ball', 'interact'],
     moderation: ['mod', 'syncbans'],
     social: ['giveaway'],
     users: ['profile', 'remindme', 'marry'],

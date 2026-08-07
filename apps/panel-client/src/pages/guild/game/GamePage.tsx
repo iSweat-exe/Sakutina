@@ -40,12 +40,16 @@ const games = [
 export function GamePage() {
     const { guildId } = useParams();
     const [balance, setBalance] = React.useState<number | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         if (!guildId) return;
+        setError(null);
         api.get<{ balance: number }>(`/api/guilds/${guildId}/game/me`)
             .then((data) => setBalance(data.balance))
-            .catch(() => setBalance(null));
+            .catch((err: unknown) =>
+                setError(err instanceof Error ? err.message : String(err))
+            );
     }, [guildId]);
 
     return (
@@ -54,7 +58,11 @@ export function GamePage() {
                 <h1 className="text-2xl font-semibold">Casino</h1>
                 <div className="text-right">
                     <p className="text-xs text-muted-foreground">Solde</p>
-                    {balance === null ? (
+                    {error ? (
+                        <p className="text-sm text-destructive">
+                            Échec du chargement
+                        </p>
+                    ) : balance === null ? (
                         <Skeleton className="h-6 w-20" />
                     ) : (
                         <p className="text-lg font-semibold">{balance} 🪙</p>

@@ -13,6 +13,12 @@ describe('STOCK_LIST', () => {
             expect(stock.volatility).toBeGreaterThan(0);
         }
     });
+
+    // Discord slash command options reject registration if a choice list has
+    // more than 25 entries; STOCK_LIST is used directly to build one.
+    test('stays within the Discord slash command choice limit of 25', () => {
+        expect(STOCK_LIST.length).toBeLessThanOrEqual(25);
+    });
 });
 
 describe('tickStockPrice', () => {

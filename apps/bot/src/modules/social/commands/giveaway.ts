@@ -123,6 +123,26 @@ const command: Command = {
         async (interaction: ChatInputCommandInteraction, lang: string) => {
             const guildId = interaction.guildId;
             if (!guildId) return;
+
+            // Explicitly check for permissions just in case
+            if (
+                !interaction.memberPermissions?.has(
+                    PermissionFlagsBits.ManageGuild
+                )
+            ) {
+                const errorMsg = I18nService.translate(
+                    'common:CONFIG_NO_PERM',
+                    { lng: lang }
+                );
+                await interaction.reply({
+                    embeds: [
+                        EmbedUtils.error(errorMsg, 'Error', interaction.user),
+                    ],
+                    flags: MessageFlags.Ephemeral,
+                });
+                return;
+            }
+
             const subcommand = interaction.options.getSubcommand();
 
             if (subcommand === 'start') {

@@ -14,7 +14,7 @@ import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { bindGuildId, getGuildId } from '../utils/params.js';
 import {
     isNonEmptyString,
-    isPositiveInteger,
+    isPositiveIntegerInRange,
     parseJsonBody,
 } from '../utils/validate.js';
 import {
@@ -136,12 +136,17 @@ investRoutes.get('/portfolio', async (c) => {
     return c.json(portfolio);
 });
 
+// Bounds `quantity` well below the point where `stock.price * quantity`
+// (persisted into the `integer` `stock_price_history`/`user_holdings`
+// columns) could overflow Postgres' 32-bit integer range.
+const MAX_QUANTITY = 1_000_000;
+
 async function readQuantityBody(c: { req: { json: () => Promise<unknown> } }) {
     const body = await parseJsonBody(c.req);
     if (
         !body ||
         !isNonEmptyString(body.ticker) ||
-        !isPositiveInteger(body.quantity)
+        !isPositiveIntegerInRange(body.quantity, MAX_QUANTITY)
     )
         return null;
     return { ticker: body.ticker, quantity: body.quantity };

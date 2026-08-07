@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
 import { env } from '../config/env.js';
 import {
@@ -19,6 +19,17 @@ import type { AppEnv } from '../types.js';
 const OAUTH_STATE_COOKIE = 'sakutina_oauth_state';
 const isProd = env.NODE_ENV === 'production';
 
+/**
+ * Whether cookies set on this response should carry `Secure`. Trusting
+ * NODE_ENV alone means cookies silently lose `Secure` if the app is ever
+ * run outside the provided Dockerfile without NODE_ENV explicitly set, even
+ * though it's still served over HTTPS behind a reverse proxy. Falling back
+ * to the proxy's `X-Forwarded-Proto` header covers that case too.
+ */
+function isSecureRequest(c: Context<AppEnv>): boolean {
+    return isProd || c.req.header('x-forwarded-proto') === 'https';
+}
+
 export const authRoutes = new Hono<AppEnv>();
 
 authRoutes.get('/login', (c) => {
@@ -26,7 +37,7 @@ authRoutes.get('/login', (c) => {
     setCookie(c, OAUTH_STATE_COOKIE, state, {
         httpOnly: true,
         sameSite: 'Lax',
-        secure: isProd,
+        secure: isSecureRequest(c),
         path: '/',
         maxAge: 5 * 60,
     });
@@ -79,7 +90,7 @@ authRoutes.get('/callback', async (c) => {
         setCookie(c, SESSION_COOKIE, sessionToken, {
             httpOnly: true,
             sameSite: 'Lax',
-            secure: isProd,
+            secure: isSecureRequest(c),
             path: '/',
             maxAge: 60 * 60,
         });

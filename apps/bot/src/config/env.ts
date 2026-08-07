@@ -14,7 +14,6 @@ interface EnvConfig {
     DATABASE_URL: string;
     REDIS_URL: string;
     DEVELOPER_ID: string[];
-    OPENAI_API_KEY?: string;
     PANEL_URL?: string;
 }
 
@@ -25,7 +24,6 @@ const parseEnv = (): EnvConfig => {
         NODE_ENV,
         DATABASE_URL,
         REDIS_URL,
-        OPENAI_API_KEY,
         PANEL_URL,
     } = process.env;
     const validEnvs = ['development', 'production', 'test'] as const;
@@ -58,7 +56,6 @@ const parseEnv = (): EnvConfig => {
             id.trim()
         ),
         NODE_ENV: (NODE_ENV as 'development' | 'production') || 'development',
-        OPENAI_API_KEY,
         PANEL_URL,
     };
 };

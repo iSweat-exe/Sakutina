@@ -12,6 +12,14 @@ describe('SHOP_ITEMS', () => {
             expect(item.price).toBeGreaterThan(0);
         }
     });
+
+    // Discord slash command options reject registration if a choice list has
+    // more than 25 entries. `/shop equip` prepends a "None (unequip)" choice
+    // ahead of SHOP_ITEMS, so it hits the ceiling one item earlier than the
+    // other subcommands that map SHOP_ITEMS directly.
+    test('stays within the Discord slash command choice limit of 25', () => {
+        expect(SHOP_ITEMS.length + 1).toBeLessThanOrEqual(25);
+    });
 });
 
 describe('getShopItem', () => {

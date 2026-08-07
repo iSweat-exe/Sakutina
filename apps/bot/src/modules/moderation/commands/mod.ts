@@ -247,7 +247,8 @@ const command: Command = {
                 interaction.options.getString('reason') || 'No reason provided';
             if (
                 targetUser.id === interaction.client.user.id ||
-                targetUser.id === interaction.guild.ownerId
+                targetUser.id === interaction.guild.ownerId ||
+                targetUser.id === interaction.user.id
             ) {
                 const embed = EmbedUtils.error(
                     I18nService.translate('mod:MOD_ERR_INVALID_TARGET', {
