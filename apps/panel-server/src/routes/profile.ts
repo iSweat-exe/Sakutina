@@ -9,13 +9,13 @@ import {
 } from '@sakutina/economy';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
 import { fetchGuildMember } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import { ensureUser, getPortfolioSummary } from '../lib/economy.js';
 import type { AppEnv } from '../types.js';
 
 export const profileRoutes = new Hono<AppEnv>();
 
-profileRoutes.use('*', requireAuth, requireGuildMember);
+profileRoutes.use('*', bindGuildId, requireAuth, requireGuildMember);
 
 profileRoutes.get('/', async (c) => {
     const guildId = getGuildId(c);

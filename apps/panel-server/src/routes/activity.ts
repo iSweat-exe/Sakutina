@@ -8,12 +8,12 @@ import {
 import { desc, eq } from 'drizzle-orm';
 import { requireAuth, requireGuildAccess } from '../auth/middleware.js';
 import { fetchGuildChannels } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import type { AppEnv } from '../types.js';
 
 export const activityRoutes = new Hono<AppEnv>();
 
-activityRoutes.use('*', requireAuth, requireGuildAccess);
+activityRoutes.use('*', bindGuildId, requireAuth, requireGuildAccess);
 
 activityRoutes.get('/overview', async (c) => {
     const guildId = getGuildId(c);

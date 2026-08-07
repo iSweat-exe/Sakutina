@@ -4,6 +4,8 @@ export { createCommandHandler } from './commandHandler.js';
 export {
     AppError,
     InsufficientFundsError,
+    BetTooLargeError,
+    EmptyWalletError,
     CooldownError,
     CannotPaySelfError,
     JobError,

@@ -11,7 +11,12 @@ import {
 import { and, asc, desc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { computeAvgBuyPrice } from '@sakutina/economy';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
+import {
+    isNonEmptyString,
+    isPositiveInteger,
+    parseJsonBody,
+} from '../utils/validate.js';
 import {
     ensureUser,
     logTransaction,
@@ -21,7 +26,7 @@ import type { AppEnv } from '../types.js';
 
 export const investRoutes = new Hono<AppEnv>();
 
-investRoutes.use('*', requireAuth, requireGuildMember);
+investRoutes.use('*', bindGuildId, requireAuth, requireGuildMember);
 
 async function getStock(ticker: string) {
     return db
@@ -132,14 +137,14 @@ investRoutes.get('/portfolio', async (c) => {
 });
 
 async function readQuantityBody(c: { req: { json: () => Promise<unknown> } }) {
-    const body = (await c.req.json().catch(() => null)) as {
-        ticker?: string;
-        quantity?: number;
-    } | null;
-    if (!body || typeof body.ticker !== 'string') return null;
-    if (!Number.isInteger(body.quantity) || (body.quantity as number) <= 0)
+    const body = await parseJsonBody(c.req);
+    if (
+        !body ||
+        !isNonEmptyString(body.ticker) ||
+        !isPositiveInteger(body.quantity)
+    )
         return null;
-    return { ticker: body.ticker, quantity: body.quantity as number };
+    return { ticker: body.ticker, quantity: body.quantity };
 }
 
 investRoutes.post('/buy', async (c) => {

@@ -12,14 +12,14 @@ import {
     calculateLevel,
 } from '@sakutina/economy';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
 import { ensureUser, logTransaction } from '../lib/economy.js';
 import { incrementQuestProgress } from '../lib/quests.js';
 import type { AppEnv } from '../types.js';
 
 export const workRoutes = new Hono<AppEnv>();
 
-workRoutes.use('*', requireAuth, requireGuildMember);
+workRoutes.use('*', bindGuildId, requireAuth, requireGuildMember);
 
 workRoutes.get('/', async (c) => {
     const guildId = getGuildId(c);

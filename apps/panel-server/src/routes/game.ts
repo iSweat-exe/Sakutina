@@ -11,14 +11,15 @@ import {
     type RpsChoice,
 } from '@sakutina/games';
 import { requireAuth, requireGuildMember } from '../auth/middleware.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
+import { isPositiveIntegerInRange, parseJsonBody } from '../utils/validate.js';
 import { ensureUser } from '../lib/economy.js';
 import { incrementQuestProgress } from '../lib/quests.js';
 import type { AppEnv } from '../types.js';
 
 export const gameRoutes = new Hono<AppEnv>();
 
-gameRoutes.use('*', requireAuth, requireGuildMember);
+gameRoutes.use('*', bindGuildId, requireAuth, requireGuildMember);
 
 gameRoutes.get('/me', async (c) => {
     const guildId = getGuildId(c);
@@ -85,12 +86,8 @@ function resolveCasinoGame(
 }
 
 async function readBetBody(c: Context<AppEnv>) {
-    const body = await c.req
-        .json<{ bet?: number; choice?: unknown }>()
-        .catch(() => null);
-    if (!body || typeof body.bet !== 'number') return null;
-    if (!Number.isInteger(body.bet) || body.bet <= 0 || body.bet > MAX_BET)
-        return null;
+    const body = await parseJsonBody(c.req);
+    if (!body || !isPositiveIntegerInRange(body.bet, MAX_BET)) return null;
     return { bet: body.bet, choice: body.choice };
 }
 

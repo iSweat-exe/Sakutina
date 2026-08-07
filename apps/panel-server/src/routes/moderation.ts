@@ -9,12 +9,17 @@ import {
     searchGuildMembers,
     timeoutGuildMember,
 } from '../discord/rest.js';
-import { getGuildId } from '../utils/params.js';
+import { bindGuildId, getGuildId } from '../utils/params.js';
+import {
+    isNonEmptyString,
+    isPositiveInteger,
+    parseJsonBody,
+} from '../utils/validate.js';
 import type { AppEnv } from '../types.js';
 
 export const moderationRoutes = new Hono<AppEnv>();
 
-moderationRoutes.use('*', requireAuth, requireGuildAccess);
+moderationRoutes.use('*', bindGuildId, requireAuth, requireGuildAccess);
 
 moderationRoutes.get('/warns', async (c) => {
     const guildId = getGuildId(c);
@@ -84,12 +89,19 @@ interface ActionBody {
 }
 
 async function readActionBody(c: Context<AppEnv>): Promise<ActionBody | null> {
-    const body = await c.req.json<Partial<ActionBody>>().catch(() => null);
-    if (!body || typeof body.userId !== 'string' || !body.userId) return null;
+    const body = await parseJsonBody(c.req);
+    if (!body || !isNonEmptyString(body.userId)) return null;
+    if (
+        body.durationMinutes !== undefined &&
+        !isPositiveInteger(body.durationMinutes)
+    )
+        return null;
     return {
         userId: body.userId,
-        reason: body.reason || 'No reason provided',
-        durationMinutes: body.durationMinutes,
+        reason: isNonEmptyString(body.reason)
+            ? body.reason
+            : 'No reason provided',
+        durationMinutes: body.durationMinutes as number | undefined,
     };
 }
 
