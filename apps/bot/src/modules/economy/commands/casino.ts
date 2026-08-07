@@ -3,19 +3,16 @@ import {
     ChatInputCommandInteraction,
     MessageFlags,
     SlashCommandBuilder,
-    ActionRowBuilder,
-    ButtonBuilder,
     ButtonStyle,
-    ComponentType,
 } from 'discord.js';
 import { MAX_BET } from '@sakutina/games';
 import type { Command } from '@/types/Command.js';
 import { I18nService } from '@/services/I18nService.js';
 import { CasinoService } from '@/services/CasinoService.js';
-import { EconomyService } from '@/services/EconomyService.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
 import { BetTooLargeError, InsufficientFundsError } from '@/utils/errors.js';
 import { QuestService } from '@/services/QuestService.js';
+import { runButtonGame } from '@/utils/ButtonGame.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -133,76 +130,45 @@ const command: Command = {
                         'casino'
                     ).catch(() => {});
                 } else if (subcommand === 'coinflip') {
-                    const balanceData = await EconomyService.getBalance(
-                        interaction.user.id,
-                        guildId
-                    );
-                    if (balanceData.balance < bet) {
-                        throw new InsufficientFundsError();
-                    }
-                    const embed = EmbedUtils.base({
+                    await runButtonGame<
+                        'heads' | 'tails',
+                        Awaited<ReturnType<typeof CasinoService.coinflip>>
+                    >({
+                        interaction,
+                        lang,
+                        guildId,
+                        bet,
                         title: ' Coinflip',
                         color: '#F1C40F',
-                        user: interaction.user,
-                    }).setDescription(
-                        lang === 'fr'
-                            ? `Pile ou Face ? Mise : **${bet}**`
-                            : `Heads or Tails? Bet: **${bet}**`
-                    );
-                    const row =
-                        new ActionRowBuilder<ButtonBuilder>().addComponents(
-                            new ButtonBuilder()
-                                .setCustomId('coin_heads')
-                                .setLabel(lang === 'fr' ? 'Face' : 'Heads')
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId('coin_tails')
-                                .setLabel(lang === 'fr' ? 'Pile' : 'Tails')
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId('coin_cancel')
-                                .setLabel(
-                                    lang === 'fr' ? 'Annuler ❌' : 'Cancel ❌'
-                                )
-                                .setStyle(ButtonStyle.Danger)
-                        );
-                    const response = await interaction.reply({
-                        embeds: [embed],
-                        components: [row],
-                    });
-                    try {
-                        const confirmation =
-                            await response.awaitMessageComponent({
-                                filter: (i) =>
-                                    i.user.id === interaction.user.id,
-                                time: 60000,
-                                componentType: ComponentType.Button,
-                            });
-                        if (confirmation.customId === 'coin_cancel') {
-                            const cancelEmbed = EmbedUtils.warn(
-                                lang === 'fr'
-                                    ? 'Partie annulée.'
-                                    : 'Game cancelled.',
-                                'Cancelled',
-                                interaction.user
-                            );
-                            await confirmation.update({
-                                embeds: [cancelEmbed],
-                                components: [],
-                            });
-                            return;
-                        }
-                        const choice = confirmation.customId.replace(
-                            'coin_',
-                            ''
-                        ) as 'heads' | 'tails';
-                        try {
-                            const result = await CasinoService.coinflip(
+                        description:
+                            lang === 'fr'
+                                ? `Pile ou Face ? Mise : **${bet}**`
+                                : `Heads or Tails? Bet: **${bet}**`,
+                        cancelCustomId: 'coin_cancel',
+                        choices: [
+                            {
+                                customId: 'coin_heads',
+                                labelFr: 'Face',
+                                labelEn: 'Heads',
+                                style: ButtonStyle.Primary,
+                            },
+                            {
+                                customId: 'coin_tails',
+                                labelFr: 'Pile',
+                                labelEn: 'Tails',
+                                style: ButtonStyle.Primary,
+                            },
+                        ],
+                        parseChoice: (customId) =>
+                            customId.replace('coin_', '') as 'heads' | 'tails',
+                        play: (choice) =>
+                            CasinoService.coinflip(
                                 interaction.user.id,
                                 guildId,
                                 bet,
                                 choice
-                            );
+                            ),
+                        buildResultEmbed: (result) => {
                             const localizedResult = I18nService.translate(
                                 `economy:CASINO_COIN_${result.result.toUpperCase()}`,
                                 { lng: lang }
@@ -217,145 +183,70 @@ const command: Command = {
                                         won: result.amount,
                                     }
                                 );
-                                const embedWin = EmbedUtils.success(
+                                return EmbedUtils.success(
                                     msg,
                                     'You Won!',
                                     interaction.user
                                 );
-                                await confirmation.update({
-                                    embeds: [embedWin],
-                                    components: [],
-                                });
-                            } else {
-                                const msg = I18nService.translate(
-                                    'economy:CASINO_COIN_LOSE',
-                                    { lng: lang, bet, result: localizedResult }
-                                );
-                                const embedLose = EmbedUtils.error(
-                                    msg,
-                                    'You Lost',
-                                    interaction.user
-                                );
-                                await confirmation.update({
-                                    embeds: [embedLose],
-                                    components: [],
-                                });
                             }
-                            await QuestService.incrementProgress(
-                                interaction.user.id,
-                                guildId,
-                                'casino'
-                            ).catch(() => {});
-                        } catch (err: unknown) {
-                            if (err instanceof InsufficientFundsError) {
-                                const msg = I18nService.translate(
-                                    'economy:INSUFFICIENT_FUNDS',
-                                    { lng: lang }
-                                );
-                                const errEmbed = EmbedUtils.error(
-                                    msg,
-                                    'Insufficient Funds',
-                                    interaction.user
-                                );
-                                await confirmation.update({
-                                    embeds: [errEmbed],
-                                    components: [],
-                                });
-                            } else {
-                                throw err;
-                            }
-                        }
-                    } catch (e) {
-                        const timeoutEmbed = EmbedUtils.warn(
-                            lang === 'fr'
-                                ? 'Le temps est écoulé.'
-                                : 'You took too long to choose.',
-                            'Timeout',
-                            interaction.user
-                        );
-                        await interaction.editReply({
-                            embeds: [timeoutEmbed],
-                            components: [],
-                        });
-                    }
-                } else if (subcommand === 'rps') {
-                    // Early balance check to avoid rendering buttons if insufficient funds
-                    const balanceData = await EconomyService.getBalance(
-                        interaction.user.id,
-                        guildId
-                    );
-                    if (balanceData.balance < bet) {
-                        throw new InsufficientFundsError();
-                    }
-                    const embed = EmbedUtils.base({
-                        title: ' Rock Paper Scissors',
-                        color: '#3498DB',
-                        user: interaction.user,
-                    }).setDescription(
-                        lang === 'fr'
-                            ? `Choisissez votre action pour une mise de **${bet}** ! `
-                            : `Choose your move for a bet of **${bet}** !`
-                    );
-                    const row =
-                        new ActionRowBuilder<ButtonBuilder>().addComponents(
-                            new ButtonBuilder()
-                                .setCustomId('rps_rock')
-                                .setLabel(lang === 'fr' ? 'Pierre ' : 'Rock ')
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId('rps_paper')
-                                .setLabel(lang === 'fr' ? 'Papier ' : 'Paper ')
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId('rps_scissors')
-                                .setLabel(
-                                    lang === 'fr' ? 'Ciseaux ' : 'Scissors '
-                                )
-                                .setStyle(ButtonStyle.Primary),
-                            new ButtonBuilder()
-                                .setCustomId('rps_cancel')
-                                .setLabel(
-                                    lang === 'fr' ? 'Annuler ❌' : 'Cancel ❌'
-                                )
-                                .setStyle(ButtonStyle.Danger)
-                        );
-                    const response = await interaction.reply({
-                        embeds: [embed],
-                        components: [row],
-                    });
-                    try {
-                        const confirmation =
-                            await response.awaitMessageComponent({
-                                filter: (i) =>
-                                    i.user.id === interaction.user.id,
-                                time: 60000,
-                                componentType: ComponentType.Button,
-                            });
-                        if (confirmation.customId === 'rps_cancel') {
-                            const cancelEmbed = EmbedUtils.warn(
-                                lang === 'fr'
-                                    ? 'Partie annulée.'
-                                    : 'Game cancelled.',
-                                'Cancelled',
+                            const msg = I18nService.translate(
+                                'economy:CASINO_COIN_LOSE',
+                                { lng: lang, bet, result: localizedResult }
+                            );
+                            return EmbedUtils.error(
+                                msg,
+                                'You Lost',
                                 interaction.user
                             );
-                            await confirmation.update({
-                                embeds: [cancelEmbed],
-                                components: [],
-                            });
-                            return;
-                        }
-                        const choice = confirmation.customId.replace(
-                            'rps_',
-                            ''
-                        ) as 'rock' | 'paper' | 'scissors';
-                        try {
-                            const result = await CasinoService.rps(
+                        },
+                    });
+                } else if (subcommand === 'rps') {
+                    await runButtonGame<
+                        'rock' | 'paper' | 'scissors',
+                        Awaited<ReturnType<typeof CasinoService.rps>>
+                    >({
+                        interaction,
+                        lang,
+                        guildId,
+                        bet,
+                        title: ' Rock Paper Scissors',
+                        color: '#3498DB',
+                        description:
+                            lang === 'fr'
+                                ? `Choisissez votre action pour une mise de **${bet}** ! `
+                                : `Choose your move for a bet of **${bet}** !`,
+                        cancelCustomId: 'rps_cancel',
+                        choices: [
+                            {
+                                customId: 'rps_rock',
+                                labelFr: 'Pierre ',
+                                labelEn: 'Rock ',
+                                style: ButtonStyle.Primary,
+                            },
+                            {
+                                customId: 'rps_paper',
+                                labelFr: 'Papier ',
+                                labelEn: 'Paper ',
+                                style: ButtonStyle.Primary,
+                            },
+                            {
+                                customId: 'rps_scissors',
+                                labelFr: 'Ciseaux ',
+                                labelEn: 'Scissors ',
+                                style: ButtonStyle.Primary,
+                            },
+                        ],
+                        parseChoice: (customId) =>
+                            customId.replace('rps_', '') as
+                                'rock' | 'paper' | 'scissors',
+                        play: (choice) =>
+                            CasinoService.rps(
                                 interaction.user.id,
                                 guildId,
                                 bet,
                                 choice
-                            );
+                            ),
+                        buildResultEmbed: (result, choice) => {
                             const botChoiceLoc = I18nService.translate(
                                 `economy:CASINO_RPS_${result.botChoice!.toUpperCase()}`,
                                 { lng: lang }
@@ -364,10 +255,8 @@ const command: Command = {
                                 `economy:CASINO_RPS_${choice.toUpperCase()}`,
                                 { lng: lang }
                             );
-                            let msg = '';
-                            let finalEmbed;
                             if (result.state === 'win') {
-                                msg = I18nService.translate(
+                                const msg = I18nService.translate(
                                     'economy:CASINO_RPS_WIN',
                                     {
                                         lng: lang,
@@ -376,13 +265,14 @@ const command: Command = {
                                         won: result.returnAmount,
                                     }
                                 );
-                                finalEmbed = EmbedUtils.success(
+                                return EmbedUtils.success(
                                     msg,
                                     'You Won!',
                                     interaction.user
                                 );
-                            } else if (result.state === 'lose') {
-                                msg = I18nService.translate(
+                            }
+                            if (result.state === 'lose') {
+                                const msg = I18nService.translate(
                                     'economy:CASINO_RPS_LOSE',
                                     {
                                         lng: lang,
@@ -391,67 +281,27 @@ const command: Command = {
                                         bet,
                                     }
                                 );
-                                finalEmbed = EmbedUtils.error(
+                                return EmbedUtils.error(
                                     msg,
                                     'You Lost',
                                     interaction.user
                                 );
-                            } else {
-                                msg = I18nService.translate(
-                                    'economy:CASINO_RPS_TIE',
-                                    {
-                                        lng: lang,
-                                        bot: botChoiceLoc,
-                                        user: userChoiceLoc,
-                                    }
-                                );
-                                finalEmbed = EmbedUtils.info(
-                                    msg,
-                                    "It's a Tie!",
-                                    interaction.user
-                                );
                             }
-                            await confirmation.update({
-                                embeds: [finalEmbed],
-                                components: [],
-                            });
-                            await QuestService.incrementProgress(
-                                interaction.user.id,
-                                guildId,
-                                'casino'
-                            ).catch(() => {});
-                        } catch (err: unknown) {
-                            if (err instanceof InsufficientFundsError) {
-                                const msg = I18nService.translate(
-                                    'economy:INSUFFICIENT_FUNDS',
-                                    { lng: lang }
-                                );
-                                const errEmbed = EmbedUtils.error(
-                                    msg,
-                                    'Insufficient Funds',
-                                    interaction.user
-                                );
-                                await confirmation.update({
-                                    embeds: [errEmbed],
-                                    components: [],
-                                });
-                            } else {
-                                throw err;
-                            }
-                        }
-                    } catch (e) {
-                        const timeoutEmbed = EmbedUtils.warn(
-                            lang === 'fr'
-                                ? 'Le temps est écoulé.'
-                                : 'You took too long to choose.',
-                            'Timeout',
-                            interaction.user
-                        );
-                        await interaction.editReply({
-                            embeds: [timeoutEmbed],
-                            components: [],
-                        });
-                    }
+                            const msg = I18nService.translate(
+                                'economy:CASINO_RPS_TIE',
+                                {
+                                    lng: lang,
+                                    bot: botChoiceLoc,
+                                    user: userChoiceLoc,
+                                }
+                            );
+                            return EmbedUtils.info(
+                                msg,
+                                "It's a Tie!",
+                                interaction.user
+                            );
+                        },
+                    });
                 } else if (subcommand === 'slots') {
                     const result = await CasinoService.slots(
                         interaction.user.id,

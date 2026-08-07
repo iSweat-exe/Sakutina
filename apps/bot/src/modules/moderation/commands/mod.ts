@@ -10,7 +10,7 @@ import { I18nService } from '@/services/I18nService.js';
 import { GuildConfigService } from '@/services/GuildConfigService.js';
 import { ModerationService } from '@/services/ModerationService.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
-import { logger } from '@/utils/logger.js';
+import { performModAction } from '@/utils/ModAction.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -444,252 +444,87 @@ const command: Command = {
                     'duration',
                     true
                 );
-                try {
-                    await targetMember.timeout(duration * 60 * 1000, reason);
-                    await ModerationService.sendLog(
-                        interaction.guild,
-                        'MUTE',
-                        targetUser,
-                        interaction.user,
-                        reason,
-                        `Duration: ${duration} minutes`
-                    );
-                    await ModerationService.logAction(
-                        interaction.guildId!,
-                        targetUser.id,
-                        interaction.user.id,
-                        'MUTE',
-                        reason,
-                        new Date(Date.now() + duration * 60 * 1000)
-                    );
-                    const embed = EmbedUtils.success(
-                        I18nService.translate('mod:MOD_MUTE_SUCCESS', {
-                            lng: lang,
-                            user: targetUser.tag,
-                            duration,
-                            reason,
-                        }) + warningMsg,
-                        'User Muted',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                } catch (e) {
-                    logger.error(
-                        `[Mod:mute] Failed to mute ${targetUser.id} in ${interaction.guild.id}`,
-                        e
-                    );
-                    const embed = EmbedUtils.error(
-                        I18nService.translate('mod:MOD_ERR_NO_PERM', {
-                            lng: lang,
-                        }),
-                        'Error',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+                await performModAction({
+                    interaction,
+                    lang,
+                    targetUser,
+                    targetMember,
+                    requireMember: true,
+                    reason,
+                    warningMsg,
+                    action: 'MUTE',
+                    apiCall: () =>
+                        targetMember.timeout(duration * 60 * 1000, reason),
+                    logDetails: `Duration: ${duration} minutes`,
+                    expiresAt: new Date(Date.now() + duration * 60 * 1000),
+                    successKey: 'mod:MOD_MUTE_SUCCESS',
+                    successVars: { duration },
+                    successTitle: 'User Muted',
+                });
             } else if (subcommand === 'unmute') {
                 if (!targetMember) return;
-                try {
-                    await targetMember.timeout(null, reason);
-                    await ModerationService.sendLog(
-                        interaction.guild,
-                        'UNMUTE',
-                        targetUser,
-                        interaction.user,
-                        reason
-                    );
-                    await ModerationService.logAction(
-                        interaction.guildId!,
-                        targetUser.id,
-                        interaction.user.id,
-                        'UNMUTE',
-                        reason
-                    );
-                    const embed = EmbedUtils.success(
-                        I18nService.translate('mod:MOD_UNMUTE_SUCCESS', {
-                            lng: lang,
-                            user: targetUser.tag,
-                            reason,
-                        }) + warningMsg,
-                        'User Unmuted',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                } catch (e) {
-                    logger.error(
-                        `[Mod:unmute] Failed to unmute ${targetUser.id} in ${interaction.guild.id}`,
-                        e
-                    );
-                    const embed = EmbedUtils.error(
-                        I18nService.translate('mod:MOD_ERR_NO_PERM', {
-                            lng: lang,
-                        }),
-                        'Error',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+                await performModAction({
+                    interaction,
+                    lang,
+                    targetUser,
+                    targetMember,
+                    requireMember: true,
+                    reason,
+                    warningMsg,
+                    action: 'UNMUTE',
+                    apiCall: () => targetMember.timeout(null, reason),
+                    successKey: 'mod:MOD_UNMUTE_SUCCESS',
+                    successTitle: 'User Unmuted',
+                });
             } else if (subcommand === 'kick') {
                 if (!targetMember) return;
-                try {
-                    await targetMember.kick(reason);
-                    await ModerationService.sendLog(
-                        interaction.guild,
-                        'KICK',
-                        targetUser,
-                        interaction.user,
-                        reason
-                    );
-                    await ModerationService.logAction(
-                        interaction.guildId!,
-                        targetUser.id,
-                        interaction.user.id,
-                        'KICK',
-                        reason
-                    );
-                    const embed = EmbedUtils.success(
-                        I18nService.translate('mod:MOD_KICK_SUCCESS', {
-                            lng: lang,
-                            user: targetUser.tag,
-                            reason,
-                        }) + warningMsg,
-                        'User Kicked',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                } catch (e) {
-                    logger.error(
-                        `[Mod:kick] Failed to kick ${targetUser.id} in ${interaction.guild.id}`,
-                        e
-                    );
-                    const embed = EmbedUtils.error(
-                        I18nService.translate('mod:MOD_ERR_NO_PERM', {
-                            lng: lang,
-                        }),
-                        'Error',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+                await performModAction({
+                    interaction,
+                    lang,
+                    targetUser,
+                    targetMember,
+                    requireMember: true,
+                    reason,
+                    warningMsg,
+                    action: 'KICK',
+                    apiCall: () => targetMember.kick(reason),
+                    successKey: 'mod:MOD_KICK_SUCCESS',
+                    successTitle: 'User Kicked',
+                });
             } else if (subcommand === 'ban') {
-                try {
-                    await interaction.guild.members.ban(targetUser, { reason });
-                    await ModerationService.sendLog(
-                        interaction.guild,
-                        'BAN',
-                        targetUser,
-                        interaction.user,
-                        reason
-                    );
-                    await ModerationService.logAction(
-                        interaction.guildId!,
-                        targetUser.id,
-                        interaction.user.id,
-                        'BAN',
-                        reason
-                    );
-                    const embed = EmbedUtils.success(
-                        I18nService.translate('mod:MOD_BAN_SUCCESS', {
-                            lng: lang,
-                            user: targetUser.tag,
-                            reason,
-                        }) + warningMsg,
-                        'User Banned',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                } catch (e) {
-                    logger.error(
-                        `[Mod:ban] Failed to ban ${targetUser.id} in ${interaction.guild.id}`,
-                        e
-                    );
-                    const embed = EmbedUtils.error(
-                        I18nService.translate('mod:MOD_ERR_NO_PERM', {
-                            lng: lang,
-                        }),
-                        'Error',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+                await performModAction({
+                    interaction,
+                    lang,
+                    targetUser,
+                    reason,
+                    warningMsg,
+                    action: 'BAN',
+                    apiCall: () =>
+                        interaction.guild!.members.ban(targetUser, { reason }),
+                    successKey: 'mod:MOD_BAN_SUCCESS',
+                    successTitle: 'User Banned',
+                });
             } else if (subcommand === 'softban') {
-                try {
-                    await interaction.guild.members.ban(targetUser, {
-                        reason,
-                        deleteMessageSeconds: 604800,
-                    }); // 7 days
-                    await interaction.guild.members.unban(
-                        targetUser,
-                        'Softban complete'
-                    );
-                    await ModerationService.sendLog(
-                        interaction.guild,
-                        'SOFTBAN',
-                        targetUser,
-                        interaction.user,
-                        reason
-                    );
-                    await ModerationService.logAction(
-                        interaction.guildId!,
-                        targetUser.id,
-                        interaction.user.id,
-                        'SOFTBAN',
-                        reason
-                    );
-                    const embed = EmbedUtils.success(
-                        I18nService.translate('mod:MOD_SOFTBAN_SUCCESS', {
-                            lng: lang,
-                            user: targetUser.tag,
+                await performModAction({
+                    interaction,
+                    lang,
+                    targetUser,
+                    reason,
+                    warningMsg,
+                    action: 'SOFTBAN',
+                    apiCall: async () => {
+                        await interaction.guild!.members.ban(targetUser, {
                             reason,
-                        }) + warningMsg,
-                        'User Softbanned',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                } catch (e) {
-                    logger.error(
-                        `[Mod:softban] Failed to softban ${targetUser.id} in ${interaction.guild.id}`,
-                        e
-                    );
-                    const embed = EmbedUtils.error(
-                        I18nService.translate('mod:MOD_ERR_NO_PERM', {
-                            lng: lang,
-                        }),
-                        'Error',
-                        interaction.user
-                    );
-                    await interaction.reply({
-                        embeds: [embed],
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+                            deleteMessageSeconds: 604800,
+                        }); // 7 days
+                        await interaction.guild!.members.unban(
+                            targetUser,
+                            'Softban complete'
+                        );
+                    },
+                    successKey: 'mod:MOD_SOFTBAN_SUCCESS',
+                    successTitle: 'User Softbanned',
+                });
             }
         }
     ),
