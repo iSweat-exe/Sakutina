@@ -1,4 +1,4 @@
-import { eq, sql, desc, and } from 'drizzle-orm';
+import { eq, sql, desc, and, gte, isNull, lt, or } from 'drizzle-orm';
 import { db, users, transactions } from '@sakutina/db';
 import {
     InsufficientFundsError,
@@ -113,6 +113,69 @@ export class EconomyService {
     }
 
     /**
+     * Atomically debit `amount` from a user's wallet balance via a
+     * compare-and-swap `UPDATE ... WHERE balance >= amount`, so concurrent
+     * debits (double-click, two devices, casino/shop/pay racing each other)
+     * can never push the balance negative. Returns the updated row, or
+     * `null` if the guard failed (insufficient funds, possibly because a
+     * concurrent debit won the race first). Accepts an optional transaction
+     * so callers can compose it with other writes atomically.
+     */
+    public static async tryDebit(
+        discordId: string,
+        guildId: string,
+        amount: number,
+        tx?: any
+    ) {
+        if (amount < 0) throw new Error('Amount must be positive');
+        const executor = tx ?? db;
+        const updated = await executor
+            .update(users)
+            .set({
+                balance: sql`${users.balance} - ${amount}`,
+                updatedAt: new Date(),
+            })
+            .where(
+                and(
+                    eq(users.discordId, discordId),
+                    eq(users.guildId, guildId),
+                    gte(users.balance, amount)
+                )
+            )
+            .returning();
+        return updated[0] ?? null;
+    }
+
+    /**
+     * Same compare-and-swap pattern as `tryDebit`, but against the bank
+     * balance (used by `withdraw`).
+     */
+    public static async tryDebitBank(
+        discordId: string,
+        guildId: string,
+        amount: number,
+        tx?: any
+    ) {
+        if (amount < 0) throw new Error('Amount must be positive');
+        const executor = tx ?? db;
+        const updated = await executor
+            .update(users)
+            .set({
+                bank: sql`${users.bank} - ${amount}`,
+                updatedAt: new Date(),
+            })
+            .where(
+                and(
+                    eq(users.discordId, discordId),
+                    eq(users.guildId, guildId),
+                    gte(users.bank, amount)
+                )
+            )
+            .returning();
+        return updated[0] ?? null;
+    }
+
+    /**
      * Add funds to a user's wallet.
      */
     public static async addBalance(
@@ -151,23 +214,9 @@ export class EconomyService {
         reason: string = 'Admin removed balance',
         type: string = 'remove_balance'
     ) {
-        if (amount < 0) throw new Error('Amount must be positive');
-        const user = await this.ensureUser(discordId, guildId);
-        if (user.balance < amount) throw new InsufficientFundsError();
-
-        const updated = await db
-            .update(users)
-            .set({
-                balance: sql`${users.balance} - ${amount}`,
-                updatedAt: new Date(),
-            })
-            .where(
-                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
-            )
-            .returning()
-            .then((res) => res[0]);
-        if (!updated)
-            throw new Error('User unexpectedly disappeared during update');
+        await this.ensureUser(discordId, guildId);
+        const updated = await this.tryDebit(discordId, guildId, amount);
+        if (!updated) throw new InsufficientFundsError();
         await this.logTransaction(discordId, guildId, type, -amount, reason);
         return updated.balance;
     }
@@ -188,31 +237,8 @@ export class EconomyService {
         await this.ensureUser(receiverId, guildId);
 
         await db.transaction(async (tx) => {
-            const sender = await tx
-                .select()
-                .from(users)
-                .where(
-                    and(
-                        eq(users.discordId, senderId),
-                        eq(users.guildId, guildId)
-                    )
-                )
-                .then((res) => res[0]);
-            if (!sender || sender.balance < amount)
-                throw new InsufficientFundsError();
-
-            await tx
-                .update(users)
-                .set({
-                    balance: sql`${users.balance} - ${amount}`,
-                    updatedAt: new Date(),
-                })
-                .where(
-                    and(
-                        eq(users.discordId, senderId),
-                        eq(users.guildId, guildId)
-                    )
-                );
+            const debited = await this.tryDebit(senderId, guildId, amount, tx);
+            if (!debited) throw new InsufficientFundsError();
 
             await tx
                 .update(users)
@@ -258,24 +284,12 @@ export class EconomyService {
         await this.ensureUser(discordId, guildId);
 
         await db.transaction(async (tx) => {
-            const user = await tx
-                .select()
-                .from(users)
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId)
-                    )
-                )
-                .then((res) => res[0]);
-
-            if (!user) throw new Error('User not found');
-            if (user.balance < amount) throw new InsufficientFundsError();
+            const debited = await this.tryDebit(discordId, guildId, amount, tx);
+            if (!debited) throw new InsufficientFundsError();
 
             await tx
                 .update(users)
                 .set({
-                    balance: sql`${users.balance} - ${amount}`,
                     bank: sql`${users.bank} + ${amount}`,
                     updatedAt: new Date(),
                 })
@@ -309,24 +323,17 @@ export class EconomyService {
         await this.ensureUser(discordId, guildId);
 
         await db.transaction(async (tx) => {
-            const user = await tx
-                .select()
-                .from(users)
-                .where(
-                    and(
-                        eq(users.discordId, discordId),
-                        eq(users.guildId, guildId)
-                    )
-                )
-                .then((res) => res[0]);
-
-            if (!user) throw new Error('User not found');
-            if (user.bank < amount) throw new InsufficientFundsError();
+            const debited = await this.tryDebitBank(
+                discordId,
+                guildId,
+                amount,
+                tx
+            );
+            if (!debited) throw new InsufficientFundsError();
 
             await tx
                 .update(users)
                 .set({
-                    bank: sql`${users.bank} - ${amount}`,
                     balance: sql`${users.balance} + ${amount}`,
                     updatedAt: new Date(),
                 })
@@ -351,6 +358,15 @@ export class EconomyService {
     /**
      * Rob another user. Steals 1-5% of their wallet.
      * Has a 24-hour cooldown.
+     *
+     * The cooldown is claimed with a single CAS `UPDATE ... WHERE
+     * robLastAttempt IS NULL OR robLastAttempt < cutoff`, committed in its
+     * own transaction before the theft is attempted — concurrent `/rob`
+     * calls from the same robber can no longer both read a stale
+     * `robLastAttempt` and both pass the check. It's committed separately
+     * (not folded into the theft transaction) so it survives even when the
+     * theft itself fails, matching the original "cooldown always spent"
+     * behavior for an empty-wallet victim.
      */
     public static async rob(
         robberId: string,
@@ -362,10 +378,27 @@ export class EconomyService {
         await this.ensureUser(robberId, guildId);
         await this.ensureUser(victimId, guildId);
 
-        let stolenAmount = 0;
+        const now = new Date();
+        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-        await db.transaction(async (tx) => {
-            const robber = await tx
+        const claimed = await db
+            .update(users)
+            .set({ robLastAttempt: now, updatedAt: now })
+            .where(
+                and(
+                    eq(users.discordId, robberId),
+                    eq(users.guildId, guildId),
+                    or(
+                        isNull(users.robLastAttempt),
+                        lt(users.robLastAttempt, cutoff)
+                    )
+                )
+            )
+            .returning()
+            .then((res) => res[0]);
+
+        if (!claimed) {
+            const robber = await db
                 .select()
                 .from(users)
                 .where(
@@ -375,6 +408,17 @@ export class EconomyService {
                     )
                 )
                 .then((res) => res[0]);
+            const diffHours = robber?.robLastAttempt
+                ? (now.getTime() - robber.robLastAttempt.getTime()) /
+                  (1000 * 60 * 60)
+                : 24;
+            const remainingHours = Math.max(1, Math.ceil(24 - diffHours));
+            throw new CooldownError('ROB_COOLDOWN', remainingHours, 'hours');
+        }
+
+        let stolenAmount = 0;
+
+        await db.transaction(async (tx) => {
             const victim = await tx
                 .select()
                 .from(users)
@@ -385,62 +429,26 @@ export class EconomyService {
                     )
                 )
                 .then((res) => res[0]);
-
-            if (!robber || !victim) throw new Error('User not found');
-
-            const now = new Date();
-            // Check 24 hour cooldown
-            if (robber.robLastAttempt) {
-                const diffHours =
-                    (now.getTime() - robber.robLastAttempt.getTime()) /
-                    (1000 * 60 * 60);
-                if (diffHours < 24) {
-                    const remainingHours = Math.ceil(24 - diffHours);
-                    throw new CooldownError(
-                        'ROB_COOLDOWN',
-                        remainingHours,
-                        'hours'
-                    );
-                }
-            }
-
-            if (victim.balance <= 0) {
-                // Still update cooldown even if they had no money
-                await tx
-                    .update(users)
-                    .set({ robLastAttempt: now })
-                    .where(
-                        and(
-                            eq(users.discordId, robberId),
-                            eq(users.guildId, guildId)
-                        )
-                    );
-                throw new EmptyWalletError();
-            }
+            if (!victim) throw new Error('User not found');
+            if (victim.balance <= 0) throw new EmptyWalletError();
 
             // Steal 1-5%
             const percent = Math.floor(Math.random() * 5) + 1;
             stolenAmount = Math.floor(victim.balance * (percent / 100));
             if (stolenAmount === 0) stolenAmount = 1; // steal at least 1 if they have > 0
 
-            await tx
-                .update(users)
-                .set({
-                    balance: sql`${users.balance} - ${stolenAmount}`,
-                    updatedAt: new Date(),
-                })
-                .where(
-                    and(
-                        eq(users.discordId, victimId),
-                        eq(users.guildId, guildId)
-                    )
-                );
+            const debited = await this.tryDebit(
+                victimId,
+                guildId,
+                stolenAmount,
+                tx
+            );
+            if (!debited) throw new EmptyWalletError();
 
             await tx
                 .update(users)
                 .set({
                     balance: sql`${users.balance} + ${stolenAmount}`,
-                    robLastAttempt: now,
                     updatedAt: new Date(),
                 })
                 .where(
@@ -472,30 +480,21 @@ export class EconomyService {
     }
 
     /**
-     * Claim daily rewards.
+     * Claim daily rewards. The cooldown check and the reward grant happen
+     * in a single CAS `UPDATE ... WHERE dailyLastClaim IS NULL OR
+     * dailyLastClaim < cutoff`, so concurrent claims can't both read a
+     * stale `dailyLastClaim` and both pass the check — only one `UPDATE`
+     * can match the guard.
      */
     public static async claimDaily(
         discordId: string,
         guildId: string,
         rewardAmount: number = DAILY_REWARD
     ) {
-        const user = await this.ensureUser(discordId, guildId);
+        await this.ensureUser(discordId, guildId);
 
         const now = new Date();
-        // 24 hours cooldown
-        if (user.dailyLastClaim) {
-            const diffHours =
-                (now.getTime() - user.dailyLastClaim.getTime()) /
-                (1000 * 60 * 60);
-            if (diffHours < 24) {
-                const remainingHours = Math.ceil(24 - diffHours);
-                throw new CooldownError(
-                    'DAILY_COOLDOWN',
-                    remainingHours,
-                    'hours'
-                );
-            }
-        }
+        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
         const updated = await db
             .update(users)
@@ -505,12 +504,36 @@ export class EconomyService {
                 updatedAt: new Date(),
             })
             .where(
-                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+                and(
+                    eq(users.discordId, discordId),
+                    eq(users.guildId, guildId),
+                    or(
+                        isNull(users.dailyLastClaim),
+                        lt(users.dailyLastClaim, cutoff)
+                    )
+                )
             )
             .returning()
             .then((res) => res[0]);
-        if (!updated)
-            throw new Error('User unexpectedly disappeared during update');
+
+        if (!updated) {
+            const user = await db
+                .select()
+                .from(users)
+                .where(
+                    and(
+                        eq(users.discordId, discordId),
+                        eq(users.guildId, guildId)
+                    )
+                )
+                .then((res) => res[0]);
+            const diffHours = user?.dailyLastClaim
+                ? (now.getTime() - user.dailyLastClaim.getTime()) /
+                  (1000 * 60 * 60)
+                : 24;
+            const remainingHours = Math.max(1, Math.ceil(24 - diffHours));
+            throw new CooldownError('DAILY_COOLDOWN', remainingHours, 'hours');
+        }
 
         await this.logTransaction(
             discordId,

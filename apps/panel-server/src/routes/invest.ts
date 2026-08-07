@@ -258,32 +258,31 @@ async function sellShares(
     let insufficientShares = false;
 
     await db.transaction(async (tx) => {
-        const holding = await tx
-            .select()
-            .from(userHoldings)
+        // Guard the quantity in the UPDATE's WHERE (not a prior SELECT) so
+        // concurrent sells can't both read a stale holding and both pass —
+        // only one can match `quantity >= quantity` at a time.
+        const updated = await tx
+            .update(userHoldings)
+            .set({ quantity: sql`${userHoldings.quantity} - ${quantity}` })
             .where(
                 and(
                     eq(userHoldings.discordId, discordId),
                     eq(userHoldings.guildId, guildId),
-                    eq(userHoldings.ticker, ticker)
+                    eq(userHoldings.ticker, ticker),
+                    gte(userHoldings.quantity, quantity)
                 )
             )
+            .returning()
             .then((res) => res[0]);
-        if (!holding || holding.quantity < quantity) {
+        if (!updated) {
             insufficientShares = true;
             return;
         }
 
-        const remaining = holding.quantity - quantity;
-        if (remaining === 0) {
+        if (updated.quantity === 0) {
             await tx
                 .delete(userHoldings)
-                .where(eq(userHoldings.id, holding.id));
-        } else {
-            await tx
-                .update(userHoldings)
-                .set({ quantity: remaining })
-                .where(eq(userHoldings.id, holding.id));
+                .where(eq(userHoldings.id, updated.id));
         }
 
         await tx

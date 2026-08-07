@@ -1,6 +1,6 @@
 import { Hono, type Context } from 'hono';
 import { db, users, transactions } from '@sakutina/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, gte, sql } from 'drizzle-orm';
 import {
     MAX_BET,
     resolveCoinflip,
@@ -113,20 +113,14 @@ gameRoutes.post('/casino/:game', async (c) => {
     await ensureUser(discordId, guildId);
 
     const result = await db.transaction(async (tx) => {
-        const user = await tx
-            .select()
-            .from(users)
-            .where(
-                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
-            )
-            .then((res) => res[0]);
-        if (!user || user.balance < body.bet) return null;
-
         const outcome = resolveCasinoGame(game, body.bet, body.choice);
         if (!outcome) return null;
 
         const netChange = outcome.payout - body.bet;
 
+        // Guard the bet in the UPDATE's WHERE (not a prior SELECT) so
+        // concurrent bets can't both read a stale balance and both go
+        // through — only one can match `balance >= bet` at a time.
         const updated = await tx
             .update(users)
             .set({
@@ -143,10 +137,15 @@ gameRoutes.post('/casino/:game', async (c) => {
                 updatedAt: new Date(),
             })
             .where(
-                and(eq(users.discordId, discordId), eq(users.guildId, guildId))
+                and(
+                    eq(users.discordId, discordId),
+                    eq(users.guildId, guildId),
+                    gte(users.balance, body.bet)
+                )
             )
             .returning()
-            .then((res) => res[0]!);
+            .then((res) => res[0]);
+        if (!updated) return 'insufficient_funds' as const;
 
         await tx.insert(transactions).values({
             userId: discordId,
@@ -159,6 +158,9 @@ gameRoutes.post('/casino/:game', async (c) => {
         return { outcome, balance: updated.balance };
     });
 
+    if (result === 'insufficient_funds') {
+        return c.json({ error: 'Insufficient funds' }, 400);
+    }
     if (!result) {
         return c.json({ error: 'Insufficient funds or invalid choice' }, 400);
     }

@@ -13,9 +13,11 @@
         "push": "drizzle-kit push",
         "studio": "drizzle-kit studio",
         "dedupe-marriages": "bun src/scripts/dedupeMarriages.ts",
+        "backfill-married-users": "bun src/scripts/backfillMarriedUsers.ts",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
+        "@sakutina/economy": "workspace:*",
         "drizzle-orm": "^0.45.2",
         "postgres": "^3.4.9"
     },

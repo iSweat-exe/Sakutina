@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db, users } from '@sakutina/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import {
     AVAILABLE_JOBS,
     getJob,
@@ -168,6 +168,11 @@ workRoutes.post('/shift', async (c) => {
     const newRank = getRank(job, newCurrentJobShifts);
     const promoted = newRank.title !== rank.title;
 
+    // Optimistic lock: only apply if workLastShift still matches what we
+    // read above. Two concurrent `POST /shift` requests within the same
+    // network round trip both read the same workLastShift, but only one can
+    // win this CAS update — the other gets 0 affected rows and is rejected
+    // as a cooldown hit instead of granting a duplicate reward.
     const updated = await db
         .update(users)
         .set({
@@ -180,9 +185,27 @@ workRoutes.post('/shift', async (c) => {
             workStreakDate: streakDateToSave,
             updatedAt: now,
         })
-        .where(and(eq(users.discordId, discordId), eq(users.guildId, guildId)))
+        .where(
+            and(
+                eq(users.discordId, discordId),
+                eq(users.guildId, guildId),
+                user.workLastShift
+                    ? eq(users.workLastShift, user.workLastShift)
+                    : isNull(users.workLastShift)
+            )
+        )
         .returning()
-        .then((res) => res[0]!);
+        .then((res) => res[0]);
+    if (!updated) {
+        return c.json(
+            {
+                error: 'COOLDOWN',
+                remaining: rank.cooldownSeconds,
+                unit: 'seconds',
+            },
+            429
+        );
+    }
 
     const details = [
         `Worked as ${rank.title}`,

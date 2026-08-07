@@ -1,5 +1,6 @@
 export { db, checkDbConnection, closeDb } from './client.js';
 export * from './schema.js';
+export * from './quests.js';
 
 import type {
     users,
@@ -13,6 +14,7 @@ import type {
     transactions,
     userInventory,
     marriages,
+    marriedUsers,
     channelActivity,
     activityHourly,
     voiceChannelStats,
@@ -36,6 +38,7 @@ export type ModAction = typeof modActions.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type UserInventoryItem = typeof userInventory.$inferSelect;
 export type Marriage = typeof marriages.$inferSelect;
+export type MarriedUser = typeof marriedUsers.$inferSelect;
 export type ChannelActivity = typeof channelActivity.$inferSelect;
 export type ActivityHourly = typeof activityHourly.$inferSelect;
 export type VoiceChannelStats = typeof voiceChannelStats.$inferSelect;
