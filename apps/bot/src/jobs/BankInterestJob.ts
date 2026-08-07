@@ -1,12 +1,7 @@
 import cron from 'node-cron';
 import { db, users } from '@sakutina/db';
-import { sql, gt } from 'drizzle-orm';
-import {
-    MAX_BANK_INTEREST_PER_RUN,
-    POOR_BANK_THRESHOLD,
-    POOR_INTEREST_RATE,
-    STANDARD_INTEREST_RATE,
-} from '@sakutina/economy';
+import { sql, gt, inArray } from 'drizzle-orm';
+import { computeBankInterest } from '@sakutina/economy';
 import { logger } from '../utils/logger.js';
 
 export class BankInterestJob {
@@ -14,26 +9,7 @@ export class BankInterestJob {
         // Runs every day at 00:00 (midnight UTC)
         cron.schedule('0 0 * * *', async () => {
             try {
-                await db
-                    .update(users)
-                    .set({
-                        // Marginal (tax-bracket-style) rate: only the portion of the
-                        // balance above POOR_BANK_THRESHOLD earns the lower standard
-                        // rate, so small savers earn more and there's no cliff a rich
-                        // player could exploit by withdrawing down to the threshold to
-                        // farm a better rate. LEAST(...) caps the absolute interest
-                        // credited per run so a hoarded fortune can't compound into an
-                        // economy-breaking amount no matter how large the balance gets.
-                        bank: sql`${users.bank} + LEAST(
-                            CASE
-                                WHEN ${users.bank} <= ${POOR_BANK_THRESHOLD} THEN ${users.bank} * ${POOR_INTEREST_RATE}
-                                ELSE ${POOR_BANK_THRESHOLD} * ${POOR_INTEREST_RATE} + (${users.bank} - ${POOR_BANK_THRESHOLD}) * ${STANDARD_INTEREST_RATE}
-                            END,
-                            ${MAX_BANK_INTEREST_PER_RUN}
-                        )`,
-                        updatedAt: new Date(),
-                    })
-                    .where(gt(users.bank, 0));
+                await BankInterestJob.run();
 
                 logger.info(
                     '[BankInterestJob] Applied bank interest successfully.'
@@ -44,6 +20,44 @@ export class BankInterestJob {
                     error
                 );
             }
+        });
+    }
+
+    /**
+     * Credits interest to every eligible balance using the shared
+     * computeBankInterest() formula so the cron path can never drift from
+     * the tested/simulated one. Applied as a single batched UPDATE (CASE per
+     * id) inside a transaction rather than one round trip per user.
+     */
+    public static async run() {
+        await db.transaction(async (tx) => {
+            const accounts = await tx
+                .select({ id: users.id, bank: users.bank })
+                .from(users)
+                .where(gt(users.bank, 0));
+
+            if (accounts.length === 0) return;
+
+            const cases = sql.join(
+                accounts.map(
+                    (account) =>
+                        sql`WHEN ${users.id} = ${account.id} THEN ${users.bank} + ${computeBankInterest(account.bank)}`
+                ),
+                sql` `
+            );
+
+            await tx
+                .update(users)
+                .set({
+                    bank: sql`CASE ${cases} ELSE ${users.bank} END`,
+                    updatedAt: new Date(),
+                })
+                .where(
+                    inArray(
+                        users.id,
+                        accounts.map((account) => account.id)
+                    )
+                );
         });
     }
 }
