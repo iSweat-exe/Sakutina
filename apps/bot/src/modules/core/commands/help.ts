@@ -188,7 +188,7 @@ const command: Command = {
                     );
                     const categoryEmbed = EmbedUtils.info(
                         categoryDesc || 'No commands found.',
-                        `ðŸ“‚ ${categoryTitle}`,
+                        `${categoryTitle}`,
                         interaction.user
                     );
                     await i.update({

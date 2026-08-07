@@ -125,7 +125,7 @@ const command: Command = {
                     },
                     {
                         name: `${wealthHeader}`,
-                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total} 💖¸`,
+                        value: `**${walletLabel}:** ${profile.economy.balance}\n**${bankLabel}:** ${profile.economy.bank}\n**${totalLabel}:** ${profile.economy.total}`,
                         inline: true,
                     },
                     {
@@ -133,7 +133,7 @@ const command: Command = {
                         value:
                             `**${jobLabel}:** ${profile.work.jobTitle}\n**${shiftsLabel}:** ${profile.work.shiftsDone}` +
                             (profile.work.streak > 0
-                                ? `\n**${streakLabel}:** ðŸ”¥ ${profile.work.streak}`
+                                ? `\n**${streakLabel}:** 🔥 ${profile.work.streak}`
                                 : ''),
                         inline: true,
                     },
