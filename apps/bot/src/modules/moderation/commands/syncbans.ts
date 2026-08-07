@@ -29,24 +29,33 @@ const command: Command = {
                     interaction.guild.id,
                     'BAN'
                 );
-                let synced = 0;
+                const unsynced = [...bans.values()].filter(
+                    (ban) => !loggedUserIds.has(ban.user.id)
+                );
 
-                for (const ban of bans.values()) {
-                    if (!loggedUserIds.has(ban.user.id)) {
-                        await EconomyService.ensureUser(
-                            ban.user.id,
-                            interaction.guild.id
-                        );
-                        await ModerationService.logAction(
-                            interaction.guild.id,
-                            ban.user.id,
-                            interaction.client.user.id, // Log as the bot
-                            'BAN',
-                            ban.reason || 'Synced native ban'
-                        );
-                        synced++;
-                    }
+                // Process in bounded concurrent batches instead of one await
+                // pair per ban, so a server with thousands of bans doesn't
+                // serialize thousands of round trips to the DB.
+                const BATCH_SIZE = 10;
+                for (let i = 0; i < unsynced.length; i += BATCH_SIZE) {
+                    const batch = unsynced.slice(i, i + BATCH_SIZE);
+                    await Promise.all(
+                        batch.map(async (ban) => {
+                            await EconomyService.ensureUser(
+                                ban.user.id,
+                                interaction.guild!.id
+                            );
+                            await ModerationService.logAction(
+                                interaction.guild!.id,
+                                ban.user.id,
+                                interaction.client.user.id, // Log as the bot
+                                'BAN',
+                                ban.reason || 'Synced native ban'
+                            );
+                        })
+                    );
                 }
+                const synced = unsynced.length;
 
                 const embed = EmbedUtils.success(
                     I18nService.translate('mod:SYNCBANS_SUCCESS', {

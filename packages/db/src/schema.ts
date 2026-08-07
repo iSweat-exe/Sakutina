@@ -44,6 +44,7 @@ export const users = pgTable(
                 table.discordId,
                 table.guildId
             ),
+            guildIdIdx: index('users_guild_id_idx').on(table.guildId),
         };
     }
 );
