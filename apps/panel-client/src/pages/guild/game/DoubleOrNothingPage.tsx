@@ -12,16 +12,17 @@ import { useCasinoGame } from './useCasinoGame';
 export function DoubleOrNothingPage() {
     const { balance, playing, error, play } = useCasinoGame('donothing');
     const [bet, setBet] = React.useState(10);
-    const [outcome, setOutcome] = React.useState<'win' | 'lose' | null>(null);
+    const [outcome, setOutcome] = React.useState<'win' | 'lose' | 'tie' | null>(
+        null
+    );
     const [winCount, setWinCount] = React.useState(0);
 
     const handlePlay = async () => {
         setOutcome(null);
         const result = await play(bet);
         if (result) {
-            const outcome = result.outcome as 'win' | 'lose';
-            setOutcome(outcome);
-            if (outcome === 'win') setWinCount((c) => c + 1);
+            setOutcome(result.outcome);
+            if (result.outcome === 'win') setWinCount((c) => c + 1);
         }
     };
 
@@ -45,12 +46,16 @@ export function DoubleOrNothingPage() {
                                 'text-lg font-semibold',
                                 outcome === 'win'
                                     ? 'win-pop text-emerald-500'
-                                    : 'text-destructive'
+                                    : outcome === 'tie'
+                                      ? 'text-muted-foreground'
+                                      : 'text-destructive'
                             )}
                         >
                             {outcome === 'win'
-                                ? `Gagné ! Mise doublée.`
-                                : 'Perdu !'}
+                                ? 'Gagné ! Mise doublée.'
+                                : outcome === 'tie'
+                                  ? 'Égalité'
+                                  : 'Perdu !'}
                         </p>
                     )}
 

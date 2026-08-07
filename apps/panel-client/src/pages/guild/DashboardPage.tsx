@@ -238,7 +238,16 @@ export function DashboardPage() {
     const [economy, setEconomy] = React.useState<EconomyOverview | null>(null);
     const [simParams, setSimParams] =
         React.useState<SimulationCalibration | null>(null);
-    const [error, setError] = React.useState<string | null>(null);
+    const [overviewError, setOverviewError] = React.useState<string | null>(
+        null
+    );
+    const [activityError, setActivityError] = React.useState<string | null>(
+        null
+    );
+    const [economyError, setEconomyError] = React.useState<string | null>(null);
+    const [simParamsError, setSimParamsError] = React.useState<string | null>(
+        null
+    );
     const [simDays, setSimDays] = React.useState(SIMULATE_DEFAULT_DAYS);
     const [simRun, setSimRun] = React.useState<SimulationRun | null>(null);
     const [simRunning, setSimRunning] = React.useState(false);
@@ -247,18 +256,18 @@ export function DashboardPage() {
         if (!guildId) return;
         api.get<Overview>(`/api/guilds/${guildId}/dashboard/overview`)
             .then(setOverview)
-            .catch((err: unknown) => setError(toErrorMessage(err)));
+            .catch((err: unknown) => setOverviewError(toErrorMessage(err)));
         api.get<ActivityOverview>(`/api/guilds/${guildId}/activity/overview`)
             .then(setActivity)
-            .catch((err: unknown) => setError(toErrorMessage(err)));
+            .catch((err: unknown) => setActivityError(toErrorMessage(err)));
         api.get<EconomyOverview>(`/api/guilds/${guildId}/dashboard/economy`)
             .then(setEconomy)
-            .catch((err: unknown) => setError(toErrorMessage(err)));
+            .catch((err: unknown) => setEconomyError(toErrorMessage(err)));
         api.get<SimulationCalibration>(
             `/api/guilds/${guildId}/dashboard/simulation-params`
         )
             .then(setSimParams)
-            .catch((err: unknown) => setError(toErrorMessage(err)));
+            .catch((err: unknown) => setSimParamsError(toErrorMessage(err)));
     }, [guildId]);
 
     async function copySimParamsJson() {
@@ -269,10 +278,16 @@ export function DashboardPage() {
                 Math.round(simParams[field.key] * 1000) / 1000,
             ])
         );
-        await navigator.clipboard.writeText(JSON.stringify(overrides, null, 4));
-        toast.success(
-            'JSON copié — utilisable avec economy:simulate -- --json=<fichier>'
-        );
+        try {
+            await navigator.clipboard.writeText(
+                JSON.stringify(overrides, null, 4)
+            );
+            toast.success(
+                'JSON copié — utilisable avec economy:simulate -- --json=<fichier>'
+            );
+        } catch {
+            toast.error('Échec de la copie dans le presse-papiers');
+        }
     }
 
     async function runSimulation() {
@@ -292,7 +307,8 @@ export function DashboardPage() {
         }
     }
 
-    if (error) return <p className="text-destructive">{error}</p>;
+    if (overviewError)
+        return <p className="text-destructive">{overviewError}</p>;
 
     if (!overview) {
         return (
@@ -457,7 +473,9 @@ export function DashboardPage() {
                 Économie du serveur
             </h2>
 
-            {!economy ? (
+            {economyError ? (
+                <p className="text-destructive">{economyError}</p>
+            ) : !economy ? (
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                         <Skeleton key={i} className="h-24 w-full" />
@@ -577,7 +595,9 @@ export function DashboardPage() {
                 Analyse d'activité
             </h2>
 
-            {!activity ? (
+            {activityError ? (
+                <p className="text-destructive">{activityError}</p>
+            ) : !activity ? (
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <Skeleton key={i} className="h-24 w-full" />
@@ -709,7 +729,9 @@ export function DashboardPage() {
                 )}
             </div>
 
-            {!simParams ? (
+            {simParamsError ? (
+                <p className="text-destructive">{simParamsError}</p>
+            ) : !simParams ? (
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <Skeleton key={i} className="h-24 w-full" />

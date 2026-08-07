@@ -278,14 +278,20 @@ const command: Command = {
             } else if (subcommand === 'deploy') {
                 await interaction.deferReply({ flags: MessageFlags.Ephemeral });
                 try {
-                    const { stdout, stderr } =
-                        await execAsync('bun run deploy');
+                    // Runs the script directly (instead of `bun run deploy`,
+                    // whose npm script hardcodes NODE_ENV=production and
+                    // --env-file=.env.production.local) so it inherits this
+                    // process's actual NODE_ENV/env file instead of always
+                    // targeting the production Discord application.
+                    const { stdout, stderr } = await execAsync(
+                        'bun src/scripts/deploy.ts'
+                    );
                     const out = stdout.substring(0, 1900);
                     const err = stderr.substring(0, 1900);
                     const embed = new EmbedBuilder()
                         .setTitle('⚙️ Slash Commands Deployed')
                         .setDescription(
-                            `**Stdout**:\n\`\`\`bash\n${out || 'No output'}\n\`\`\`\n**Stderr**:\n\`\`\`bash\n${err || 'No errors'}\n\`\`\``
+                            `**Env**: \`${env.NODE_ENV}\`\n**Stdout**:\n\`\`\`bash\n${out || 'No output'}\n\`\`\`\n**Stderr**:\n\`\`\`bash\n${err || 'No errors'}\n\`\`\``
                         )
                         .setColor('#2ECC71');
                     await interaction.editReply({ embeds: [embed] });

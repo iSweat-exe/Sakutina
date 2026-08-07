@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
+import { bodyLimit } from 'hono/body-limit';
 import { env } from './config/env.js';
 import { authRoutes } from './auth/routes.js';
 import { configRoutes } from './routes/config.js';
@@ -22,6 +24,20 @@ app.use(
         credentials: true,
     })
 );
+app.use('*', secureHeaders());
+app.use(
+    '*',
+    bodyLimit({
+        maxSize: 100 * 1024,
+        onError: (c) => c.json({ error: 'Request body too large' }, 413),
+    })
+);
+
+app.onError((err, c) => {
+    console.error(err);
+    return c.json({ error: 'Internal server error' }, 500);
+});
+app.notFound((c) => c.json({ error: 'Not found' }, 404));
 
 app.get('/health', (c) => c.json({ ok: true }));
 

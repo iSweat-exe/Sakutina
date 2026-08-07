@@ -14,7 +14,9 @@ const FALLBACK_GIFS = [
  */
 export async function getGif(type: string): Promise<GifData> {
     try {
-        const res = await fetch(`https://nekos.best/api/v2/${type}`);
+        const res = await fetch(`https://nekos.best/api/v2/${type}`, {
+            signal: AbortSignal.timeout(3000),
+        });
         if (res.ok) {
             const data = (await res.json()) as any;
             if (data?.results?.[0]?.url) {
