@@ -174,7 +174,7 @@ const command: Command = {
                                                             'fr'
                                                         ];
                                                 }
-                                                return `> â†³ \`${sub.name}\`: ${subDesc}`;
+                                                return `> ↳ \`${sub.name}\`: ${subDesc}`;
                                             })
                                             .join('\n') + '\n';
                                 }
@@ -188,7 +188,7 @@ const command: Command = {
                     );
                     const categoryEmbed = EmbedUtils.info(
                         categoryDesc || 'No commands found.',
-                        `${categoryTitle}`,
+                        `📂 ${categoryTitle}`,
                         interaction.user
                     );
                     await i.update({

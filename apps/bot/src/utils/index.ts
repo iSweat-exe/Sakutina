@@ -1,5 +1,6 @@
 export { logger } from './logger.js';
 export { EmbedUtils } from './EmbedUtils.js';
+export { Emojis } from './Emojis.js';
 export { createCommandHandler } from './commandHandler.js';
 export {
     AppError,

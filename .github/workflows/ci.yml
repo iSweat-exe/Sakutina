@@ -26,6 +26,13 @@ jobs:
             - name: Dependency Vulnerability Audit
               run: bun audit
 
+            - name: Mojibake Check
+              run: |
+                  if grep -rIl --exclude-dir={node_modules,.git,dist,build,.next,.turbo} $'\xc3\xa2\xe2\x82\xac' .; then
+                    echo "Mojibake sequence found in the files above (likely an em dash saved as Latin-1/CP1252 then re-saved as UTF-8). Re-save the file as clean UTF-8."
+                    exit 1
+                  fi
+
             - name: TypeScript Type Checking
               run: bun run typecheck
 

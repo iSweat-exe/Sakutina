@@ -7,6 +7,7 @@ import { type Command } from '@/types/Command.js';
 import { createCommandHandler } from '@/utils/commandHandler.js';
 import { EconomyService } from '@/services/EconomyService.js';
 import { EmbedUtils } from '@/utils/EmbedUtils.js';
+import { Emojis } from '@/utils/Emojis.js';
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -61,7 +62,9 @@ const command: Command = {
             for (const tx of history) {
                 const date = `<t:${Math.floor(tx.createdAt.getTime() / 1000)}:R>`;
                 const amountStr =
-                    tx.amount > 0 ? `+${tx.amount} 💰` : `${tx.amount} 💰`;
+                    tx.amount > 0
+                        ? `+${tx.amount} ${Emojis.Coins}`
+                        : `${tx.amount} ${Emojis.Coins}`;
                 const typeEmoji = getEmojiForType(tx.type);
                 desc += `${typeEmoji} **${tx.type.toUpperCase()}** | ${amountStr} | ${date}\n`;
                 if (tx.details) {

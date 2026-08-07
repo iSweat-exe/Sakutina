@@ -225,7 +225,7 @@ export const userInventory = pgTable(
 );
 
 // Marriages are global (not scoped to a guild) so /marry works the same way
-// in DMs as in a server â€” a user has at most one spouse across the whole bot.
+// in DMs as in a server — a user has at most one spouse across the whole bot.
 export const marriages = pgTable(
     'marriages',
     {

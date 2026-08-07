@@ -162,7 +162,7 @@ export class WorkService {
             newStreak > 1 ? `streak x${newStreak}` : null,
         ]
             .filter(Boolean)
-            .join(' â€” ');
+            .join(' — ');
         await EconomyService.logTransaction(
             discordId,
             guildId,

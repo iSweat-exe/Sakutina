@@ -4,8 +4,8 @@ import { MarriageError } from '../utils/errors.js';
 
 export class MarriageService {
     /**
-     * Get the marriage row involving a user, if any. Marriages are global â€”
-     * not scoped to a guild â€” so this works the same in DMs and servers.
+     * Get the marriage row involving a user, if any. Marriages are global —
+     * not scoped to a guild — so this works the same in DMs and servers.
      */
     public static async getMarriage(userId: string) {
         const marriage = await db

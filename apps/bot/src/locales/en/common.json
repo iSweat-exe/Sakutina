@@ -57,7 +57,7 @@
     "CONFIG_AUTOMOD_SUCCESS": "Auto-Moderation is now **{{state}}**.",
     "CONFIG_LEVELROLE_SUCCESS": "Level role has been set to: **{{state}}**",
     "CONFIG_LEADERBOARD_CHANNEL_SUCCESS": "Weekly leaderboard reward channel set to: **{{state}}**",
-    "SERVERSTATS_TITLE": "Statistics for {{server}}",
+    "SERVERSTATS_TITLE": "📊 Statistics for {{server}}",
     "SERVERSTATS_MEMBERS": "Members",
     "SERVERSTATS_TRACKED_USERS": "Tracked Users",
     "SERVERSTATS_TOTAL_WEALTH": "Total Server Wealth",
